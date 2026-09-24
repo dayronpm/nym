@@ -50,8 +50,8 @@ npm install
 cp .env.example .env.local
 
 # 3. Aplicar el esquema a tu proyecto de Supabase
-npx supabase login
-npx supabase link --project-ref <project-ref>
+npm run db:login          # abre el navegador para autorizar el CLI
+npm run db:link           # pide el project-ref y la contraseña de la base de datos
 npm run db:push
 
 # 4. Generar los tipos reales de la base de datos
@@ -72,6 +72,8 @@ npm run dev          # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm run format` | Prettier sobre todo el proyecto |
 | `npm run verify` | `type-check` + `lint` + `build` |
+| `npm run db:login` | Inicia sesión en el CLI de Supabase (`supabase login`) |
+| `npm run db:link` | Vincula el proyecto local con el de Supabase (`supabase link`) |
 | `npm run db:push` | Aplica las migraciones (`supabase db push`) |
 | `npm run db:types` | Regenera `core/types/supabase.ts` |
 | `npm run seed` | Carga el contenido de ejemplo (requiere `ALLOW_SEED_RESET=true`). **Todavía no existe: se implementa en la fase 4.** |

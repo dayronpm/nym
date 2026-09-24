@@ -16,6 +16,8 @@
     "format:check": "prettier --check .",
     "verify": "npm run type-check && npm run lint && npm run build",
     "seed": "node scripts/seed.ts",
+    "db:login": "supabase login",
+    "db:link": "supabase link",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > core/types/supabase.ts"
   },
