@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { createSupabaseServerClient } from '@/data/supabase';
@@ -8,6 +9,12 @@ import { isSupabaseConfigured } from '@/config/env';
  * del usuario.
  */
 export const dynamic = 'force-dynamic';
+
+/** El panel no debe indexarse nunca (además del X-Robots-Tag de next.config.js). */
+export const metadata: Metadata = {
+  title: 'Panel',
+  robots: { index: false, follow: false },
+};
 
 /**
  * Layout protegido del panel.

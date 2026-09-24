@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 /**
  * Página de Inicio (estructura de la Fase 0).
  *
@@ -8,6 +6,10 @@ import Link from 'next/link';
  *
  * No consulta Supabase a propósito: así `npm run build` funciona antes de que
  * exista `.env.local`.
+ *
+ * OJO: esta página NO enlaza al panel. El panel es una URL privada que se
+ * escribe a mano y no puede aparecer en ninguna página pública. Ver README,
+ * "Cómo se mantiene oculto el panel".
  */
 export default function HomePage() {
   return (
@@ -19,14 +21,6 @@ export default function HomePage() {
           Estructura inicial del proyecto. Las cinco páginas públicas y los diez bloques de
           contenido se implementan en la Fase 1.
         </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/admin"
-            className="rounded-md bg-primary px-5 py-3 font-medium text-on-primary transition-colors hover:bg-primary-hover"
-          >
-            Ir al panel
-          </Link>
-        </div>
       </div>
     </main>
   );

@@ -1,12 +1,22 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 /**
  * Formulario de acceso (Fase 0: solo estructura).
  *
- * Esta página es pública y queda fuera del layout protegido del panel.
+ * Esta página es pública (no requiere sesión) pero NO debe indexarse. Queda
+ * fuera del layout protegido del panel, así que se marca aquí explícitamente.
+ * El encabezado X-Robots-Tag de next.config.js ya cubre /admin/*; esto lo
+ * refuerza a nivel de página.
+ *
  * La lógica de autenticación (signInWithPassword, mensajes de error en español
  * y el flujo de "olvidé mi contraseña") se implementa en la Fase 2.
  */
+export const metadata: Metadata = {
+  title: 'Acceso al panel',
+  robots: { index: false, follow: false },
+};
+
 export default function AdminLoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-5">

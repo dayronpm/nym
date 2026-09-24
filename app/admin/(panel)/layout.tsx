@@ -4,4 +4,4 @@
  * El grupo de rutas `(panel)` no forma parte de la URL: solo sirve para que
  * `/admin/login` quede fuera del layout protegido.
  */
-export { default, dynamic } from '@/app/admin/(panel)/layout';
+export { default, dynamic, metadata } from '@/app/admin/(panel)/layout';

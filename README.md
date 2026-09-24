@@ -171,6 +171,26 @@ Reglas de `custom/`:
 - La clave secreta de Supabase omite RLS: se usa **solo** en el servidor.
 - `.env.local` nunca se versiona.
 
+## Cómo se mantiene oculto el panel
+
+El panel vive en `/admin`, pero **no se enlaza desde ninguna página pública**:
+se accede escribiendo la URL a mano. Además hay tres capas que evitan que acabe
+en un buscador:
+
+| Capa | Dónde |
+| --- | --- |
+| Encabezado HTTP `X-Robots-Tag: noindex, nofollow` | `next.config.js` |
+| `robots: { index: false, follow: false }` en los metadatos | `core/app/admin/**` |
+| `Disallow: /admin` en `robots.txt` | `core/app/robots.ts` |
+
+La capa que de verdad impide la indexación es el `noindex`: una URL bloqueada en
+`robots.txt` todavía puede aparecer en resultados (sin descripción), porque el
+buscador no llega a leerla. Se declaran las tres para que ninguna configuración
+suelta deje el panel expuesto.
+
+> **Regla al añadir páginas o bloques:** nunca enlazar a `/admin` desde el sitio
+> público, ni con `<Link>` ni con `<a>`. El acceso al panel es siempre manual.
+
 ---
 
 ## Documentación
