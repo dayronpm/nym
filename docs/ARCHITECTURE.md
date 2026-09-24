@@ -56,6 +56,30 @@ en `app/...`. Si la ruta necesita exports de configuración (`metadata`,
 `dynamic`, `revalidate`, `generateStaticParams`…), hay que reexportarlos también
 en el shim.
 
+### Excepción: el `config` del middleware NO se puede reexportar
+
+Los reexports de configuración de segmento **sí** funcionan (`metadata`,
+`dynamic`…), pero el `config.matcher` del middleware **no**: Next.js lo extrae
+con análisis estático y no sigue los reexports.
+
+Síntoma cuando se reexporta: el matcher se pierde, Next aplica el middleware a
+**todas** las rutas y el manifiesto generado lo delata.
+
+```json
+// .next/server/middleware-manifest.json  (mal)
+"matchers": [{ "regexp": "^/.*$", "originalSource": "/:path*" }]
+```
+
+Consecuencia real que tuvo: el sitio público entero redirigía a `/admin/login`,
+porque el middleware se ejecutaba también en `/`.
+
+**Reglas que se derivan de esto:**
+
+1. El `config` del middleware se declara **literal** en `middleware.ts` (raíz).
+2. El middleware comprueba la ruta **por su cuenta** y no confía en el matcher.
+3. Si algo del panel o del sitio se comporta raro, revisar
+   `.next/server/middleware-manifest.json` antes de tocar la lógica.
+
 ---
 
 ## 3. Sistema de bloques (`defineBlock`)

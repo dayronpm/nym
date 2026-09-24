@@ -16,6 +16,18 @@ import { createSupabaseMiddlewareClient } from '@/data/supabase-middleware';
  *   - archivos estáticos
  */
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Guarda de ruta: este middleware SOLO se ocupa del panel.
+  //
+  // No se delega esta comprobación al `config.matcher` porque ese config vive en
+  // el shim de la raíz: si algún día se rompe, el middleware se aplicaría a todo
+  // el sitio y el público acabaría redirigido a /admin/login (ya ocurrió una
+  // vez). Aquí la seguridad no depende de un archivo externo.
+  if (!pathname.startsWith('/admin')) {
+    return NextResponse.next({ request });
+  }
+
   // Sin credenciales configuradas no hay nada que validar: se deja pasar y el
   // layout del panel se encarga de redirigir al login.
   if (!isSupabaseConfigured()) {
@@ -33,7 +45,6 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
   const isLoginRoute = pathname.startsWith('/admin/login');
 
   if (!user && !isLoginRoute) {
