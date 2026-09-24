@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   Tokens de diseño de la plantilla base (dirección visual A: minimalista y
+   sereno). Ningún componente escribe colores, fuentes o radios directamente:
+   todos leen estas variables.
+
+   Fuente de verdad compartida:
+     - CSS  : este archivo
+     - BD   : site_settings.theme (jsonb) -> editable desde /admin/apariencia
+     - Tail  : core/styles/tailwind.config.ts (expone los tokens como utilidades)
+
+   Si se cambia un valor aquí, hay que cambiarlo también en el valor por
+   defecto de theme dentro de la migración 000_initial.sql.
+   =========================================================================== */
+
+:root {
+  /* --- Colores ---------------------------------------------------------- */
+  --color-bg: #faf7f2; /* fondo general (crema) */
+  --color-surface: #ffffff; /* tarjetas y formularios */
+  --color-surface-alt: #f3ede4; /* secciones alternas (arena) */
+  --color-text: #2b2622; /* texto principal */
+  --color-text-muted: #6b625a; /* texto secundario */
+  --color-border: #e5dcd0; /* bordes y líneas finas */
+  --color-primary: #b0603f; /* acento y botones (terracota suave) */
+  --color-primary-hover: #93502f; /* hover del acento */
+  --color-primary-soft: #f1ddd2; /* fondos suaves del acento */
+  --color-on-primary: #ffffff; /* texto sobre el acento */
+  --color-danger: #b3261e; /* errores de formulario */
+  --color-success: #2e6b4f; /* confirmaciones */
+
+  /* --- Tipografías ------------------------------------------------------ */
+  /* next/font sobrescribe estos valores en <html> con las fuentes
+     descargadas en tiempo de compilación. Los de aquí son el respaldo del
+     sistema para que la página nunca se vea sin tipografía. */
+  --font-heading: ui-serif, Georgia, 'Times New Roman', serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- Forma ------------------------------------------------------------ */
+  --radius-sm: 6px; /* campos y etiquetas */
+  --radius-md: 12px; /* botones y tarjetas */
+  --radius-lg: 20px; /* imágenes destacadas y contenedores */
+
+  /* --- Espaciado y medidas ---------------------------------------------- */
+  --container-max: 1120px;
+  --section-padding-y: 56px;
+  --shadow-soft: 0 1px 2px rgba(43, 38, 34, 0.06);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-padding-y: 88px;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Foco visible y consistente en todo el sitio (accesibilidad). */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-soft);
+    color: var(--color-text);
+  }
+}
+
+@layer components {
+  /* Contenedor estándar de sección. Los bloques nunca definen su propio
+     ancho máximo: usan esta clase. */
+  .container-page {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  /* Espaciado vertical estándar entre secciones. */
+  .section-y {
+    padding-block: var(--section-padding-y);
+  }
+}

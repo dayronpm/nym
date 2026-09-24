@@ -1,0 +1,43 @@
+{
+  "name": "spa-plantilla",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plantilla genérica de sitio web + panel de administración para negocios tipo spa, salón de belleza y estética.",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "type-check": "tsc --noEmit",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run type-check && npm run lint && npm run build",
+    "seed": "node scripts/seed.ts",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > core/types/supabase.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.1",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.35",
+    "postcss": "^8.5.28",
+    "prettier": "^3.9.9",
+    "supabase": "^2.117.0",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  }
+}

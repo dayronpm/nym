@@ -1,0 +1,31 @@
+# Dependencias
+node_modules
+
+# Next.js
+.next
+out
+build
+dist
+next-env.d.ts
+*.tsbuildinfo
+
+# Entorno (nunca se versiona ninguna clave)
+.env
+.env.local
+.env*.local
+
+# Despliegue
+.vercel
+
+# Supabase CLI (estado local, específico de cada máquina)
+supabase/.temp
+supabase/.branches
+
+# Logs y basura del sistema
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Herramientas locales de agentes (estado generado, específico de la máquina)
+graphify-out/
