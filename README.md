@@ -195,6 +195,8 @@ suelta deje el panel expuesto.
 
 ## Documentación
 
+- [`docs/PROGRESS.md`](docs/PROGRESS.md) — **estado actual, checklist por fases y
+  trampas conocidas. Empieza por aquí si retomas el proyecto.**
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — arquitectura, sistema de
   bloques y decisiones técnicas.
 - [`plan-desarrollo-plantilla-spa.md`](plan-desarrollo-plantilla-spa.md) —
