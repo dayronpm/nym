@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 en curso** — 1.1 (componentes compartidos) hecha. Fase 0 cerrada |
+| **Fase actual** | **Fase 1 en curso** — encabezado, pie y navegación ya en vivo. Fase 0 cerrada |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -128,9 +128,19 @@ Criterios de aceptación del plan:
 - [x] `core/lib/formatting.ts` — horarios agrupados, precio y duración en español
 - [x] `core/lib/navigation.ts` — enlaces derivados de `PAGE_SLUGS`, sin listas a mano
 
-> **Falta enganchar Header y Footer.** No pueden ir en el `layout.tsx` raíz, porque ese
-> layout también envuelve `/admin` y el panel no debe llevar el encabezado público. La
-> solución acordada es un grupo de rutas `core/app/(sitio)/` (ver sección 4).
+**1.1b Chrome público en vivo** ✅ *(hecho)*
+
+- [x] `core/app/(sitio)/layout.tsx` — lee `site_settings` una sola vez y pinta Header y Footer
+- [x] `core/app/(sitio)/page.tsx` — Inicio movida dentro del grupo
+- [x] Shims `app/(sitio)/layout.tsx` y `app/(sitio)/page.tsx`, y **eliminados** los antiguos
+      `core/app/page.tsx` y `app/page.tsx` (habrían dado conflicto: dos páginas resolviendo a `/`)
+- [x] `revalidate = 3600` en el layout del sitio
+- [x] `scripts/clean.mjs` + `npm run clean` — borra `.next` (ver trampa 11)
+
+Verificado leyendo el HTML prerenderizado: la marca, la navegación, un único `<main>` y los
+horarios agrupados por el servidor → **"Lunes a Sábado: 9:00 a. m. – 6:00 p. m."** y
+**"Domingo: Cerrado"**. Es decir, la cadena completa funciona: Supabase → `site_settings` →
+componentes → HTML.
 
 **1.2 Bloques restantes** (falta 9 de 10)
 
@@ -240,6 +250,14 @@ Cada una costó tiempo; están ordenadas por gravedad.
    `comando 2>&1 | Out-File -Encoding utf8 log.txt`.
 10. **`graphify-out/` está en `.gitignore`** (estado de cada máquina, no se versiona).
     Comprobado que los secretos no entran en el grafo: respeta `.gitignore`.
+11. **Al mover o borrar rutas, `.next/types` queda obsoleto** y `npm run type-check` falla
+    con un `Cannot find module '../../../app/page.js'` desconcertante, porque
+    `tsconfig.json` incluye esos tipos generados. Se arregla con **`npm run clean`** antes
+    de verificar.
+12. **Los secretos no se pegan en el chat.** El 25/09 se compartió `.env.local` en la
+    conversación y la clave secreta quedó expuesta en el historial. No llegó al
+    repositorio ni al grafo (comprobado), pero hubo que rotarla. La forma correcta de
+    pasarla es editando el archivo a mano o ejecutando el comando uno mismo.
 
 ---
 

@@ -10,6 +10,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "clean": "node scripts/clean.mjs",
     "type-check": "tsc --noEmit",
     "lint": "next lint",
     "format": "prettier --write .",

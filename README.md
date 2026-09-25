@@ -68,6 +68,7 @@ npm run dev          # http://localhost:3000
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Compilación de producción |
 | `npm run start` | Sirve la compilación de producción |
+| `npm run clean` | Borra `.next` (necesario antes de verificar si se movieron rutas) |
 | `npm run type-check` | Verifica TypeScript (`tsc --noEmit`) |
 | `npm run lint` | ESLint |
 | `npm run format` | Prettier sobre todo el proyecto |
