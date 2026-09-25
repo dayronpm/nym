@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import { DataError } from '@/data/errors';
 import { createSupabasePublicClient } from '@/data/supabase';
 import { PAGE_SLUGS, PageSettings, type PageSlug } from '@/types/settings';
@@ -44,8 +46,13 @@ export async function getAllPages(): Promise<PageSettings[]> {
   return pages.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
 }
 
-/** Una página por su slug, o `null` si todavía no existe. */
-export async function getPage(slug: PageSlug): Promise<PageSettings | null> {
+/**
+ * Una página por su slug, o `null` si todavía no existe.
+ *
+ * Memoizada por petición: la usan el componente de página y, en la Fase 1.4, su
+ * `generateMetadata`.
+ */
+export const getPage = cache(async (slug: PageSlug): Promise<PageSettings | null> => {
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from('pages')
@@ -57,7 +64,7 @@ export async function getPage(slug: PageSlug): Promise<PageSettings | null> {
   if (!data) return null;
 
   return toPageSettings(data);
-}
+});
 
 /**
  * Título para el `<title>`, con el respaldo que define el plan:

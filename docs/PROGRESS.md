@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 en curso** — 6 de 10 bloques hechos; encabezado, pie y navegación en vivo |
+| **Fase actual** | **Fase 1 en curso** — 5 páginas y 6 bloques funcionando con contenido de ejemplo |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -170,20 +170,31 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 > plan pide que se generen desde el esquema zod: escribirlos a mano ahora sería trabajo
 > sin verificar y condenado a reescribirse. La Fase 2 los sustituye por `DynamicForm`.
 
-> ⚠️ **Dependencia que hay que resolver para poder verificar la Fase 1.** El criterio de
-> aceptación dice que las páginas deben mostrar "el contenido del seed del preset Spa",
-> pero el preset es un entregable de la **Fase 4**. Es otra contradicción del plan: sin
-> contenido de ejemplo en la tabla `blocks`, las páginas se ven vacías y la Fase 1 no se
-> puede comprobar. Decisión pendiente: adelantar `core/presets/spa.ts` (con contenido
-> neutro) para poder verificar, dejando el script de seed y su guarda en la Fase 4.
+> ✅ **Resuelto.** El criterio de aceptación de la Fase 1 pide ver "el contenido del seed
+> del preset Spa", pero el preset era un entregable de la Fase 4: sin contenido de ejemplo
+> las páginas quedaban vacías y la Fase 1 no se podía comprobar. Se adelantó lo necesario:
+> `core/presets/spa.ts` (contenido neutro), `scripts/seed.mjs` **con la guarda
+> `ALLOW_SEED_RESET` ya en funcionamiento** y el comando `npm run seed`. A la Fase 4 le
+> queda ampliar el preset y documentar el proceso de clonado.
+>
+> Para recargarlo:
+> `$env:ALLOW_SEED_RESET='true'; npm run seed` (no hace falta tocar `.env.local`).
 
-**1.3 Las 4 páginas que faltan** (con sus shims en `app/`)
+**1.3 Las 5 páginas** ✅ *(hechas)*
 
-- [ ] `/servicios` — Servicios en modo completo
-- [ ] `/galeria` — Galería + Reels
-- [ ] `/nosotros` — Equipo + Preguntas frecuentes
-- [ ] `/contacto` — Contacto + Ubicación y horarios
-- [ ] `/` — completar con el reparto decidido (ver sección 4)
+- [x] `/` — Hero · Servicios (resumen) · Testimonios · Reservar por WhatsApp
+- [x] `/servicios` — Servicios en modo completo
+- [x] `/nosotros` — Equipo · Preguntas frecuentes
+- [x] `/galeria` — Galería · Reels. *De momento solo se ve el encabezado: la galería está
+      vacía (necesita imágenes) y `reels` todavía no existe*
+- [x] `/contacto` — Contacto · Ubicación y horarios. *Los dos bloques están pendientes, así
+      que hasta entonces solo se ven el encabezado y el pie*
+- [x] `core/components/SitePage.tsx` — cuerpo común de las cuatro páginas interiores
+- [x] `core/components/BlockRenderer.tsx` — busca cada bloque en el registro, valida su
+      `jsonb` con el esquema y lo pinta; un bloque desconocido o inválido se omite en
+      lugar de tumbar la página
+
+Verificado leyendo el HTML prerenderizado de las cinco rutas.
 
 **1.4 SEO y rendimiento**
 
@@ -286,6 +297,15 @@ Cada una costó tiempo; están ordenadas por gravedad.
     añadir también `export type X = z.infer<typeof X>;`. Se olvidó con `ServiceItem` y el
     error que sale ("refers to a value, but is being used as a type") no apunta al sitio
     del problema. Revisar esto al añadir cualquier esquema nuevo.
+14. **Next cachea las lecturas de datos en `.next/cache`, y esa caché sobrevive entre
+    compilaciones.** Después de cargar contenido con el seed, el build siguió sirviendo la
+    configuración anterior: el bloque `services` no se pintaba y el pie no tenía
+    dirección. Se arregla con **`npm run clean`** antes de compilar. En producción este
+    comportamiento es el ISR que pide el plan (`revalidate = 3600`), no un fallo; en
+    desarrollo desconcierta mucho si no se sabe.
+15. **Al añadir una ruta dentro de `(sitio)`, el shim debe ir también dentro del grupo.**
+    Una página fuera del grupo NO hereda el layout, así que perdería encabezado y pie sin
+    ningún aviso.
 
 ---
 

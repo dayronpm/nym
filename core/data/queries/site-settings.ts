@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import { DataError } from '@/data/errors';
 import { createSupabasePublicClient } from '@/data/supabase';
 import { SiteSettings } from '@/types/settings';
@@ -10,8 +12,13 @@ import { SiteSettings } from '@/types/settings';
  * error raro dentro de un componente.
  */
 
-/** La fila única de configuración, ya validada. */
-export async function getSiteSettings(): Promise<SiteSettings> {
+/**
+ * La fila única de configuración, ya validada.
+ *
+ * Se memoiza por petición con `cache` de React: la usan el layout del sitio y cada
+ * página, y sin esto serían dos lecturas idénticas a la base de datos.
+ */
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle();
 
@@ -35,4 +42,4 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 
   return parsed.data;
-}
+});

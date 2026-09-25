@@ -16,7 +16,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "npm run type-check && npm run lint && npm run build",
-    "seed": "node scripts/seed.ts",
+    "seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file=.env.local scripts/seed.mjs",
     "db:login": "supabase login",
     "db:link": "supabase link",
     "db:push": "supabase db push",

@@ -77,7 +77,7 @@ npm run dev          # http://localhost:3000
 | `npm run db:link` | Vincula el proyecto local con el de Supabase (`supabase link`) |
 | `npm run db:push` | Aplica las migraciones (`supabase db push`) |
 | `npm run db:types` | Regenera `core/types/supabase.ts` |
-| `npm run seed` | Carga el contenido de ejemplo (requiere `ALLOW_SEED_RESET=true`). **Todavía no existe: se implementa en la fase 4.** |
+| `npm run seed` | Carga el contenido de ejemplo en Supabase. Exige `ALLOW_SEED_RESET=true` porque **borra los bloques existentes** |
 
 ---
 
