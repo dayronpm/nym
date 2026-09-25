@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | Fase 0 **cerrada**. Siguiente: **Fase 1** |
+| **Fase actual** | **Fase 1 en curso** — 1.1 (componentes compartidos) hecha. Fase 0 cerrada |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -115,14 +115,22 @@ Criterios de aceptación del plan:
 
 ### Tareas, en orden propuesto
 
-**1.1 Componentes compartidos** (bloquea todo lo demás)
+**1.1 Componentes compartidos** ✅ *(hecho)*
 
-- [ ] `core/components/BlockContainer.tsx` — wrapper con `max-width` y espaciado vertical
-- [ ] `core/components/Button.tsx` — variantes primaria y secundaria, tamaños táctiles ≥ 44 px
-- [ ] `core/components/Header.tsx` — navegación a las 5 páginas + botón de WhatsApp
-- [ ] `core/components/Footer.tsx` — contacto, horarios y redes
-- [ ] `core/components/PageHeading.tsx` — `<h1>` de las páginas sin Hero
-- [ ] `core/components/ui/Image.tsx` — envoltorio de `next/image` con `MediaRef`
+- [x] `core/components/BlockContainer.tsx` — envoltorio de sección (ancho y padding desde tokens)
+- [x] `core/components/Button.tsx` — variantes primaria y secundaria, área táctil ≥ 44 px
+- [x] `core/components/Header.tsx` — navegación + botón de WhatsApp. El menú de móvil usa
+      `<details>`, así que se despliega **sin JavaScript** y no es componente cliente
+- [x] `core/components/Footer.tsx` — marca, contacto, horarios agrupados y redes
+- [x] `core/components/PageHeading.tsx` — `<h1>` de las páginas sin Hero
+- [x] `core/components/ui/Image.tsx` — envoltorio de `next/image` a partir de un `MediaRef`
+- [x] `core/lib/cn.ts` — combinar clases (propio, sin dependencias: se descartó `clsx`)
+- [x] `core/lib/formatting.ts` — horarios agrupados, precio y duración en español
+- [x] `core/lib/navigation.ts` — enlaces derivados de `PAGE_SLUGS`, sin listas a mano
+
+> **Falta enganchar Header y Footer.** No pueden ir en el `layout.tsx` raíz, porque ese
+> layout también envuelve `/admin` y el panel no debe llevar el encabezado público. La
+> solución acordada es un grupo de rutas `core/app/(sitio)/` (ver sección 4).
 
 **1.2 Bloques restantes** (falta 9 de 10)
 
@@ -169,6 +177,7 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Nombre del esquema de `services` | `ServicesSchema` (en el plan chocaba con su entrada del registro) |
 | Ruta `/admin/servicios` | Se añade en la Fase 2 |
 | Cliente para el sitio público | **Sin sesión** (`createSupabasePublicClient`), para poder cachear |
+| Chrome del sitio público | Grupo de rutas `core/app/(sitio)/` con su propio `layout.tsx` (Header + Footer). El `layout.tsx` raíz solo pone `<html>`, fuentes y tema, porque también envuelve `/admin` |
 | Esquemas de bloque en el panel | `DynamicForm` genérico en la Fase 2; hasta entonces, formularios a mano |
 
 Las desviaciones respecto al plan (shims, grupo `(panel)`, migración `001_storage`, ESLint 8,
