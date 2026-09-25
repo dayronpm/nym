@@ -145,7 +145,8 @@ componentes → HTML.
 **1.2 Bloques** — 6 de 10 hechos
 
 - [x] `services` — lee el catálogo único de `site_settings`; modos `summary` y `full`;
-      precios ocultables con etiqueta alternativa; botón de reserva por servicio
+      precios ocultables con etiqueta alternativa; botón de reserva por servicio;
+      tarjeta con franja de imagen 3:2
 - [x] `team` — tarjetas 4:5, avatar con iniciales si no hay foto
 - [x] `faq` — acordeón (ver nota)
 - [x] `testimonials` — se oculta por completo si no hay testimonios activos
@@ -179,6 +180,9 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 >
 > Para recargarlo:
 > `$env:ALLOW_SEED_RESET='true'; npm run seed` (no hace falta tocar `.env.local`).
+>
+> El seed también genera y sube las imágenes de ejemplo que declare el preset, así que
+> tras añadir contenido visual hay que volver a lanzarlo.
 
 **1.3 Las 5 páginas** ✅ *(hechas)*
 
@@ -221,6 +225,8 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Nombre del esquema de `services` | `ServicesSchema` (en el plan chocaba con su entrada del registro) |
 | Ruta `/admin/servicios` | Se añade en la Fase 2 |
 | Cliente para el sitio público | **Sin sesión** (`createSupabasePublicClient`), para poder cachear |
+| Hero sin botones | **Decisión de producto (25/09):** la página ya tiene reserva en el botón fijo del encabezado y al final, así que el hero no repite ninguno. Se quitaron `primary_cta` y `secondary_cta` y el bloque sube a **v2**. La portada empieza más natural |
+| Tarjetas de servicio | Reservan una franja 3:2 arriba para la imagen del servicio. Si el servicio no tiene imagen, la tarjeta se queda sin esa franja (no se deja un hueco vacío) |
 | Chrome del sitio público | Grupo de rutas `core/app/(sitio)/` con su propio `layout.tsx` (Header + Footer). El `layout.tsx` raíz solo pone `<html>`, fuentes y tema, porque también envuelve `/admin` |
 | Esquemas de bloque en el panel | `DynamicForm` genérico en la Fase 2; hasta entonces, formularios a mano |
 
@@ -306,6 +312,13 @@ Cada una costó tiempo; están ordenadas por gravedad.
 15. **Al añadir una ruta dentro de `(sitio)`, el shim debe ir también dentro del grupo.**
     Una página fuera del grupo NO hereda el layout, así que perdería encabezado y pie sin
     ningún aviso.
+16. **`next/image` necesita `sharp`.** Sin él la optimización de imágenes falla y las
+    fotos se ven rotas. Se añadió `sharp` a las dependencias (en Vercel ya viene).
+17. **Las imágenes de ejemplo las genera el seed, no se versionan.** `scripts/seed.mjs`
+    crea PNG de color plano con `scripts/placeholder-image.mjs` (escritos a mano con
+    `node:zlib`, sin dependencias) y los sube al bucket. Así el contenido de prueba es
+    reproducible y el repositorio no carga binarios. Son PNG, no WebP: excepción
+    deliberada limitada al contenido de ejemplo.
 
 ---
 

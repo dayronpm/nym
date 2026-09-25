@@ -71,12 +71,19 @@ export const SPA_PRESET: SpaPreset = {
           name: 'Masajes',
           description: 'Tratamientos para relajar la musculatura y soltar tensión.',
           items: [
+            // Las imágenes que se declaran aquí las genera y sube `scripts/seed.mjs`:
+            // son PNG de color plano, no fotos. Están para que la estructura se vea
+            // tal como quedará cuando el negocio suba sus propias fotos.
             {
               id: 'preset-srv-masaje-relajante',
               name: 'Masaje relajante',
               description: 'Masaje de cuerpo completo con aceites, presión suave y ritmo pausado.',
               price: 45,
               duration_minutes: 60,
+              image: {
+                path: 'services/preset-srv-masaje-relajante.png',
+                alt: 'Masaje relajante (imagen de ejemplo)',
+              },
               enabled: true,
             },
             {
@@ -85,6 +92,10 @@ export const SPA_PRESET: SpaPreset = {
               description: 'Presión más firme sobre las zonas cargadas, ideal después del deporte.',
               price: 60,
               duration_minutes: 75,
+              image: {
+                path: 'services/preset-srv-masaje-descontracturante.png',
+                alt: 'Masaje descontracturante (imagen de ejemplo)',
+              },
               enabled: true,
             },
             {
@@ -93,6 +104,10 @@ export const SPA_PRESET: SpaPreset = {
               description: 'Piedras volcánicas templadas para un calor profundo y duradero.',
               price: 70,
               duration_minutes: 90,
+              image: {
+                path: 'services/preset-srv-masaje-piedras.png',
+                alt: 'Masaje con piedras calientes (imagen de ejemplo)',
+              },
               enabled: true,
             },
           ],
@@ -108,6 +123,10 @@ export const SPA_PRESET: SpaPreset = {
               description: 'Extracción, exfoliación y mascarilla calmante.',
               price: 40,
               duration_minutes: 50,
+              image: {
+                path: 'services/preset-srv-limpieza-facial.png',
+                alt: 'Limpieza facial profunda (imagen de ejemplo)',
+              },
               enabled: true,
             },
             {
@@ -117,6 +136,10 @@ export const SPA_PRESET: SpaPreset = {
               // Sin precio a propósito: sirve para ver cómo se muestra la
               // etiqueta alternativa de "consultar por WhatsApp".
               duration_minutes: 45,
+              image: {
+                path: 'services/preset-srv-facial-hidratante.png',
+                alt: 'Facial hidratante (imagen de ejemplo)',
+              },
               enabled: true,
             },
           ],
@@ -131,6 +154,10 @@ export const SPA_PRESET: SpaPreset = {
               description: 'Limado, cutículas, hidratación y esmaltado.',
               price: 25,
               duration_minutes: 45,
+              image: {
+                path: 'services/preset-srv-manicure.png',
+                alt: 'Manicure completo (imagen de ejemplo)',
+              },
               enabled: true,
             },
             {
@@ -139,6 +166,10 @@ export const SPA_PRESET: SpaPreset = {
               description: 'Baño de pies, exfoliación y esmaltado.',
               price: 30,
               duration_minutes: 60,
+              image: {
+                path: 'services/preset-srv-pedicure.png',
+                alt: 'Pedicure completo (imagen de ejemplo)',
+              },
               enabled: true,
             },
           ],
@@ -188,8 +219,8 @@ export const SPA_PRESET: SpaPreset = {
         subtitle:
           'Masajes, tratamientos faciales y cuidado de manos y pies en un espacio tranquilo, con cita previa.',
         image_position: 'right',
-        primary_cta_label: 'Reservar por WhatsApp',
-        secondary_cta: { label: 'Ver servicios', href: '/servicios' },
+        // Sin botones: la reserva ya está en el botón fijo del encabezado y en el
+        // bloque `booking_cta` al final de la página.
       },
     },
     {

@@ -2,6 +2,7 @@ import type { BlockProps } from '@/blocks/defineBlock';
 import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
 import Button from '@/components/Button';
+import Image from '@/components/ui/Image';
 import { buildWhatsappUrl, serviceBookingMessage } from '@/lib/contact';
 import { formatDuration, formatPrice } from '@/lib/formatting';
 import type { ServiceItem } from '@/types/settings';
@@ -21,6 +22,10 @@ import type { ServicesData } from './schema';
  *    enlace a `/servicios`.
  *  - Sin categorías con servicios visibles, el bloque no se pinta (nada de
  *    secciones vacías).
+ *
+ * La tarjeta reserva la parte de arriba para la imagen del servicio (3:2), que es lo
+ * que hace la página visual. Si un servicio no tiene imagen, la tarjeta se queda sin
+ * esa franja: no se reserva un hueco vacío.
  */
 export default function ServicesBlock({ data, settings }: BlockProps<ServicesData>) {
   const isSummary = data.mode === 'summary';
@@ -42,17 +47,20 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
   function renderPrice(item: ServiceItem) {
     // El plan es explícito: precio oculto o ausente -> etiqueta de consulta.
     const showAmount = data.show_prices && typeof item.price === 'number';
-    const text = showAmount ? formatPrice(item.price as number, settings.currency) : data.price_hidden_label;
+    const text = showAmount
+      ? formatPrice(item.price as number, settings.currency)
+      : data.price_hidden_label;
 
-    return (
-      <span className={showAmount ? 'font-medium' : 'text-sm text-text-muted'}>{text}</span>
-    );
+    return <span className={showAmount ? 'font-medium' : 'text-sm text-text-muted'}>{text}</span>;
   }
 
   function renderBooking(item: ServiceItem) {
     if (!data.show_booking_button) return null;
 
-    const url = buildWhatsappUrl(settings.contact, serviceBookingMessage(settings.contact, item.name));
+    const url = buildWhatsappUrl(
+      settings.contact,
+      serviceBookingMessage(settings.contact, item.name),
+    );
     if (!url) return null;
 
     return (
@@ -80,28 +88,41 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
               <p className="mt-2 max-w-2xl text-sm text-text-muted">{category.description}</p>
             ) : null}
 
-            <ul className="mt-6 grid gap-4 md:grid-cols-2">
+            <ul className="mt-6 grid gap-6 md:grid-cols-2">
               {category.items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex flex-col rounded-md border border-border bg-surface p-5"
+                  // `overflow-hidden` hace que la imagen herede las esquinas de la
+                  // tarjeta, por eso se pinta con `rounded="none"`.
+                  className="flex flex-col overflow-hidden rounded-md border border-border bg-surface"
                 >
-                  <div className="flex items-baseline justify-between gap-4">
-                    <h4 className="text-lg">{item.name}</h4>
-                    {renderPrice(item)}
-                  </div>
-
-                  {item.description ? (
-                    <p className="mt-2 text-sm text-text-muted">{item.description}</p>
+                  {item.image ? (
+                    <Image
+                      media={item.image}
+                      aspect="3:2"
+                      rounded="none"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                   ) : null}
 
-                  <div className="mt-auto flex items-center justify-between gap-4 pt-4">
-                    <span className="text-sm text-text-muted">
-                      {data.show_durations && item.duration_minutes
-                        ? formatDuration(item.duration_minutes)
-                        : ''}
-                    </span>
-                    {renderBooking(item)}
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h4 className="text-lg">{item.name}</h4>
+                      {renderPrice(item)}
+                    </div>
+
+                    {item.description ? (
+                      <p className="mt-2 text-sm text-text-muted">{item.description}</p>
+                    ) : null}
+
+                    <div className="mt-auto flex items-center justify-between gap-4 pt-4">
+                      <span className="text-sm text-text-muted">
+                        {data.show_durations && item.duration_minutes
+                          ? formatDuration(item.duration_minutes)
+                          : ''}
+                      </span>
+                      {renderBooking(item)}
+                    </div>
                   </div>
                 </li>
               ))}

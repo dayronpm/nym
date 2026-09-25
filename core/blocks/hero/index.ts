@@ -1,25 +1,24 @@
 import { defineBlock } from '@/blocks/defineBlock';
+import BlockFormPending from '@/components/admin/BlockFormPending';
 
 import HeroBlock from './HeroBlock';
-import HeroForm from './HeroForm';
 import { HERO_DEFAULTS, HeroSchema } from './schema';
 
 /**
  * Registro del bloque `hero`.
  *
- * Este es el patrón que siguen los diez bloques: el esquema es la fuente única
- * de verdad y de él salen el componente público, el formulario del panel y los
- * valores por defecto.
+ * `version: 2` — en la v1 el bloque tenía los botones de reserva y "Ver servicios";
+ * se quitaron porque la página ya los ofrece en el encabezado y al final.
  */
 export const heroBlock = defineBlock(
   'hero',
   HeroSchema,
   HeroBlock,
-  HeroForm,
+  BlockFormPending,
   HERO_DEFAULTS,
-  1,
+  2,
   { label: 'Hero', description: 'Portada de Inicio: texto e imagen lado a lado.' },
 );
 
-export { HeroSchema, HERO_DEFAULTS } from './schema';
+export { HERO_DEFAULTS, HeroSchema } from './schema';
 export type { HeroData } from './schema';

@@ -18,6 +18,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 import { SPA_PRESET } from '../core/presets/spa.ts';
+import { createPlaceholderPng } from './placeholder-image.mjs';
 
 const RESET_FLAG = 'ALLOW_SEED_RESET';
 
@@ -73,7 +74,57 @@ if (deleteError) abort(`No se pudieron borrar los bloques: ${deleteError.message
 // imágenes, así que no hace falta.
 
 /* -------------------------------------------------------------------------- */
-/* 4. Configuración del sitio                                                  */
+/* 4. Imágenes de ejemplo                                                      */
+/* -------------------------------------------------------------------------- */
+
+// El preset declara las rutas de las imágenes que necesita; aquí se materializan. Si
+// el archivo no está en el bucket, se genera un PNG de ejemplo y se sube. Así el
+// contenido de prueba es reproducible sin guardar binarios en el repositorio.
+const imagePaths = new Map();
+for (const category of SPA_PRESET.siteSettings.services_catalog.categories) {
+  for (const item of category.items) {
+    if (item.image) imagePaths.set(item.image.path, item.image.alt);
+  }
+}
+
+// Se pregunta al bucket qué hay ya, para no volver a subir lo mismo en cada seed.
+const folders = [...new Set([...imagePaths.keys()].map((path) => path.split('/')[0]))];
+const presentInBucket = new Set();
+for (const folder of folders) {
+  const { data: objects } = await supabase.storage.from('media').list(folder);
+  for (const object of objects ?? []) presentInBucket.add(`${folder}/${object.name}`);
+}
+
+let uploadedCount = 0;
+for (const path of imagePaths.keys()) {
+  if (presentInBucket.has(path)) continue;
+
+  const png = createPlaceholderPng({ path });
+
+  const { error: uploadError } = await supabase.storage
+    .from('media')
+    .upload(path, png, { contentType: 'image/png', upsert: true });
+
+  if (uploadError) abort(`No se pudo subir la imagen "${path}": ${uploadError.message}`);
+
+  // Se registra en `media` igual que hará el panel al subir una imagen.
+  const { error: mediaError } = await supabase.from('media').upsert(
+    {
+      path,
+      filename: path.split('/').pop(),
+      content_type: 'image/png',
+      size_bytes: png.length,
+    },
+    { onConflict: 'path' },
+  );
+
+  if (mediaError) abort(`No se pudo registrar la imagen "${path}": ${mediaError.message}`);
+
+  uploadedCount += 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. Configuración del sitio                                                  */
 /* -------------------------------------------------------------------------- */
 
 // Se actualiza la fila única en lugar de recrearla: así `theme` y `hours` quedan
@@ -91,7 +142,7 @@ const { error: settingsError } = await supabase
 if (settingsError) abort(`No se pudo actualizar la configuración: ${settingsError.message}`);
 
 /* -------------------------------------------------------------------------- */
-/* 5. Páginas                                                                  */
+/* 6. Páginas                                                                  */
 /* -------------------------------------------------------------------------- */
 
 // Las cinco filas ya existen: las creó la migración 000. Aquí solo se rellenan el
@@ -106,7 +157,7 @@ for (const page of SPA_PRESET.pages) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 6. Bloques                                                                  */
+/* 7. Bloques                                                                  */
 /* -------------------------------------------------------------------------- */
 
 const blockRows = SPA_PRESET.blocks.map((block) => ({
@@ -126,7 +177,7 @@ const { data: inserted, error: insertError } = await supabase
 if (insertError) abort(`No se pudieron insertar los bloques: ${insertError.message}`);
 
 /* -------------------------------------------------------------------------- */
-/* 7. Resumen                                                                  */
+/* 8. Resumen                                                                  */
 /* -------------------------------------------------------------------------- */
 
 const byPage = new Map();
@@ -137,6 +188,7 @@ for (const row of inserted ?? []) {
 console.log('\n  ✔ Preset "Spa" cargado\n');
 console.log(`    Páginas actualizadas:   ${SPA_PRESET.pages.length}`);
 console.log(`    Bloques insertados:     ${inserted?.length ?? 0}`);
+console.log(`    Imágenes de ejemplo:    ${uploadedCount} subidas (el resto ya estaban)`);
 console.log(
   `    Categorías de servicio: ${SPA_PRESET.siteSettings.services_catalog.categories.length}`,
 );

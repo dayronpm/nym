@@ -16,9 +16,21 @@ import { getMediaUrl } from '@/lib/storage';
  */
 export type ImageAspect = '1:1' | '4:5' | '3:2' | '9:16';
 
+/**
+ * Redondeo de las esquinas.
+ *
+ * Existe como prop, y no se resuelve pasando `rounded-none` por `className`, porque
+ * dos utilidades de Tailwind del mismo grupo dependen del orden en la hoja de
+ * estilos, no del orden en el atributo `class`. Con la prop, el resultado es
+ * determinista. Se usa `none` cuando la imagen va pegada al borde de una tarjeta que
+ * ya recorta por su cuenta.
+ */
+export type ImageRounding = 'none' | 'md' | 'lg';
+
 export interface ImageProps {
   media: MediaRef;
   aspect?: ImageAspect;
+  rounded?: ImageRounding;
   /** `sizes` de `next/image`: cuánto ocupa la imagen en cada ancho de pantalla. */
   sizes: string;
   /** Solo para la imagen principal de la página (el resto se cargan en diferido). */
@@ -33,9 +45,16 @@ const ASPECT_CLASSES: Record<ImageAspect, string> = {
   '9:16': 'aspect-[9/16]',
 };
 
+const ROUNDING_CLASSES: Record<ImageRounding, string> = {
+  none: '',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+};
+
 export default function Image({
   media,
   aspect = '4:5',
+  rounded = 'lg',
   sizes,
   priority,
   className,
@@ -49,8 +68,9 @@ export default function Image({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-lg bg-surface-alt',
+        'relative overflow-hidden bg-surface-alt',
         ASPECT_CLASSES[aspect],
+        ROUNDING_CLASSES[rounded],
         className,
       )}
     >
