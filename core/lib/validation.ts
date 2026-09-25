@@ -48,21 +48,28 @@ export function isTiktokUrl(value: string): boolean {
 /**
  * URL de "Insertar un mapa" de Google Maps.
  *
- * Se exige el dominio propio de Google y la ruta `/maps/embed`, para no
- * incrustar iframes de terceros desde el panel.
+ * Se exige el dominio propio de Google, para no incrustar iframes de terceros desde el
+ * panel. Se aceptan las dos formas que Google sirve:
+ *  - la del botón "Insertar un mapa" (`/maps/embed?pb=...`);
+ *  - la corta `.../maps?q=<lugar>&output=embed`, que Google sigue sirviendo y que es la
+ *    que casi todo el mundo copia de la barra de direcciones.
+ * Exigir solo la primera rechazaba la segunda sin ganar nada en seguridad.
  */
 export function isGoogleMapsEmbedUrl(value: string): boolean {
   return matchesHost(
     value,
-    (host) => host === 'google.com' || host.endsWith('.google.com') || host.endsWith('.google.com.pa'),
-    (pathname) => pathname.startsWith('/maps/embed'),
+    (host) =>
+      host === 'google.com' || host.endsWith('.google.com') || host.endsWith('.google.com.pa'),
+    (url) =>
+      url.pathname.startsWith('/maps/embed') ||
+      (url.pathname.startsWith('/maps') && url.searchParams.get('output') === 'embed'),
   );
 }
 
 function matchesHost(
   value: string,
   hostMatches: (host: string) => boolean,
-  pathMatches?: (pathname: string) => boolean,
+  urlMatches?: (url: URL) => boolean,
 ): boolean {
   let parsed: URL;
   try {
@@ -73,6 +80,6 @@ function matchesHost(
 
   if (parsed.protocol !== 'https:') return false;
   if (!hostMatches(parsed.hostname.toLowerCase())) return false;
-  if (pathMatches && !pathMatches(parsed.pathname)) return false;
+  if (urlMatches && !urlMatches(parsed)) return false;
   return true;
 }

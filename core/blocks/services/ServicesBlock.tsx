@@ -77,7 +77,7 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
   }
 
   return (
-    <BlockContainer alternate>
+    <BlockContainer>
       <BlockHeading title={data.title} subtitle={data.subtitle} />
 
       <div className="space-y-12">

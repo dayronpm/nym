@@ -23,8 +23,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <>
       <Header settings={settings} />
-      {/* El <main> lo pone este layout: las páginas no deben añadir otro. */}
-      <main>{children}</main>
+      {/* El <main> lo pone este layout: las páginas no deben añadir otro.
+          `site-main` activa la alternancia de fondos definida en globals.css. */}
+      <main className="site-main">{children}</main>
       <Footer settings={settings} />
     </>
   );

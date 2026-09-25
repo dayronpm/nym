@@ -80,12 +80,29 @@ if (deleteError) abort(`No se pudieron borrar los bloques: ${deleteError.message
 // El preset declara las rutas de las imágenes que necesita; aquí se materializan. Si
 // el archivo no está en el bucket, se genera un PNG de ejemplo y se sube. Así el
 // contenido de prueba es reproducible sin guardar binarios en el repositorio.
-const imagePaths = new Map();
-for (const category of SPA_PRESET.siteSettings.services_catalog.categories) {
-  for (const item of category.items) {
-    if (item.image) imagePaths.set(item.image.path, item.image.alt);
+
+/**
+ * Recorre el preset buscando `MediaRef` (objetos con `path` y `alt`).
+ *
+ * Es recursivo y genérico a propósito: cubre las imágenes de los servicios (que viven
+ * en `site_settings.services_catalog`) y también las de cualquier bloque —galería,
+ * equipo, reels, hero— sin tener que enumerar dónde está cada una. Al añadir imágenes
+ * nuevas al preset basta con volver a lanzar el seed.
+ */
+function collectMediaRefs(value, found = new Map()) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectMediaRefs(item, found);
+  } else if (value && typeof value === 'object') {
+    if (typeof value.path === 'string' && typeof value.alt === 'string') {
+      found.set(value.path, value.alt);
+    } else {
+      for (const nested of Object.values(value)) collectMediaRefs(nested, found);
+    }
   }
+  return found;
 }
+
+const imagePaths = collectMediaRefs(SPA_PRESET);
 
 // Se pregunta al bucket qué hay ya, para no volver a subir lo mismo en cada seed.
 const folders = [...new Set([...imagePaths.keys()].map((path) => path.split('/')[0]))];

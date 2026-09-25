@@ -21,7 +21,7 @@ export default function BookingCtaBlock({ data, settings }: BlockProps<BookingCt
   if (!url) return null;
 
   return (
-    <BlockContainer alternate>
+    <BlockContainer>
       <div className="mx-auto max-w-2xl text-center">
         {data.title ? <h2>{data.title}</h2> : null}
         {data.text ? <p className="mt-4 text-lg text-text-muted">{data.text}</p> : null}

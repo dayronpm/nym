@@ -124,4 +124,23 @@
   .section-y {
     padding-block: var(--section-padding-y);
   }
+
+  /* Etiqueta pequeña en mayúsculas: encabeza cada dato dentro de los bloques
+     ("Dirección", "Horarios", "WhatsApp"...). Se define una vez para que los diez
+     bloques no repitan la misma combinación de utilidades. */
+  .block-label {
+    @apply text-sm uppercase tracking-[0.15em] text-text-muted;
+  }
+}
+
+/* Alternancia del fondo entre secciones consecutivas del sitio público.
+
+   Se resuelve por POSICIÓN y no dentro de cada bloque: si cada bloque eligiera su
+   fondo, dos secciones seguidas podrían acabar del mismo color (pasaba con el hero sin
+   imagen y el bloque de servicios) o del mismo color siempre. Así el ritmo crema/arena
+   sale solo, en cualquier orden de bloques.
+
+   Fuera de @layer a propósito: necesita ganar a las utilidades de Tailwind. */
+.site-main > section:nth-of-type(even) {
+  background-color: var(--color-surface-alt);
 }

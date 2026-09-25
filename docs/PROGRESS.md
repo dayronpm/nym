@@ -17,13 +17,13 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 en curso** — 5 páginas y 6 bloques funcionando con contenido de ejemplo |
+| **Fase actual** | **Fase 1 casi cerrada** — las 5 páginas y los **10 bloques** funcionando con contenido de ejemplo; solo falta la sección 1.4 (SEO) |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
-| **Salud del código** | `type-check` ✅ · `lint` ✅ · `build` ✅ |
-| **Grafo de conocimiento** | 332 nodos · 513 aristas · 27 comunidades (Graphify, backend DeepSeek) |
+| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 116 kB de First Load JS |
+| **Grafo de conocimiento** | 523 nodos · 1047 aristas · 30 comunidades (Graphify, backend DeepSeek) |
 
 ### Arranque rápido en una sesión nueva
 
@@ -97,20 +97,28 @@ docs/                     ARCHITECTURE.md · PROGRESS.md · custom/README.md
 
 ---
 
-## 3. Fase 1 — Sitio público ⏳ SIGUIENTE
+## 3. Fase 1 — Sitio público ⏳ EN CURSO (solo falta la sección 1.4)
 
 Criterios de aceptación del plan:
 
-- [ ] Las 5 páginas cargan y muestran los bloques con el contenido del seed
-- [ ] Cada bloque se renderiza bien en móvil (~375 px) y escritorio (~1280 px)
-- [ ] Los botones de WhatsApp abren `https://wa.me/...` con el mensaje prellenado correcto
-- [ ] Las imágenes se cargan desde Supabase Storage con `next/image`
-- [ ] El visor de galería se abre al tocar, navega con flechas y se cierra con Esc
-- [ ] Los horarios se agrupan correctamente ("Lunes a viernes: 9:00 a. m. – 6:00 p. m.")
-- [ ] El mapa incrustado carga con `loading="lazy"`
+- [x] Las 5 páginas cargan y muestran los bloques con el contenido del seed
+      *(verificado leyendo el HTML prerenderizado de las 5 rutas)*
+- [x] Cada bloque se renderiza bien en móvil (~375 px) y escritorio (~1280 px)
+      *(auditado en el navegador a 375 px: ninguna de las 5 páginas desborda en horizontal
+      y la cuadrícula de la galería pasa de 3 a 2 columnas)*
+- [x] Los botones de WhatsApp abren `https://wa.me/...` con el mensaje prellenado correcto
+      *(el mensaje viaja codificado en la propia URL: `?text=Hola%2C%20quisiera...`)*
+- [x] Las imágenes se cargan desde Supabase Storage con `next/image`
+      *(88 imágenes optimizadas en `/galeria`, servidas desde `/_next/image`)*
+- [x] El visor de galería se abre al tocar, navega con flechas y se cierra con Esc
+      *(comprobado en el navegador paso a paso; ver trampa 18)*
+- [x] Los horarios se agrupan correctamente ("Lunes a Sábado: 9:00 a. m. – 6:00 p. m.",
+      "Domingo: Cerrado")
+- [x] El mapa incrustado carga con `loading="lazy"` *(y carga de verdad: el iframe de
+      Google Maps responde dentro de la página)*
 - [ ] `<title>`, `<meta name="description">`, Open Graph y `sitemap.xml`
 - [ ] El JSON-LD de negocio local incluye nombre, teléfono, dirección, horarios y `sameAs`
-- [ ] Los enlaces internos funcionan
+- [x] Los enlaces internos funcionan *(navegación y pie derivados de `PAGE_SLUGS`)*
 - [ ] Lighthouse móvil ≥ 85 en Performance, Accessibility, Best Practices y SEO
 
 ### Tareas, en orden propuesto
@@ -142,8 +150,9 @@ horarios agrupados por el servidor → **"Lunes a Sábado: 9:00 a. m. – 6:00 p
 **"Domingo: Cerrado"**. Es decir, la cadena completa funciona: Supabase → `site_settings` →
 componentes → HTML.
 
-**1.2 Bloques** — 6 de 10 hechos
+**1.2 Bloques** ✅ *(10 de 10)*
 
+- [x] `hero` — v2, sin botones (ver decisiones). Viene de la Fase 0
 - [x] `services` — lee el catálogo único de `site_settings`; modos `summary` y `full`;
       precios ocultables con etiqueta alternativa; botón de reserva por servicio;
       tarjeta con franja de imagen 3:2
@@ -151,12 +160,12 @@ componentes → HTML.
 - [x] `faq` — acordeón (ver nota)
 - [x] `testimonials` — se oculta por completo si no hay testimonios activos
 - [x] `booking_cta` — se oculta si el negocio no tiene WhatsApp configurado
-- [x] `hero` — de la Fase 0
-- [ ] `gallery` — cuadrícula + visor ampliado con teclado y foco atrapado; **necesita
-      componente cliente**
-- [ ] `contact` — datos y botones desde `site_settings.contact`
-- [ ] `location_hours` — mapa en iframe con `loading="lazy"` + horarios agrupados
-- [ ] `reels` — tarjetas 9:16 con miniatura propia y validación de dominio por plataforma
+- [x] `gallery` — cuadrícula (2 columnas en móvil, 3-4 en escritorio, proporción
+      configurable) + visor ampliado. **Único componente cliente de todo el sitio**: el
+      resto es HTML del servidor
+- [x] `contact` — datos y botones desde `site_settings.contact` (ver nota)
+- [x] `location_hours` — mapa en iframe con `loading="lazy"` + horarios agrupados
+- [x] `reels` — tarjetas 9:16 con miniatura propia; la plataforma se valida por dominio
 
 Añadido de paso: `core/components/BlockHeading.tsx` (encabezado estándar de bloque, lo
 usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
@@ -165,6 +174,11 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 > `aria-expanded`/`aria-controls` del plan. Hace lo mismo sin una línea de JavaScript
 > (mejor para el Lighthouse ≥ 85) y `<summary>` ya es accesible de forma nativa. Lo que
 > sí se respeta: todas las respuestas están en el HTML aunque estén cerradas.
+
+> **Nota sobre los iconos de marca:** `contact` y `reels` usan **etiquetas de texto**
+> ("WhatsApp", "Instagram", "TikTok") en lugar de los iconos del plan. Son marcas
+> registradas y dibujarlos a mano habría metido SVG de terceros en la plantilla por un
+> detalle puramente estético. Se puede cambiar en cualquier momento sin tocar los esquemas.
 
 > **Nota sobre los formularios:** los bloques se registran con `BlockFormPending` en lugar
 > de con formularios propios. En la Fase 1 no hay ninguna pantalla que los alcance, y el
@@ -181,18 +195,18 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 > Para recargarlo:
 > `$env:ALLOW_SEED_RESET='true'; npm run seed` (no hace falta tocar `.env.local`).
 >
-> El seed también genera y sube las imágenes de ejemplo que declare el preset, así que
-> tras añadir contenido visual hay que volver a lanzarlo.
+> El seed también genera y sube las imágenes de ejemplo que declare el preset: recorre el
+> preset entero buscando `MediaRef`, en cualquier bloque, así que al añadir imágenes
+> nuevas basta con volver a lanzarlo. **Después hay que hacer `npm run clean`** antes de
+> compilar, o el build seguirá sirviendo el contenido cacheado (trampa 14).
 
 **1.3 Las 5 páginas** ✅ *(hechas)*
 
 - [x] `/` — Hero · Servicios (resumen) · Testimonios · Reservar por WhatsApp
 - [x] `/servicios` — Servicios en modo completo
 - [x] `/nosotros` — Equipo · Preguntas frecuentes
-- [x] `/galeria` — Galería · Reels. *De momento solo se ve el encabezado: la galería está
-      vacía (necesita imágenes) y `reels` todavía no existe*
-- [x] `/contacto` — Contacto · Ubicación y horarios. *Los dos bloques están pendientes, así
-      que hasta entonces solo se ven el encabezado y el pie*
+- [x] `/galeria` — Galería · Reels
+- [x] `/contacto` — Ubicación y horarios · Contacto
 - [x] `core/components/SitePage.tsx` — cuerpo común de las cuatro páginas interiores
 - [x] `core/components/BlockRenderer.tsx` — busca cada bloque en el registro, valida su
       `jsonb` con el esquema y lo pinta; un bloque desconocido o inválido se omite en
@@ -221,7 +235,7 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Bloques de `/nosotros` | Equipo · Preguntas frecuentes |
 | Bloques de `/galeria` | Galería · Reels |
 | Bloques de `/servicios` | Servicios (completo) · Reservar por WhatsApp |
-| Bloques de `/contacto` | Contacto · Ubicación y horarios |
+| Bloques de `/contacto` | Ubicación y horarios · Contacto (el mapa primero: se entra para saber dónde está) |
 | Nombre del esquema de `services` | `ServicesSchema` (en el plan chocaba con su entrada del registro) |
 | Ruta `/admin/servicios` | Se añade en la Fase 2 |
 | Cliente para el sitio público | **Sin sesión** (`createSupabasePublicClient`), para poder cachear |
@@ -319,12 +333,44 @@ Cada una costó tiempo; están ordenadas por gravedad.
     `node:zlib`, sin dependencias) y los sube al bucket. Así el contenido de prueba es
     reproducible y el repositorio no carga binarios. Son PNG, no WebP: excepción
     deliberada limitada al contenido de ejemplo.
+18. **Escape en un `<dialog>` modal no es de fiar.** El cierre con Esc lo ejecuta el motor
+    al disparar `cancel`, y el navegador integrado de VS Code (Electron) **no lo dispara**.
+    Se comprobó que el fallo es del entorno y no del código (a un `<dialog>` vacío creado
+    al vuelo le pasa lo mismo), pero la conclusión práctica es la misma: si el visor tiene
+    que cerrarse con Esc, hay que escucharlo a mano en el `keydown`. Delegarlo en `cancel`
+    significa depender del navegador y, de paso, no poder verificarlo (trampa 9).
+19. **TypeScript no afina un índice a partir de un valor derivado.** Con
+    `const current = openIndex === null ? undefined : images[openIndex]`, dentro de
+    `{current && ...}` el `openIndex` sigue siendo `number | null` y usarlo directamente da
+    `TS18047`. La salida limpia es derivar el valor que se necesita
+    (`const position = openIndex === null ? 0 : openIndex + 1`) en lugar de castear a
+    `number` y perder la comprobación.
+20. **`min-h-80` no existe en Tailwind 3.** La escala de `min-height` no es la de
+    espaciado: esa clase no genera nada y **no avisa de nada**. Para alturas mínimas
+    arbitrarias, `min-h-[320px]`.
+21. **Alternar el fondo de las secciones es cosa del CSS, no de cada bloque.** El plan
+    daba una prop `alternate` por bloque; con ese enfoque el hero (sin imagen) y
+    `services` cayeron juntos en el mismo color de fondo. Ahora lo decide una sola regla
+    (`.site-main > section:nth-of-type(even)`, en `globals.css`), así que ningún bloque
+    puede volver a romper el ritmo visual y nadie tiene que acordarse de pasar la prop.
+    *La prop `alternate` de `BlockContainer` se eliminó.*
+22. **`isGoogleMapsEmbedUrl` tiene que aceptar las dos formas de URL.** El embed “clásico”
+    de Google Maps es `.../maps?q=<lat>,<lng>&output=embed`, sin `/embed` en la ruta. La
+    validación solo miraba el segundo formato y rechazaba el que la gente copia de verdad.
+    Ancho de miras: validar dominios de terceros mirando solo un formato es una trampa
+    fácil de repetir (pasa igual con Instagram y TikTok).
 
 ---
 
 ## 7. Deuda técnica y pendientes conocidos
 
-- `npm run seed` no existe todavía (Fase 4). El README lo advierte.
+- El seed se adelantó a la Fase 1 (existe, funciona y sube imágenes), así que a la Fase 4
+  le queda ampliar el preset a contenido neutro más completo y documentar el clonado en el
+  README. El README ya avisa de que el preset es de ejemplo.
+- `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
+  descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
+  reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
+  fuentes, es esto.
 - El tema de `site_settings.theme` **se guarda pero no se aplica**: el sitio lee los
   tokens de `globals.css`. Falta inyectarlo en el `<style>` del root layout y validar el
   contraste 4.5:1 antes de guardar (Fase 2).

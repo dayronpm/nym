@@ -61,6 +61,11 @@ export const SPA_PRESET: SpaPreset = {
       phone: '+50760000000',
       email: 'hola@ejemplo.com',
       address: 'Calle de Ejemplo 123, Ciudad de Panamá',
+      // Enlaces y coordenadas ficticios, solo para que el mapa y las redes se vean.
+      maps_url: 'https://www.google.com/maps?q=8.9824,-79.5199',
+      maps_embed_url: 'https://www.google.com/maps?q=8.9824,-79.5199&output=embed',
+      instagram_url: 'https://www.instagram.com/ejemplo/',
+      tiktok_url: 'https://www.tiktok.com/@ejemplo',
       booking_message_generic: 'Hola, quisiera reservar una cita. ¿Me pueden ayudar?',
       booking_message_service: 'Hola, quisiera reservar: {servicio}. ¿Tienen disponibilidad?',
     },
@@ -426,10 +431,80 @@ export const SPA_PRESET: SpaPreset = {
         subtitle: 'Nuestro espacio y algunos de nuestros trabajos.',
         aspect_ratio: '4:5',
         columns_desktop: 3,
-        // Vacío: la galería desaparece del sitio hasta que haya imágenes subidas.
-        // Es el comportamiento correcto, pero conviene saberlo para no pensar que
-        // el bloque está roto.
-        images: [],
+        // Las imágenes las genera y sube `scripts/seed.mjs` (son degradados de color,
+        // no fotos). Están para poder ver la cuadrícula y probar el visor ampliado.
+        images: [
+          {
+            id: 'preset-gal-1',
+            image: { path: 'gallery/preset-gal-1.png', alt: 'Sala de tratamientos (ejemplo)' },
+            caption: 'Sala de tratamientos',
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-2',
+            image: { path: 'gallery/preset-gal-2.png', alt: 'Zona de recepción (ejemplo)' },
+            caption: 'Recepción',
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-3',
+            image: { path: 'gallery/preset-gal-3.png', alt: 'Detalle de productos (ejemplo)' },
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-4',
+            image: { path: 'gallery/preset-gal-4.png', alt: 'Cabina de masaje (ejemplo)' },
+            caption: 'Cabina de masaje',
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-5',
+            image: { path: 'gallery/preset-gal-5.png', alt: 'Rincón de espera (ejemplo)' },
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-6',
+            image: { path: 'gallery/preset-gal-6.png', alt: 'Detalle de decoración (ejemplo)' },
+            caption: 'Detalles del espacio',
+            enabled: true,
+          },
+        ],
+      },
+    },
+    {
+      page: 'galeria',
+      type: 'reels',
+      order: 2,
+      enabled: true,
+      data: {
+        title: 'Síguenos en redes',
+        subtitle: 'Publicamos novedades y trabajos casi cada semana.',
+        show_profile_links: true,
+        // URLs de ejemplo: llevan al dominio correcto pero no a un reel real.
+        items: [
+          {
+            id: 'preset-reel-1',
+            platform: 'instagram',
+            url: 'https://www.instagram.com/reel/EJEMPLO0001/',
+            title: 'Antes y después de un facial',
+            thumbnail: {
+              path: 'reels/preset-reel-1.png',
+              alt: 'Miniatura del reel de ejemplo 1',
+            },
+            enabled: true,
+          },
+          {
+            id: 'preset-reel-2',
+            platform: 'tiktok',
+            url: 'https://www.tiktok.com/@ejemplo/video/0000000000000001',
+            title: 'Rutina de cuidado en casa',
+            thumbnail: {
+              path: 'reels/preset-reel-2.png',
+              alt: 'Miniatura del reel de ejemplo 2',
+            },
+            enabled: true,
+          },
+        ],
       },
     },
   ],

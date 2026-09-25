@@ -2,8 +2,12 @@ import type { ComponentType } from 'react';
 import { z } from 'zod';
 
 import { bookingCtaBlock } from '@/blocks/booking_cta';
+import { contactBlock } from '@/blocks/contact';
 import { faqBlock } from '@/blocks/faq';
+import { galleryBlock } from '@/blocks/gallery';
 import { heroBlock } from '@/blocks/hero';
+import { locationHoursBlock } from '@/blocks/location_hours';
+import { reelsBlock } from '@/blocks/reels';
 import { servicesBlock } from '@/blocks/services';
 import { teamBlock } from '@/blocks/team';
 import { testimonialsBlock } from '@/blocks/testimonials';
@@ -49,10 +53,14 @@ export interface AnyBlock {
 export const BLOCK_REGISTRY: Record<string, AnyBlock> = {
   hero: heroBlock,
   services: servicesBlock,
+  gallery: galleryBlock,
   team: teamBlock,
   faq: faqBlock,
+  contact: contactBlock,
+  location_hours: locationHoursBlock,
   testimonials: testimonialsBlock,
   booking_cta: bookingCtaBlock,
+  reels: reelsBlock,
 };
 
 export function getBlockDefinition(type: string): AnyBlock | null {
@@ -63,11 +71,10 @@ export function getBlockDefinition(type: string): AnyBlock | null {
 export const BLOCK_TYPES = Object.keys(BLOCK_REGISTRY);
 
 /**
- * Bloques pendientes de la Fase 1.
+ * Bloques pendientes de implementar.
  *
- * Se listan de forma explícita para que el trabajo pendiente no se pierda de vista.
- * Al implementar cada uno:
- *   1. crear `core/blocks/<tipo>/` con schema.ts, <Tipo>Block.tsx e index.ts
- *   2. registrarlo en BLOCK_REGISTRY y borrarlo de esta lista
+ * Está vacío: los diez bloques del plan ya están registrados arriba. La constante se
+ * mantiene porque es el sitio natural donde mirar al añadir un bloque nuevo, y el
+ * panel la usa para avisar de los que aún no existen.
  */
-export const PENDING_BLOCKS = ['gallery', 'contact', 'location_hours', 'reels'] as const;
+export const PENDING_BLOCKS: readonly string[] = [];

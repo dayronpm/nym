@@ -20,10 +20,7 @@ export default function HeroBlock({ data }: BlockProps<HeroData>) {
   const imageFirst = data.image_position === 'left';
 
   return (
-    <section
-      className={hasImage ? 'section-y' : 'section-y bg-surface-alt'}
-      aria-labelledby="hero-title"
-    >
+    <section className="section-y" aria-labelledby="hero-title">
       <div className="container-page">
         <div
           className={
