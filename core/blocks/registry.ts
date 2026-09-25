@@ -1,7 +1,12 @@
 import type { ComponentType } from 'react';
 import { z } from 'zod';
 
+import { bookingCtaBlock } from '@/blocks/booking_cta';
+import { faqBlock } from '@/blocks/faq';
 import { heroBlock } from '@/blocks/hero';
+import { servicesBlock } from '@/blocks/services';
+import { teamBlock } from '@/blocks/team';
+import { testimonialsBlock } from '@/blocks/testimonials';
 import type { SiteSettings } from '@/types/settings';
 
 /**
@@ -43,6 +48,11 @@ export interface AnyBlock {
  */
 export const BLOCK_REGISTRY: Record<string, AnyBlock> = {
   hero: heroBlock,
+  services: servicesBlock,
+  team: teamBlock,
+  faq: faqBlock,
+  testimonials: testimonialsBlock,
+  booking_cta: bookingCtaBlock,
 };
 
 export function getBlockDefinition(type: string): AnyBlock | null {
@@ -55,19 +65,9 @@ export const BLOCK_TYPES = Object.keys(BLOCK_REGISTRY);
 /**
  * Bloques pendientes de la Fase 1.
  *
- * Se listan aquí de forma explícita para que el orden de trabajo quede claro y
- * no se pierda ninguno. Al implementar cada uno:
- *   1. crear `core/blocks/<tipo>/` con schema.ts, <Tipo>Block.tsx, <Tipo>Form.tsx e index.ts
+ * Se listan de forma explícita para que el trabajo pendiente no se pierda de vista.
+ * Al implementar cada uno:
+ *   1. crear `core/blocks/<tipo>/` con schema.ts, <Tipo>Block.tsx e index.ts
  *   2. registrarlo en BLOCK_REGISTRY y borrarlo de esta lista
  */
-export const PENDING_BLOCKS = [
-  'services',
-  'gallery',
-  'team',
-  'faq',
-  'contact',
-  'location_hours',
-  'testimonials',
-  'booking_cta',
-  'reels',
-] as const;
+export const PENDING_BLOCKS = ['gallery', 'contact', 'location_hours', 'reels'] as const;

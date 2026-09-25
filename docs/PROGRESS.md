@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 en curso** — encabezado, pie y navegación ya en vivo. Fase 0 cerrada |
+| **Fase actual** | **Fase 1 en curso** — 6 de 10 bloques hechos; encabezado, pie y navegación en vivo |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -142,17 +142,40 @@ horarios agrupados por el servidor → **"Lunes a Sábado: 9:00 a. m. – 6:00 p
 **"Domingo: Cerrado"**. Es decir, la cadena completa funciona: Supabase → `site_settings` →
 componentes → HTML.
 
-**1.2 Bloques restantes** (falta 9 de 10)
+**1.2 Bloques** — 6 de 10 hechos
 
-- [ ] `services` — el más complejo: lee el catálogo único de `site_settings`, dos modos
-- [ ] `gallery` — cuadrícula + visor ampliado con navegación por teclado y foco atrapado
-- [ ] `team` — tarjetas 4:5, avatar con iniciales si no hay foto
-- [ ] `faq` — acordeón con `aria-expanded`, respuestas presentes en el HTML
+- [x] `services` — lee el catálogo único de `site_settings`; modos `summary` y `full`;
+      precios ocultables con etiqueta alternativa; botón de reserva por servicio
+- [x] `team` — tarjetas 4:5, avatar con iniciales si no hay foto
+- [x] `faq` — acordeón (ver nota)
+- [x] `testimonials` — se oculta por completo si no hay testimonios activos
+- [x] `booking_cta` — se oculta si el negocio no tiene WhatsApp configurado
+- [x] `hero` — de la Fase 0
+- [ ] `gallery` — cuadrícula + visor ampliado con teclado y foco atrapado; **necesita
+      componente cliente**
 - [ ] `contact` — datos y botones desde `site_settings.contact`
 - [ ] `location_hours` — mapa en iframe con `loading="lazy"` + horarios agrupados
-- [ ] `testimonials` — existe en la plantilla; el bloque no se muestra si está vacío
-- [ ] `booking_cta` — botón de WhatsApp con mensaje genérico o propio
 - [ ] `reels` — tarjetas 9:16 con miniatura propia y validación de dominio por plataforma
+
+Añadido de paso: `core/components/BlockHeading.tsx` (encabezado estándar de bloque, lo
+usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
+
+> **Nota sobre `faq`:** usa `<details>/<summary>` en lugar del `<button>` con
+> `aria-expanded`/`aria-controls` del plan. Hace lo mismo sin una línea de JavaScript
+> (mejor para el Lighthouse ≥ 85) y `<summary>` ya es accesible de forma nativa. Lo que
+> sí se respeta: todas las respuestas están en el HTML aunque estén cerradas.
+
+> **Nota sobre los formularios:** los bloques se registran con `BlockFormPending` en lugar
+> de con formularios propios. En la Fase 1 no hay ninguna pantalla que los alcance, y el
+> plan pide que se generen desde el esquema zod: escribirlos a mano ahora sería trabajo
+> sin verificar y condenado a reescribirse. La Fase 2 los sustituye por `DynamicForm`.
+
+> ⚠️ **Dependencia que hay que resolver para poder verificar la Fase 1.** El criterio de
+> aceptación dice que las páginas deben mostrar "el contenido del seed del preset Spa",
+> pero el preset es un entregable de la **Fase 4**. Es otra contradicción del plan: sin
+> contenido de ejemplo en la tabla `blocks`, las páginas se ven vacías y la Fase 1 no se
+> puede comprobar. Decisión pendiente: adelantar `core/presets/spa.ts` (con contenido
+> neutro) para poder verificar, dejando el script de seed y su guarda en la Fase 4.
 
 **1.3 Las 4 páginas que faltan** (con sus shims en `app/`)
 
@@ -256,8 +279,13 @@ Cada una costó tiempo; están ordenadas por gravedad.
     de verificar.
 12. **Los secretos no se pegan en el chat.** El 25/09 se compartió `.env.local` en la
     conversación y la clave secreta quedó expuesta en el historial. No llegó al
-    repositorio ni al grafo (comprobado), pero hubo que rotarla. La forma correcta de
-    pasarla es editando el archivo a mano o ejecutando el comando uno mismo.
+    repositorio ni al grafo (comprobado). **Decisión acordada:** no se rota ahora; se
+    rotarán todas las claves justo antes de entregar al cliente final y se actualizará la
+    plantilla. Si algún día el proyecto pasa a tener datos reales antes de eso, rotar.
+13. **`export const X = z.object(...)` NO crea un tipo.** Al usar `X` como tipo hay que
+    añadir también `export type X = z.infer<typeof X>;`. Se olvidó con `ServiceItem` y el
+    error que sale ("refers to a value, but is being used as a type") no apunta al sitio
+    del problema. Revisar esto al añadir cualquier esquema nuevo.
 
 ---
 

@@ -176,6 +176,8 @@ export const ServiceItem = z.object({
   enabled: z.boolean().default(true),
 });
 
+export type ServiceItem = z.infer<typeof ServiceItem>;
+
 export const ServiceCategory = z.object({
   id: z.string(),
   name: z.string().min(1, 'El nombre de la categoría es obligatorio.').max(60),
