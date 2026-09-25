@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 
 import { getSupabasePublishableKey, getSupabaseSecretKey, getSupabaseUrl } from '@/config/env';
+import type { Database } from '@/types/supabase';
 
 /**
  * Clientes de Supabase.
@@ -11,11 +12,12 @@ import { getSupabasePublishableKey, getSupabaseSecretKey, getSupabaseUrl } from 
  * La capa `core/data/` es la única que habla con la base de datos; los
  * componentes nunca importan de aquí directamente.
  *
- * Tres clientes, tres contextos distintos:
+ * Cuatro clientes, cuatro contextos distintos:
  *
- *  1. `createSupabaseBrowserClient`   -> componentes cliente del panel.
- *  2. `createSupabaseServerClient`    -> Server Components y route handlers.
- *  3. `createSupabaseAdminClient`     -> solo servidor y scripts (seed).
+ *  1. `createSupabasePublicClient`     -> sitio público, sin sesión (permite caché).
+ *  2. `createSupabaseBrowserClient`    -> componentes cliente del panel.
+ *  3. `createSupabaseServerClient`     -> Server Components y route handlers.
+ *  4. `createSupabaseAdminClient`      -> solo servidor y scripts (seed).
  *
  * El cliente del middleware vive aparte, en `./supabase-middleware`, para que
  * el bundle edge no arrastre `next/headers` ni `react.cache`.
@@ -23,7 +25,7 @@ import { getSupabasePublishableKey, getSupabaseSecretKey, getSupabaseUrl } from 
 
 /** Cliente para el navegador. Usa la clave publicable (protegida por RLS). */
 export function createSupabaseBrowserClient() {
-  return createBrowserClient(getSupabaseUrl(), getSupabasePublishableKey());
+  return createBrowserClient<Database>(getSupabaseUrl(), getSupabasePublishableKey());
 }
 
 /**
@@ -34,7 +36,7 @@ export function createSupabaseBrowserClient() {
 export const createSupabaseServerClient = cache(() => {
   const cookieStore = cookies();
 
-  return createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
+  return createServerClient<Database>(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -54,14 +56,33 @@ export const createSupabaseServerClient = cache(() => {
 });
 
 /**
- * Cliente para el middleware: lee las cookies de la petición y escribe las
- * cookies 
+ * Cliente público SIN sesión, para leer el contenido del sitio público.
+ *
+ * Es deliberadamente distinto del cliente de servidor: si las páginas públicas
+ * usaran el cliente con cookies, `cookies()` las obligaría a renderizarse en cada
+ * petición y perderíamos el renderizado estático y la revalidación por etiquetas.
+ * Como `blocks`, `pages` y `site_settings` tienen política de lectura pública, un
+ * cliente anónimo basta y las páginas pueden cachearse.
+ */
+export function createSupabasePublicClient() {
+  return createClient<Database>(getSupabaseUrl(), getSupabasePublishableKey(), {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+/**
+ * Cliente administrativo con la clave secreta.
+ *
  * PROHIBIDO usarlo en componentes, route handlers públicos o cualquier código
  * que llegue al navegador: la clave secreta omite RLS. Su uso previsto es el
  * seed y las tareas de mantenimiento por línea de comandos.
  */
 export function createSupabaseAdminClient() {
-  return createClient(getSupabaseUrl(), getSupabaseSecretKey(), {
+  return createClient<Database>(getSupabaseUrl(), getSupabaseSecretKey(), {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

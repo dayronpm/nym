@@ -1,5 +1,36 @@
-import type { Block } from '@/blocks/defineBlock';
+import type { ComponentType } from 'react';
+import { z } from 'zod';
+
 import { heroBlock } from '@/blocks/hero';
+import type { SiteSettings } from '@/types/settings';
+
+/**
+ * Un bloque cualquiera del registro.
+ *
+ * No se puede escribir como `Block<z.ZodTypeAny>`. `Block<S>` usa `z.infer<S>`, y
+ * TypeScript no resuelve ese condicional cuando `S` es el comodín: comparar un
+ * bloque concreto con el comodín falla y obligaría a un `as unknown` en cada
+ * entrada del registro.
+ *
+ * Esta interfaz describe la misma forma sin genéricos, con `any` justo donde el
+ * tipo depende del bloque (los props del componente y del formulario). El tipo
+ * específico — `HeroData`, etc. — se recupera validando con `parseBlockData`, que
+ * es donde el esquema del bloque vuelve a entrar en juego.
+ */
+export interface AnyBlock {
+  type: string;
+  schema: z.ZodTypeAny;
+  Component: ComponentType<{ data: any; settings: SiteSettings }>;
+  Form: ComponentType<{
+    initialData: any;
+    onChange: (data: any) => void;
+    errors?: Record<string, string>;
+  }>;
+  defaults: any;
+  version: number;
+  label: string;
+  description?: string;
+}
 
 /**
  * Registro global de bloques.
@@ -10,11 +41,11 @@ import { heroBlock } from '@/blocks/hero';
  *
  * La clave es el valor que se guarda en `blocks.type`.
  */
-export const BLOCK_REGISTRY: Record<string, Block<never>> = {
-  hero: heroBlock as unknown as Block<never>,
+export const BLOCK_REGISTRY: Record<string, AnyBlock> = {
+  hero: heroBlock,
 };
 
-export function getBlockDefinition(type: string): Block<never> | null {
+export function getBlockDefinition(type: string): AnyBlock | null {
   return BLOCK_REGISTRY[type] ?? null;
 }
 

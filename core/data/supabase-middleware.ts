@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { getSupabasePublishableKey, getSupabaseUrl } from '@/config/env';
+import type { Database } from '@/types/supabase';
 
 /**
  * Cliente de Supabase para el middleware.
@@ -18,7 +19,7 @@ import { getSupabasePublishableKey, getSupabaseUrl } from '@/config/env';
 export function createSupabaseMiddlewareClient(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
+  const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookies: {
       getAll() {
         return request.cookies.getAll();
