@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema, SourcePageRef } from '@/blocks/links';
+
 /**
  * Bloque `faq` — Preguntas frecuentes.
  *
@@ -24,6 +26,12 @@ export const FaqSchema = z.object({
   title: z.string().max(80).default('Preguntas frecuentes'),
   subtitle: z.string().max(200).optional(),
   items: z.array(FaqItem).max(30).default([]),
+  /** Cuántas preguntas se ven. Sin valor, todas: es el corte de la portada. */
+  limit: z.number().int().min(1).max(30).optional(),
+  /** De qué página salen las preguntas, para el resumen de Inicio. */
+  source_page: SourcePageRef,
+  /** Enlace a la página completa, para la instancia de Inicio. */
+  more: MoreLinkSchema.optional(),
 });
 
 export type FaqData = z.infer<typeof FaqSchema>;

@@ -40,7 +40,7 @@ export default function ContactBlock({ data, settings }: BlockProps<ContactData>
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
       <div className="grid gap-10 md:grid-cols-2">
         <ul className="space-y-6">

@@ -213,6 +213,20 @@ export const SPA_PRESET: SpaPreset = {
 
   blocks: [
     /* ---------------------------------------------------------------- Inicio */
+    /*
+     * Inicio es el índice del sitio: un resumen de cada sección y, en el encabezado de
+     * cada resumen, el enlace para entrar donde está el contenido completo.
+     *
+     * Los bloques de resumen no guardan contenido: con `source_page` toman la lista del
+     * bloque del mismo tipo que vive en su sección (`gallery` y `reels` de `/galeria`,
+     * `team` y `faq` de `/nosotros`), así que el contenido se edita en un único sitio y
+     * esta portada no puede quedarse desfasada. Lo propio de cada resumen es el corte
+     * (`limit`), su título y el enlace de salida (`more`).
+     *
+     * `services` no necesita `source_page` porque su catálogo ya es un dato único de
+     * `site_settings`. El mapa (`location_hours`) se queda solo en `/contacto`: aquí
+     * pesa demasiado y el enlace ya lleva hasta él.
+     */
     {
       page: 'inicio',
       type: 'hero',
@@ -244,12 +258,55 @@ export const SPA_PRESET: SpaPreset = {
         show_durations: true,
         price_hidden_label: 'Consultar por WhatsApp',
         show_booking_button: true,
+        more: { page: 'servicios', label: 'Ver todos los servicios' },
+      },
+    },
+    {
+      page: 'inicio',
+      type: 'reels',
+      order: 3,
+      enabled: true,
+      data: {
+        title: 'Lo último que publicamos',
+        subtitle: 'Novedades y trabajos recientes, en vídeo.',
+        show_profile_links: true,
+        limit: 2,
+        // El contenido es el de `/galeria`; aquí solo se decide el corte.
+        source_page: 'galeria',
+      },
+    },
+    {
+      page: 'inicio',
+      type: 'gallery',
+      order: 4,
+      enabled: true,
+      data: {
+        title: 'Nuestro espacio',
+        subtitle: 'Un vistazo al salón y a algunos de nuestros trabajos.',
+        aspect_ratio: '4:5',
+        columns_desktop: 3,
+        limit: 6,
+        source_page: 'galeria',
+        more: { page: 'galeria', label: 'Ver la galería completa' },
+      },
+    },
+    {
+      page: 'inicio',
+      type: 'team',
+      order: 5,
+      enabled: true,
+      data: {
+        title: 'Quién te atiende',
+        subtitle: 'Profesionales titulados, con años de experiencia en el sector.',
+        limit: 3,
+        source_page: 'nosotros',
+        more: { page: 'nosotros', label: 'Conócenos' },
       },
     },
     {
       page: 'inicio',
       type: 'testimonials',
-      order: 3,
+      order: 6,
       enabled: true,
       data: {
         title: 'Lo que dicen nuestros clientes',
@@ -285,8 +342,37 @@ export const SPA_PRESET: SpaPreset = {
     },
     {
       page: 'inicio',
+      type: 'faq',
+      order: 7,
+      enabled: true,
+      data: {
+        title: 'Antes de tu visita',
+        subtitle: 'Las dudas que más nos preguntan.',
+        limit: 3,
+        source_page: 'nosotros',
+        more: { page: 'nosotros', label: 'Ver todas las preguntas' },
+      },
+    },
+    {
+      page: 'inicio',
+      type: 'contact',
+      order: 8,
+      enabled: true,
+      data: {
+        title: 'Dónde estamos',
+        subtitle: 'Escríbenos o pásate por el salón.',
+        show_whatsapp: true,
+        show_phone: true,
+        show_email: true,
+        show_address: true,
+        show_social: true,
+        more: { page: 'contacto', label: 'Cómo llegar y horarios' },
+      },
+    },
+    {
+      page: 'inicio',
       type: 'booking_cta',
-      order: 4,
+      order: 9,
       enabled: true,
       data: {
         title: 'Reserva tu cita',
@@ -356,6 +442,13 @@ export const SPA_PRESET: SpaPreset = {
             role: 'Especialista en manos y pies',
             enabled: true,
           },
+          {
+            id: 'preset-team-4',
+            name: 'Dani Ejemplo',
+            role: 'Terapeuta corporal',
+            bio: 'Masaje descontracturante y drenaje linfático.',
+            enabled: true,
+          },
         ],
       },
     },
@@ -384,6 +477,20 @@ export const SPA_PRESET: SpaPreset = {
             id: 'preset-faq-3',
             question: '¿Cómo puedo pagar?',
             answer: 'Aceptamos efectivo y tarjeta. Te lo confirmamos al reservar.',
+            enabled: true,
+          },
+          {
+            id: 'preset-faq-4',
+            question: '¿Y si tengo que cambiar o cancelar mi cita?',
+            answer:
+              'Avísanos por WhatsApp con al menos 24 horas. Así liberamos el hueco para otra persona y te buscamos otro día sin coste.',
+            enabled: true,
+          },
+          {
+            id: 'preset-faq-5',
+            question: '¿Qué productos utilizan?',
+            answer:
+              'Marcas profesionales de cosmética y cuidado de la piel. Si tienes alguna alergia o sensibilidad, dínoslo al reservar y adaptamos el tratamiento.',
             enabled: true,
           },
         ],
@@ -468,6 +575,22 @@ export const SPA_PRESET: SpaPreset = {
             caption: 'Detalles del espacio',
             enabled: true,
           },
+          {
+            id: 'preset-gal-7',
+            image: { path: 'gallery/preset-gal-7.png', alt: 'Zona de manicura (ejemplo)' },
+            caption: 'Manicura y pedicura',
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-8',
+            image: { path: 'gallery/preset-gal-8.png', alt: 'Toallas y ambientación (ejemplo)' },
+            enabled: true,
+          },
+          {
+            id: 'preset-gal-9',
+            image: { path: 'gallery/preset-gal-9.png', alt: 'Pasillo de acceso (ejemplo)' },
+            enabled: true,
+          },
         ],
       },
     },
@@ -501,6 +624,28 @@ export const SPA_PRESET: SpaPreset = {
             thumbnail: {
               path: 'reels/preset-reel-2.png',
               alt: 'Miniatura del reel de ejemplo 2',
+            },
+            enabled: true,
+          },
+          {
+            id: 'preset-reel-3',
+            platform: 'instagram',
+            url: 'https://www.instagram.com/reel/EJEMPLO0002/',
+            title: 'Tratamiento facial paso a paso',
+            thumbnail: {
+              path: 'reels/preset-reel-3.png',
+              alt: 'Miniatura del reel de ejemplo 3',
+            },
+            enabled: true,
+          },
+          {
+            id: 'preset-reel-4',
+            platform: 'tiktok',
+            url: 'https://www.tiktok.com/@ejemplo/video/0000000000000002',
+            title: 'Cuidar la piel en verano',
+            thumbnail: {
+              path: 'reels/preset-reel-4.png',
+              alt: 'Miniatura del reel de ejemplo 4',
             },
             enabled: true,
           },

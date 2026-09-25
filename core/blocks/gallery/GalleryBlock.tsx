@@ -12,14 +12,17 @@ import type { GalleryData } from './schema';
  * solo se filtran las imágenes desactivadas y se decide si el bloque se muestra.
  */
 export default function GalleryBlock({ data }: BlockProps<GalleryData>) {
-  const images = data.images.filter((item) => item.enabled);
+  // `limit` es el corte del resumen de Inicio; sin valor se ven todas las fotos.
+  // Si el bloque toma las fotos de otra página, la lectura pública ya las ha traído
+  // resueltas (ver `resolveSourceContent` en `core/data/queries/blocks.ts`).
+  const images = data.images.filter((item) => item.enabled).slice(0, data.limit);
 
   // Sin imágenes el bloque desaparece: el plan prohíbe las secciones vacías.
   if (images.length === 0) return null;
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
       <GalleryGrid
         images={images}
         aspect={data.aspect_ratio}

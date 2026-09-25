@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema } from '@/blocks/links';
+
 /**
  * Bloque `contact` — Contacto.
  *
@@ -18,6 +20,8 @@ export const ContactSchema = z.object({
   show_email: z.boolean().default(true),
   show_address: z.boolean().default(true),
   show_social: z.boolean().default(true),
+  /** Enlace a la página de contacto completa (mapa y horarios), desde Inicio. */
+  more: MoreLinkSchema.optional(),
 });
 
 export type ContactData = z.infer<typeof ContactSchema>;

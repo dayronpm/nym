@@ -2,6 +2,7 @@ import type { BlockProps } from '@/blocks/defineBlock';
 import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
 import Image from '@/components/ui/Image';
+import { cn } from '@/lib/cn';
 
 import type { TeamData } from './schema';
 
@@ -22,15 +23,29 @@ function initialsOf(name: string): string {
     .join('');
 }
 
+/**
+ * Columnas según cuántas personas haya.
+ *
+ * Con cuatro columnas fijas y tres personas queda un hueco al final de la fila; con una
+ * o dos, las tarjetas se estiran hasta quedar desproporcionadas. Se ajustan a lo que hay
+ * y, cuando hay pocas, se limita el ancho y el grupo se centra.
+ */
+function gridClasses(count: number): string {
+  if (count >= 4) return 'lg:grid-cols-4';
+  if (count === 3) return 'lg:grid-cols-3';
+  return 'lg:grid-cols-2 lg:mx-auto lg:max-w-3xl';
+}
+
 export default function TeamBlock({ data }: BlockProps<TeamData>) {
-  const members = data.members.filter((member) => member.enabled);
+  // `limit` es el corte del resumen de Inicio.
+  const members = data.members.filter((member) => member.enabled).slice(0, data.limit);
   if (members.length === 0) return null;
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className={cn('grid gap-8 sm:grid-cols-2', gridClasses(members.length))}>
         {members.map((member) => (
           <li key={member.id}>
             {member.photo ? (

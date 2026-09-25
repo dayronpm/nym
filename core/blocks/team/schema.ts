@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema, SourcePageRef } from '@/blocks/links';
 import { MediaRef } from '@/blocks/shared';
 
 /**
@@ -24,6 +25,12 @@ export const TeamSchema = z.object({
   title: z.string().max(80).default('Nuestro equipo'),
   subtitle: z.string().max(200).optional(),
   members: z.array(TeamMember).max(24).default([]),
+  /** Cuántas personas se ven. Sin valor, todas: es el corte de la portada. */
+  limit: z.number().int().min(1).max(24).optional(),
+  /** De qué página sale el equipo, para el resumen de Inicio. */
+  source_page: SourcePageRef,
+  /** Enlace a la página completa, para la instancia de Inicio. */
+  more: MoreLinkSchema.optional(),
 });
 
 export type TeamData = z.infer<typeof TeamSchema>;

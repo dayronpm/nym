@@ -19,12 +19,13 @@ import type { FaqData } from './schema';
  * estén cerradas, para que los buscadores las lean.
  */
 export default function FaqBlock({ data }: BlockProps<FaqData>) {
-  const items = data.items.filter((item) => item.enabled);
+  // `limit` es el corte del resumen de Inicio.
+  const items = data.items.filter((item) => item.enabled).slice(0, data.limit);
   if (items.length === 0) return null;
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
       <div className="max-w-3xl border-y border-border">
         {items.map((item) => (

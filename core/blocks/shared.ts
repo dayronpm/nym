@@ -7,6 +7,11 @@ import { z } from 'zod';
  * necesite una imagen. Nunca se guarda la URL completa de Storage, solo la ruta
  * relativa dentro del bucket `media`: la URL pública se construye con el
  * cliente de Supabase (ver `core/lib/storage.ts`, Fase 1).
+ *
+ * Aquí vive también `SHARED_CONTENT_FIELD`, que es lo que hace posible que Inicio
+ * resuma las demás secciones sin duplicar contenido. Las referencias a otras páginas
+ * (`more`, `source_page`) están en `links.ts`, y no aquí, para no crear un ciclo de
+ * importaciones con `core/types/settings.ts`.
  */
 export const MediaRef = z.object({
   /** Ruta dentro del bucket, por ejemplo "gallery/3fa2...c1.webp". */
@@ -16,6 +21,24 @@ export const MediaRef = z.object({
 });
 
 export type MediaRef = z.infer<typeof MediaRef>;
+
+/**
+ * Qué campo de cada bloque guarda su **contenido** (la lista de elementos).
+ *
+ * Convención del sistema de bloques: en un bloque, un array es contenido y los
+ * escalares son presentación. Por eso un bloque-resumen puede tomar la lista de otra
+ * página y quedarse solo con la presentación.
+ *
+ * Un bloque que no esté en esta tabla no tiene contenido compartible (`hero`,
+ * `services` —que ya lee el catálogo único—, `contact`…) y `source_page` no le hace
+ * nada.
+ */
+export const SHARED_CONTENT_FIELD: Record<string, string> = {
+  gallery: 'images',
+  team: 'members',
+  faq: 'items',
+  reels: 'items',
+};
 
 /** Bucket público único de la plantilla. */
 export const MEDIA_BUCKET = 'media';

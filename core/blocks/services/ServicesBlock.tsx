@@ -1,7 +1,6 @@
 import type { BlockProps } from '@/blocks/defineBlock';
 import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
-import Button from '@/components/Button';
 import Image from '@/components/ui/Image';
 import { buildWhatsappUrl, serviceBookingMessage } from '@/lib/contact';
 import { formatDuration, formatPrice } from '@/lib/formatting';
@@ -18,8 +17,8 @@ import type { ServicesData } from './schema';
  *  - Si `show_prices` es falso, o el servicio no tiene precio, se muestra
  *    `price_hidden_label` en su lugar.
  *  - La duración solo aparece si `show_durations` y el servicio la tiene.
- *  - En modo `summary` se cortan los servicios por categoría y se ofrece un
- *    enlace a `/servicios`.
+ *  - En modo `summary` se cortan los servicios por categoría. El enlace a la
+ *    sección completa lo decide el campo `more` del bloque.
  *  - Sin categorías con servicios visibles, el bloque no se pinta (nada de
  *    secciones vacías).
  *
@@ -78,7 +77,7 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
       <div className="space-y-12">
         {categories.map((category) => (
@@ -130,14 +129,6 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
           </section>
         ))}
       </div>
-
-      {isSummary ? (
-        <div className="mt-10">
-          <Button href="/servicios" variant="secondary">
-            Ver todos los servicios
-          </Button>
-        </div>
-      ) : null}
     </BlockContainer>
   );
 }

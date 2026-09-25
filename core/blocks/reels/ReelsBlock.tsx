@@ -3,6 +3,7 @@ import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
 import Button from '@/components/Button';
 import Image from '@/components/ui/Image';
+import { cn } from '@/lib/cn';
 import { socialLinks } from '@/lib/contact';
 
 import type { ReelsData } from './schema';
@@ -28,8 +29,21 @@ const PLATFORM_LABELS: Record<'instagram' | 'tiktok', string> = {
   tiktok: 'TikTok',
 };
 
+/**
+ * Columnas según cuántos reels haya.
+ *
+ * Con cuatro columnas fijas y dos reels queda media fila vacía y, en 9:16, las tarjetas
+ * se ven diminutas. Con pocos se limita el ancho y el grupo se centra.
+ */
+function gridClasses(count: number): string {
+  if (count >= 4) return 'lg:grid-cols-4';
+  if (count === 3) return 'lg:grid-cols-3';
+  return 'lg:grid-cols-2 lg:mx-auto lg:max-w-2xl';
+}
+
 export default function ReelsBlock({ data, settings }: BlockProps<ReelsData>) {
-  const items = data.items.filter((item) => item.enabled);
+  // `limit` es el corte del resumen de Inicio.
+  const items = data.items.filter((item) => item.enabled).slice(0, data.limit);
 
   const profiles = data.show_profile_links
     ? socialLinks(settings.contact).filter((social) => social.platform !== 'facebook')
@@ -39,10 +53,10 @@ export default function ReelsBlock({ data, settings }: BlockProps<ReelsData>) {
 
   return (
     <BlockContainer>
-      <BlockHeading title={data.title} subtitle={data.subtitle} />
+      <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
       {items.length > 0 ? (
-        <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <ul className={cn('grid grid-cols-2 gap-4', gridClasses(items.length))}>
           {items.map((item) => (
             <li key={item.id}>
               <a

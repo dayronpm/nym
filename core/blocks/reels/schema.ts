@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema, SourcePageRef } from '@/blocks/links';
 import { MediaRef } from '@/blocks/shared';
 
 /**
@@ -30,6 +31,12 @@ export const ReelsSchema = z.object({
   /** Botones a los perfiles configurados en `site_settings.contact`. */
   show_profile_links: z.boolean().default(true),
   items: z.array(ReelItem).max(24).default([]),
+  /** Cuántos reels se ven. Sin valor, todos: es el corte de la portada. */
+  limit: z.number().int().min(1).max(24).optional(),
+  /** De qué página salen los reels, para el resumen de Inicio. */
+  source_page: SourcePageRef,
+  /** Enlace a la sección completa, para la instancia de Inicio. */
+  more: MoreLinkSchema.optional(),
 });
 
 export type ReelsData = z.infer<typeof ReelsSchema>;

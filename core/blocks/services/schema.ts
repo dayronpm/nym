@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema } from '@/blocks/links';
+
 /**
  * Bloque `services` — Servicios.
  *
@@ -10,7 +12,9 @@ import { z } from 'zod';
  * guardara su propia copia, el dueño tendría que editar el mismo servicio dos
  * veces y las dos versiones podrían desincronizarse.
  *
- * Así que aquí solo se guarda **cómo mostrarlo** en esa página.
+ * Así que aquí solo se guarda **cómo mostrarlo** en esa página. El enlace a
+ * `/servicios` que lleva la instancia de Inicio se configura con `more`, no está
+ * escrito a mano en el componente:
  *
  * Este esquema es el CONTRATO del bloque: no se pueden cambiar nombres de campos
  * sin subir `version` y escribir una migración de contenido.
@@ -28,6 +32,14 @@ export const ServicesSchema = z.object({
   price_hidden_label: z.string().max(60).default('Consultar por WhatsApp'),
   /** Botón "Reservar" en cada servicio, con el nombre prellenado. */
   show_booking_button: z.boolean().default(true),
+  /**
+   * Enlace a la sección completa. Lo usa la instancia de Inicio.
+   *
+   * A propósito sin valor por defecto: la instancia de `/servicios` va en modo
+   * `full`, y un valor por defecto apuntando a `/servicios` pondría un enlace de la
+   * página hacia sí misma.
+   */
+  more: MoreLinkSchema.optional(),
 });
 
 export type ServicesData = z.infer<typeof ServicesSchema>;

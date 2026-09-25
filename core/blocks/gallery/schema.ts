@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MoreLinkSchema, SourcePageRef } from '@/blocks/links';
 import { MediaRef } from '@/blocks/shared';
 
 /**
@@ -30,6 +31,12 @@ export const GallerySchema = z.object({
   columns_desktop: z.union([z.literal(2), z.literal(3), z.literal(4)]).default(3),
   /** Límite de 60 imágenes: más allá, la página deja de ser ágil. */
   images: z.array(GalleryImage).max(60).default([]),
+  /** Cuántas fotos se ven. Sin valor, todas: es el corte de la portada. */
+  limit: z.number().int().min(1).max(60).optional(),
+  /** De qué página salen las fotos, para el resumen de Inicio. */
+  source_page: SourcePageRef,
+  /** Enlace a la galería completa, para la instancia de Inicio. */
+  more: MoreLinkSchema.optional(),
 });
 
 export type GalleryData = z.infer<typeof GallerySchema>;
