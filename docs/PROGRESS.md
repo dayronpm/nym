@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 casi cerrada** — las 5 páginas y los **10 bloques** funcionando con contenido de ejemplo; solo falta la sección 1.4 (SEO) |
+| **Fase actual** | **Fase 1 casi cerrada** — Inicio es el **índice del sitio** (un resumen de cada sección), los 10 bloques funcionando y las 5 páginas con contenido de ejemplo; solo falta la sección 1.4 (SEO) |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -223,6 +223,28 @@ Verificado leyendo el HTML prerenderizado de las cinco rutas.
 - [ ] `core/lib/formatting.ts` — horas agrupadas y moneda con `Intl.NumberFormat`
 - [ ] Pasar Lighthouse móvil ≥ 85
 
+**1.5 Inicio como índice del sitio** ✅ *(hecho, 25/09)*
+
+Decisión de producto: Inicio no es una página más, es el **índice del sitio**. Muestra un
+resumen de cada sección y, en el encabezado de cada resumen, el enlace para entrar donde
+está el contenido completo.
+
+- [x] 9 bloques en Inicio: hero · services · reels · gallery · team · testimonials · faq ·
+      contact · booking_cta
+- [x] Los **reels van antes que las fotos**: son lo que se mueve, y la intención es que
+      algún día se actualicen solos
+- [x] El mapa (`location_hours`) se queda solo en `/contacto`: en Inicio pesa demasiado y
+      el enlace ya lleva hasta él
+- [x] El enlace de salida es **texto con flecha** (`Ver todos los servicios →`), no un botón
+- [x] El corte (`limit`) y el enlace (`more`) se configuran por bloque, como todo lo demás
+- [x] Los resúmenes **no duplican contenido**: lo leen de su propia sección
+
+Contenido de ejemplo ampliado para que el resumen se note frente a la sección completa: 4
+personas en el equipo, 5 preguntas frecuentes, 9 fotos y 4 reels (Inicio muestra 3, 3, 6 y 2).
+Verificado en el navegador: las 9 secciones con la alternancia de fondos correcta, los cinco
+enlaces con su flecha y cada corte exacto (6 de 9 fotos, 2 de 4 reels, 3 de 4 personas y 3 de
+5 preguntas).
+
 ### Commits de la Fase 1
 
 | Commit | Qué |
@@ -234,6 +256,7 @@ Verificado leyendo el HTML prerenderizado de las cinco rutas.
 | `28e20c1` | Preset de ejemplo, seed funcional, `BlockRenderer` y las 4 páginas restantes |
 | `18ae417` | Diseño: hero sin botones y tarjetas de servicio con imagen de ejemplo |
 | `bbeb66a` | Bloques `contact`, `location_hours`, `reels` y `gallery` (10 de 10) |
+| `b11a23b` | Inicio como índice del sitio: resumen de cada sección, `source_page` para no duplicar contenido y el enlace de salida |
 
 ---
 
@@ -248,6 +271,10 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Bloques de `/galeria` | Galería · Reels |
 | Bloques de `/servicios` | Servicios (completo) · Reservar por WhatsApp |
 | Bloques de `/contacto` | Ubicación y horarios · Contacto (el mapa primero: se entra para saber dónde está) |
+| Qué hay en Inicio | **Índice del sitio (25/09):** un resumen de cada sección más el enlace a la sección completa. 9 bloques, con `reels` antes que `gallery` |
+| Bloques de resumen | **No guardan contenido** (25/09). Con `source_page` toman la lista del bloque del mismo tipo de su sección, así que el contenido se edita en un único sitio y el resumen no puede quedarse desfasado. `services` no lo necesita: su catálogo ya es único en `site_settings` |
+| Enlace a la sección completa | Texto con flecha, no botón. Se guarda la **página** (`more.page`), no la URL: la ruta se deriva con `pageHref()`, así que desde el panel no se puede dejar un enlace roto |
+| Mapa y horarios | El mapa (`location_hours`) solo en `/contacto`; los horarios ya se ven en el pie de todas las páginas |
 | Nombre del esquema de `services` | `ServicesSchema` (en el plan chocaba con su entrada del registro) |
 | Ruta `/admin/servicios` | Se añade en la Fase 2 |
 | Cliente para el sitio público | **Sin sesión** (`createSupabasePublicClient`), para poder cachear |
@@ -371,6 +398,15 @@ Cada una costó tiempo; están ordenadas por gravedad.
     validación solo miraba el segundo formato y rechazaba el que la gente copia de verdad.
     Ancho de miras: validar dominios de terceros mirando solo un formato es una trampa
     fácil de repetir (pasa igual con Instagram y TikTok).
+23. **Una importación de más rompe el build con un error que no explica nada.**
+    `core/types/settings.ts` importa `MediaRef` de `core/blocks/shared.ts`; al añadir en
+    `shared.ts` un `import { PAGE_SLUGS } from '@/types/settings'` se cerró el círculo y el
+    build murió con `ReferenceError: Cannot access 'w' before initialization` **al recopilar
+    los datos de las páginas**. Lo traicionero es que el type-check, el lint y el propio
+    `Compiled successfully` pasan: solo falla en tiempo de ejecución. Se arregló sacando
+    las referencias a otras páginas a `core/blocks/links.ts`. **Antes de añadir una
+    importación a `blocks/shared.ts` o a `types/settings.ts`, comprobar que no cierra el
+    círculo.**
 
 ---
 
@@ -379,6 +415,12 @@ Cada una costó tiempo; están ordenadas por gravedad.
 - El seed se adelantó a la Fase 1 (existe, funciona y sube imágenes), así que a la Fase 4
   le queda ampliar el preset a contenido neutro más completo y documentar el clonado en el
   README. El README ya avisa de que el preset es de ejemplo.
+- Los reels son **manuales**: la miniatura y el enlace se suben a mano. La intención es que
+  algún día se actualicen solos cuando el negocio publique en Instagram o TikTok (API o
+  feed). Hasta entonces, cada reel nuevo se añade desde el panel.
+- Los bloques de resumen leen otra página, así que **al revalidar hay que revalidar las
+  dos**: si cambia `/galeria`, Inicio también. Es parte de las etiquetas de caché de la
+  sección 1.4.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
