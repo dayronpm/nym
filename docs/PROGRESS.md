@@ -223,6 +223,18 @@ Verificado leyendo el HTML prerenderizado de las cinco rutas.
 - [ ] `core/lib/formatting.ts` — horas agrupadas y moneda con `Intl.NumberFormat`
 - [ ] Pasar Lighthouse móvil ≥ 85
 
+### Commits de la Fase 1
+
+| Commit | Qué |
+| --- | --- |
+| `a168350` | Documento de progreso (`docs/PROGRESS.md`) y las trampas conocidas |
+| `8bb70e1` | Componentes compartidos base (Header, Footer, Button y contenedores) |
+| `4c4cb5d` | Grupo `(sitio)` con encabezado y pie en vivo, y comando `clean` |
+| `172773c` | Bloques `services`, `team`, `faq`, `testimonials` y `booking_cta` |
+| `28e20c1` | Preset de ejemplo, seed funcional, `BlockRenderer` y las 4 páginas restantes |
+| `18ae417` | Diseño: hero sin botones y tarjetas de servicio con imagen de ejemplo |
+| `bbeb66a` | Bloques `contact`, `location_hours`, `reels` y `gallery` (10 de 10) |
+
 ---
 
 ## 4. Decisiones tomadas que afectan a la Fase 1
