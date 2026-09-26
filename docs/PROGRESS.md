@@ -23,7 +23,7 @@
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
 | **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 116 kB de First Load JS |
-| **Rendimiento** | Lighthouse **móvil** sobre el build de producción (25/09): 99 · 100 · 100 · 100 |
+| **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
 | **Grafo de conocimiento** | 566 nodos · 1223 aristas · 36 comunidades (Graphify, backend DeepSeek) |
 
 ### Arranque rápido en una sesión nueva
@@ -366,6 +366,39 @@ edición, así que va antes que ellas.
 - `/admin/imagenes` — subida con compresión WebP ≤ 1600 px
 - Toasts y estado por tarjeta (guardado / sin guardar / error)
 
+### Rendimiento medido *(26/09, build de producción servido en local)*
+
+No es una medición de internet real: es el build de producción servido en la máquina de
+desarrollo. Lo que sí responde es **de dónde sale el tiempo**, que es lo que hacía falta
+saber antes de optimizar nada.
+
+| Medición | Resultado |
+| --- | --- |
+| TTFB por ruta, en caliente | **3-5 ms** en las 5 páginas · 28-54 ms en `/admin/login` (dinámica) |
+| Primera petición tras compilar | 167 ms en `/` (renderiza y llena la caché) y después 9 ms |
+| HTML comprimido | de 5,4 KB (`/contacto`) a 12,3 KB (`/`) — un 83-88 % menos que sin comprimir |
+| Primera visita, móvil, caché vacía | TTFB **15 ms** · primera pintura 236 ms · `load` **247 ms** · 14 peticiones · 131 KB |
+| LCP · CLS | **904 ms** · **0** |
+| Ir de una página a otra, con precarga | **88-149 ms** |
+| Ir de una página a otra, sin precarga | **106-131 ms** |
+| Volver a una página ya visitada | **68-90 ms** (sin red: sale del router cache) |
+| Botón atrás | **35 ms** |
+| 30 peticiones, 10 a la vez | todas 200 · mediana 8 ms · 63 req/s |
+
+Dos conclusiones que cambian lo que merece la pena optimizar:
+
+1. **El cambio de página lo paga el render en el cliente, no el servidor.** Con precarga y
+   sin ella los tiempos son casi iguales (88-149 frente a 106-131 ms): el RSC ya está en el
+   navegador y lo que tarda es montar el árbol de componentes. Bajar el TTFB (que ya está en
+   3 ms) no cambiaría nada; lo que lo bajaría es reducir el tamaño del árbol de cada página.
+2. **El LCP lo marca la imagen del hero, que se sirve desde Supabase Storage** (904 ms con
+   el servidor en la misma máquina, así que ese tiempo es casi todo la descarga de la foto).
+   El cuello de botella del sitio no es el código: es la imagen. Candidatos para la Fase 5:
+   servirla desde el propio dominio en lugar del bucket, y revisar su peso real.
+
+Estas cifras son la **línea base**; conviene repetirlas al cerrar la Fase 2 (el panel añade
+JavaScript, aunque solo en `/admin`).
+
 ### Fases siguientes (resumen)
 
 - **Fase 2 — Panel A (editar contenido).** Login real con Supabase Auth y "olvidé mi
@@ -508,6 +541,15 @@ Cada una costó tiempo; están ordenadas por gravedad.
     `EADDRINUSE: address already in use :::3000`. Se comprueba y se libera sin salir del
     proyecto:
     `Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`.
+29. **No mezclar `next dev` y `next start` sobre el mismo `.next`.** El servidor de
+    desarrollo reescribe ese directorio al arrancar, aunque después falle por puerto
+    ocupado. Si en ese momento hay un `next start` corriendo, sigue vivo con el mapa de
+    rutas viejo en memoria y empieza a devolver **500** en las páginas que no tenía
+    cacheadas, con `Cannot find module '...\.next\server\app\(sitio)\nosotros\page.js'` en
+    el log. Las que ya había servido siguen funcionando, así que el fallo **parece
+    aleatorio y no lo es**. Se arregla con `npm run clean` y volviendo a compilar y
+    arrancar. **Comprobación rápida: si `.next\BUILD_ID` no existe, el directorio está
+    roto.**
 
 ---
 
