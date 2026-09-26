@@ -41,8 +41,8 @@ const SECTIONS: { href: string; label: string; description: string; ready: boole
   {
     href: '/admin/seo',
     label: 'SEO',
-    description: 'Títulos y descripciones para los buscadores.',
-    ready: false,
+    description: 'Títulos, descripciones e imagen al compartir.',
+    ready: true,
   },
 ];
 

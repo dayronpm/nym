@@ -47,6 +47,14 @@ export interface DynamicFormProps<T = unknown> {
   errors?: Record<string, string>;
   /** Desactiva todos los campos (mientras se guarda). */
   disabled?: boolean;
+  /**
+   * Prefijo de los `id` de los campos. Por defecto `f`.
+   *
+   * Hace falta cuando en una misma pantalla hay varios formularios con los mismos nombres de
+   * campo: sin prefijo, la tarjeta de Inicio y la de Contacto generarían los dos `f-title`, y
+   * el navegador asociaría cada etiqueta con el primero que encuentre.
+   */
+  idPrefix?: string;
 }
 
 interface RendererProps {
@@ -54,6 +62,8 @@ interface RendererProps {
   /** Ruta completa hasta el campo (`images.0.caption`): es la clave del error y el id. */
   path: string;
   labelsKey: string;
+  /** Prefijo de los `id`, para que dos formularios no colisionen. */
+  idPrefix: string;
   value: unknown;
   errors?: Record<string, string>;
   disabled?: boolean;
@@ -137,6 +147,7 @@ function ArrayField({
   field,
   path,
   labelsKey,
+  idPrefix,
   value,
   errors,
   disabled,
@@ -250,6 +261,7 @@ function ArrayField({
                           field={child}
                           path={`${path}.${index}.${child.name}`}
                           labelsKey={labelsKey}
+                          idPrefix={idPrefix}
                           itemFields={config.itemFields}
                           value={record(item)[child.name]}
                           errors={errors}
@@ -289,6 +301,7 @@ function FieldRenderer({
   field,
   path,
   labelsKey,
+  idPrefix,
   value,
   errors,
   disabled,
@@ -297,7 +310,7 @@ function FieldRenderer({
 }: RendererProps) {
   const descriptor = field.descriptor;
   const config = fieldConfig(labelsKey, field.name, itemFields);
-  const id = `f-${path.replace(/\./g, '-')}`;
+  const id = `${idPrefix}-${path.replace(/\./g, '-')}`;
   const error = errors?.[path];
 
   // Un campo oculto existe en el esquema pero no se pregunta: identificadores internos,
@@ -317,6 +330,7 @@ function FieldRenderer({
               field={child}
               path={`${path}.${child.name}`}
               labelsKey={labelsKey}
+              idPrefix={idPrefix}
               itemFields={itemFields}
               value={record(value)[child.name]}
               errors={errors}
@@ -349,6 +363,7 @@ function FieldRenderer({
         field={field}
         path={path}
         labelsKey={labelsKey}
+        idPrefix={idPrefix}
         itemFields={itemFields}
         value={value}
         errors={errors}
@@ -482,6 +497,7 @@ export default function DynamicForm<T>({
   onChange,
   errors,
   disabled,
+  idPrefix = 'f',
 }: DynamicFormProps<T>) {
   const descriptor = describeField(schema);
   const data = record(initialData);
@@ -502,6 +518,7 @@ export default function DynamicForm<T>({
           field={field}
           path={field.name}
           labelsKey={labelsKey}
+          idPrefix={idPrefix}
           value={data[field.name]}
           errors={errors}
           disabled={disabled}

@@ -17,12 +17,12 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. La **2.4** (pantallas de configuración) tiene ya `/admin/negocio`; faltan servicios, SEO y apariencia |
+| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. La **2.4** (pantallas de configuración) tiene ya `/admin/negocio`, `/admin/servicios` y `/admin/seo`; falta apariencia |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
-| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 122 kB de First Load JS |
+| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 123 kB de First Load JS |
 | **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
 | **Grafo de conocimiento** | 566 nodos · 1223 aristas · 36 comunidades (Graphify, backend DeepSeek) |
 
@@ -410,10 +410,18 @@ tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
       tarjeta les quita el prefijo de su sección antes de pintarlos (ver trampa 33)
 - [x] `FormMessage` usa ya los tokens `danger` y `success`, que existían desde la Fase 1 sin
       que nadie los usara
-- [ ] Falta: `/admin/servicios` (catálogo único), `/admin/seo` (`seo_defaults` y metadatos por
-      página, con una mutación nueva para `pages`) y `/admin/apariencia` (tema: hoy
-      `site_settings.theme` se guarda pero no se aplica, y las fuentes son de `next/font`, o
-      sea de tiempo de compilación, así que hace falta una lista curada)
+- [x] `core/components/admin/DraftCard.tsx` — la tarjeta compartida: recibe la función de
+      guardado y el prefijo de los errores, así que le sirve lo mismo a un grupo de
+      `site_settings` que a los metadatos de una página
+- [x] `/admin/servicios` — el catálogo único. El formulario lo genera `ServicesCatalog`, que
+      tiene listas dentro de listas (categorías → servicios); para eso el motor de formularios
+      aprendió a anidar listas y a darle a cada nivel sus propias palabras
+- [x] `/admin/seo` — los valores por defecto del sitio (`seo_defaults`) y **una tarjeta por
+      página** con su título, su descripción y su imagen al compartir. Necesitó una mutación
+      nueva (`update-page.ts`), porque la tabla `pages` no es `site_settings`
+- [ ] Falta: `/admin/apariencia` (tema: hoy `site_settings.theme` se guarda pero no se aplica, y
+      las fuentes son de `next/font`, o sea de tiempo de compilación, así que hace falta una
+      lista curada)
 
 ### 2.5 Imágenes y avisos *(después)*
 
@@ -633,6 +641,18 @@ Cada una costó tiempo; están ordenadas por gravedad.
     no compilaba (`TS1117`: *an object literal cannot have multiple properties with the same
     name*). Los grupos de configuración se llaman `brand_settings` y `contact_settings`:
     el nombre de la clave **es** la clave del mapa.
+36. **Dos formularios generados en la misma pantalla chocan en los `id`.** Los `id` salen del
+    nombre del campo (`f-title`), así que las cinco tarjetas de página generaban cinco `f-title`
+    y el navegador asociaba las cinco etiquetas al primer campo: al pulsar "Título" en la
+    tarjeta de Contacto se enfocaba el de Inicio, y el nombre accesible del campo se leía cinco
+    veces seguidas. `DynamicForm` acepta ya `idPrefix` (`idPrefix={page.slug}`), y la tarjeta de
+    bloque le pasa el identificador del bloque.
+37. **Un harness que monta una pantalla del panel salta el guardia de sesión.** La página de
+    prueba (`app/dev-…`) no cuelga de `/admin`, así que el middleware no la protege y su botón
+    Guardar llama a la Server Action **sin sesión**; con la clave secreta en el servidor, eso
+    escribiría de verdad. El harness sirve para **mirar** la pantalla —y encontró los errores
+    del motor de formularios y los `id` duplicados—, nunca para guardar, y se borra antes de
+    cerrar el bloque.
 
 ---
 
@@ -670,8 +690,9 @@ Cada una costó tiempo; están ordenadas por gravedad.
   contraste 4.5:1 antes de guardar (Fase 2).
 - Los formularios de bloque se escriben a mano hasta que exista `DynamicForm` (Fase 2).
 - `docs/DEPLOYMENT.md` y `docs/SCHEMA.md` están pendientes (opcionales en el plan).
-- El dashboard del panel lista las cinco secciones, pero solo `/admin/paginas` y
-  `/admin/negocio` son navegables; las otras tres aparecen como pendientes (Fase 2).
+- El dashboard del panel lista las cinco secciones, pero solo `/admin/paginas`,
+  `/admin/negocio`, `/admin/servicios` y `/admin/seo` son navegables; Imágenes aparece como
+  pendiente (Fase 2.5).
 - Las migraciones `001_storage.sql` crean el bucket y sus políticas; si algún push falla
   por permisos sobre el esquema `storage`, el bucket se puede crear desde el panel.
 

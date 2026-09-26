@@ -127,6 +127,36 @@ export const FORM_LABELS: Record<string, FormLabels> = {
     },
   },
 
+  seo_defaults: {
+    business_type: {
+      label: 'Tipo de negocio',
+      hint: 'Cómo se declara el negocio para Google: DaySpa, BeautySalon, HairSalon, NailSalon… Si no estás seguro, deja DaySpa.',
+    },
+    default_og_image: {
+      label: 'Imagen al compartir (reserva)',
+      hint: 'La usa cualquier página que no tenga la suya propia.',
+    },
+  },
+
+  page_meta: {
+    title: {
+      label: 'Título de la página',
+      hint: 'El encabezado que se lee en la propia página. Obligatorio.',
+    },
+    meta_title: {
+      label: 'Título para Google',
+      hint: 'Si lo dejas vacío se arma con el título y el nombre del negocio. Máximo 60 caracteres.',
+    },
+    meta_description: {
+      label: 'Descripción para Google',
+      hint: 'Lo que se lee bajo el enlace en los resultados. Máximo 160 caracteres.',
+    },
+    og_image: {
+      label: 'Imagen al compartir',
+      hint: 'La que se ve en WhatsApp y redes al pegar el enlace de esta página.',
+    },
+  },
+
   services_catalog: {
     categories: {
       label: 'Categorías de servicios',

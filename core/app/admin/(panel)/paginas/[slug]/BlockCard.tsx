@@ -104,6 +104,7 @@ export default function BlockCard({
             <DynamicForm
               schema={schema}
               labelsKey={type}
+              idPrefix={id}
               initialData={draft.value}
               onChange={draft.setValue}
               errors={draft.errors}
