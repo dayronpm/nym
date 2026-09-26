@@ -7,4 +7,4 @@
  *
  * Ojo al mover rutas: una página que viva fuera del grupo NO hereda este layout.
  */
-export { default, revalidate } from '@/app/(sitio)/layout';
+export { default, generateMetadata, revalidate } from '@/app/(sitio)/layout';

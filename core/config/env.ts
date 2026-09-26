@@ -57,3 +57,25 @@ export function isSupabaseConfigured(): boolean {
 export function isSeedResetAllowed(): boolean {
   return process.env.ALLOW_SEED_RESET === 'true';
 }
+
+/**
+ * URL base del sitio público, sin barra final.
+ *
+ * La necesitan el `sitemap.xml`, el `canonical` y las URLs de Open Graph, que están
+ * obligadas a ser absolutas. Orden de preferencia:
+ *
+ *   1. `NEXT_PUBLIC_SITE_URL` — el dominio propio del negocio. Es la única que hay que
+ *      declarar, y solo el día que se compra el dominio.
+ *   2. `VERCEL_URL` — la pone Vercel sola en cada despliegue, así que las
+ *      previsualizaciones y el dominio `.vercel.app` funcionan sin configurar nada.
+ *   3. `http://localhost:3000` — para trabajar en local.
+ */
+export function getSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  if (explicit) return explicit.replace(/\/+$/, '');
+
+  const vercel = process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel.replace(/\/+$/, '')}`;
+
+  return 'http://localhost:3000';
+}

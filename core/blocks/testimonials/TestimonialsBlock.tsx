@@ -28,10 +28,15 @@ export default function TestimonialsBlock({ data }: BlockProps<TestimonialsData>
           return (
             <li key={item.id} className="flex flex-col rounded-md border border-border bg-surface p-6">
               {data.show_ratings && item.rating ? (
-                <p className="text-primary" aria-label={`${item.rating} de 5 estrellas`}>
-                  <span aria-hidden="true">
-                    {'★'.repeat(item.rating)}
-                    {'☆'.repeat(5 - item.rating)}
+                // El `aria-label` va en un `role="img"` y no en el <p>: sobre un párrafo
+                // ARIA lo prohíbe (el rol `paragraph` no admite nombre accesible) y
+                // Lighthouse lo marca como incumplimiento.
+                <p className="text-primary">
+                  <span role="img" aria-label={`${item.rating} de 5 estrellas`}>
+                    <span aria-hidden="true">
+                      {'★'.repeat(item.rating)}
+                      {'☆'.repeat(5 - item.rating)}
+                    </span>
                   </span>
                 </p>
               ) : null}

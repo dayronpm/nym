@@ -1,4 +1,9 @@
-import type { BrandSettings, ContactSettings, ServicesCatalog } from '@/types/settings';
+import type {
+  BrandSettings,
+  ContactSettings,
+  SeoDefaults,
+  ServicesCatalog,
+} from '@/types/settings';
 
 /**
  * Preset "Spa" — contenido de ejemplo NEUTRO.
@@ -38,11 +43,17 @@ export interface SpaPreset {
    * Solo lo que el seed necesita cambiar. Deliberadamente NO incluye `theme` ni
    * `hours`: la migración 000 ya deja esos dos con valores válidos, y repetirlos
    * aquí sería una copia más que mantener sincronizada.
+   *
+   * `seo_defaults` sí entra, por un motivo concreto: guarda la **imagen Open
+   * Graph** y eso es una ruta del bucket, que la migración no puede conocer. Es la
+   * foto que se ve al compartir el enlace en WhatsApp, así que sin ella la
+   * previsualización sale sin imagen.
    */
   siteSettings: {
     brand: BrandSettings;
     contact: ContactSettings;
     services_catalog: ServicesCatalog;
+    seo_defaults: SeoDefaults;
   };
   pages: PresetPage[];
   blocks: PresetBlock[];
@@ -53,6 +64,15 @@ export const SPA_PRESET: SpaPreset = {
     brand: {
       name: 'Nombre del Negocio',
       tagline: 'Bienestar y cuidado personal',
+    },
+    seo_defaults: {
+      // `DaySpa` es el tipo de negocio de schema.org que corresponde a un spa.
+      business_type: 'DaySpa',
+      // Imagen de reserva para compartir el enlace. Placeholder generado por el seed.
+      default_og_image: {
+        path: 'brand/preset-og.png',
+        alt: 'Imagen de presentación del negocio (ejemplo)',
+      },
     },
     contact: {
       // Número ficticio. Formato: solo dígitos con código de país, sin "+".

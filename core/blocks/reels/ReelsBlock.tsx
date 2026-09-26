@@ -63,11 +63,15 @@ export default function ReelsBlock({ data, settings }: BlockProps<ReelsData>) {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Ver reel en ${PLATFORM_LABELS[item.platform]}${
-                  item.title ? `: ${item.title}` : ''
-                }`}
                 className="group block"
               >
+                {/* El contexto ("Ver reel en…") va como texto oculto y **no** como
+                    `aria-label`: un `aria-label` que no contiene el texto visible incumple
+                    WCAG 2.5.3, porque quien dicta por voz dice lo que ve. Con el texto
+                    oculto, el nombre accesible incluye la etiqueta visible y además se
+                    entiende de qué va el enlace. */}
+                <span className="sr-only">Ver reel en {PLATFORM_LABELS[item.platform]}:</span>
+
                 <Image
                   media={item.thumbnail}
                   aspect="9:16"

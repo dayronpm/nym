@@ -1,8 +1,11 @@
+import { unstable_cache } from 'next/cache';
+
 import { SHARED_CONTENT_FIELD } from '@/blocks/shared';
+import { CACHE_TAGS } from '@/data/cache-tags';
 import { DataError } from '@/data/errors';
 import { createSupabasePublicClient, createSupabaseServerClient } from '@/data/supabase';
 import type { BlockRow } from '@/types/models';
-import type { PageSlug } from '@/types/settings';
+import { PAGE_SLUGS, type PageSlug } from '@/types/settings';
 
 /**
  * Lectura de bloques.
@@ -16,6 +19,38 @@ import type { PageSlug } from '@/types/settings';
  *     RLS del público solo deja ver `enabled = true`, así que el panel necesita
  *     la sesión para poder listar también los bloques desactivados.
  */
+
+/**
+ * Lectura cacheada de los bloques publicados de una página.
+ *
+ * `unstable_cache` guarda el resultado **entre peticiones** —a diferencia de `cache` de
+ * React, que solo dura la petición— y lo etiqueta para poder invalidarlo desde el panel con
+ * `revalidateTag`. La página forma parte de la clave, así que cada una tiene su entrada.
+ */
+const readPageBlocks = unstable_cache(
+  async (page: string): Promise<BlockRow[]> => {
+    const supabase = createSupabasePublicClient();
+    const { data, error } = await supabase
+      .from('blocks')
+      .select('*')
+      .eq('page', page)
+      .eq('enabled', true)
+      .order('order', { ascending: true });
+
+    if (error) {
+      throw new DataError(`No se pudieron leer los bloques de "${page}".`, { cause: error });
+    }
+
+    return data ?? [];
+  },
+  ['blocks-by-page'],
+  { tags: [CACHE_TAGS.blocks] },
+);
+
+/** Comprueba que un valor guardado en un `jsonb` es una página de verdad. */
+function isPageSlug(value: string): value is PageSlug {
+  return (PAGE_SLUGS as readonly string[]).includes(value);
+}
 
 /** Un `jsonb` visto como objeto, o `null` si no lo es. */
 function asObject(data: BlockRow['data']): Record<string, unknown> | null {
@@ -47,37 +82,30 @@ function asObject(data: BlockRow['data']): Record<string, unknown> | null {
 async function resolveSourceContent(rows: BlockRow[]): Promise<BlockRow[]> {
   const mirrors = rows.flatMap((row) => {
     const source = asObject(row.data)?.source_page;
-    return typeof source === 'string' ? [{ source }] : [];
+    return typeof source === 'string' && isPageSlug(source) ? [{ source }] : [];
   });
 
   if (mirrors.length === 0) return rows;
 
-  const pages = [...new Set(mirrors.map((mirror) => mirror.source))];
-  const supabase = createSupabasePublicClient();
-  const { data, error } = await supabase
-    .from('blocks')
-    .select('*')
-    .in('page', pages)
-    .eq('enabled', true);
-
-  if (error) {
-    throw new DataError(`No se pudieron leer los bloques de origen (${pages.join(', ')}).`, {
-      cause: error,
-    });
-  }
-
-  const origins = data ?? [];
+  // Una lectura por página de origen, y solo una de cada: las páginas se deduplican.
+  const sources = [...new Set(mirrors.map((mirror) => mirror.source))];
+  const origins = new Map(
+    await Promise.all(
+      sources.map(async (source): Promise<readonly [PageSlug, BlockRow[]]> => [
+        source,
+        await readPageBlocks(source),
+      ]),
+    ),
+  );
 
   return rows.map((row) => {
     const local = asObject(row.data);
     const source = local?.source_page;
     const field = SHARED_CONTENT_FIELD[row.type];
 
-    if (!local || typeof source !== 'string' || !field) return row;
+    if (!local || typeof source !== 'string' || !isPageSlug(source) || !field) return row;
 
-    const origin = origins.find(
-      (candidate) => candidate.page === source && candidate.type === row.type,
-    );
+    const origin = origins.get(source)?.find((candidate) => candidate.type === row.type);
     const list = origin ? asObject(origin.data)?.[field] : undefined;
 
     // Sin origen, o con un origen sin lista, la fila se deja como está: si el bloque
@@ -90,22 +118,16 @@ async function resolveSourceContent(rows: BlockRow[]): Promise<BlockRow[]> {
   });
 }
 
-/** Bloques publicados de una página, en su orden. Para el sitio público. */
+/**
+ * Bloques publicados de una página, en su orden y con el contenido ya resuelto. Para el
+ * sitio público.
+ *
+ * La lectura llega cacheada (etiqueta `blocks`) y los bloques que resumen otra sección se
+ * completan **antes** de devolverlos, con la lectura de su página de origen —también
+ * cacheada—, para que quien pinta el bloque no tenga que saber nada de esto.
+ */
 export async function getPublishedBlocksByPage(page: PageSlug): Promise<BlockRow[]> {
-  const supabase = createSupabasePublicClient();
-  const { data, error } = await supabase
-    .from('blocks')
-    .select('*')
-    .eq('page', page)
-    .eq('enabled', true)
-    .order('order', { ascending: true });
-
-  if (error) {
-    throw new DataError(`No se pudieron leer los bloques de "${page}".`, { cause: error });
-  }
-
-  // Los bloques que resumen otra sección se completan antes de devolverlos.
-  return resolveSourceContent(data ?? []);
+  return resolveSourceContent(await readPageBlocks(page));
 }
 
 /** Todos los bloques de una página, desactivados incluidos. Solo para el panel. */

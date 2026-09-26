@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 
+import { getSiteUrl } from '@/config/env';
 import '@/styles/globals.css';
 
 /**
@@ -29,15 +30,23 @@ const bodyFont = Inter({
 /**
  * Metadatos por defecto.
  *
- * Son valores neutros de la plantilla. Cada página los sobrescribe con los
- * suyos desde `pages` (title, meta_title, meta_description, og_image).
+ * Son valores neutros de la plantilla. La plantilla del `<title>` con el nombre real del
+ * negocio la pone el layout del sitio (`(sitio)/layout.tsx`), que sí lee `site_settings`.
+ *
+ * `metadataBase` es lo que permite escribir rutas relativas en Open Graph: Next las
+ * convierte en absolutas (con el dominio propio si está declarado, si no con el de
+ * Vercel) y avisa en el build si falta.
  */
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: 'Nombre del Negocio',
     template: '%s · Nombre del Negocio',
   },
   description: 'Sitio web de un negocio de bienestar, con panel de administración propio.',
+  // Favicon generado en `/favicon` a partir del nombre y la paleta del negocio, en lugar
+  // de un archivo estático: ver `core/app/favicon/route.ts`.
+  icons: { icon: [{ url: '/favicon', type: 'image/svg+xml' }] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

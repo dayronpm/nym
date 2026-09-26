@@ -152,6 +152,7 @@ const { error: settingsError } = await supabase
     brand: SPA_PRESET.siteSettings.brand,
     contact: SPA_PRESET.siteSettings.contact,
     services_catalog: SPA_PRESET.siteSettings.services_catalog,
+    seo_defaults: SPA_PRESET.siteSettings.seo_defaults,
     updated_at: new Date().toISOString(),
   })
   .eq('id', 1);
