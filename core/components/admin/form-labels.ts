@@ -81,6 +81,52 @@ export const FORM_LABELS: Record<string, FormLabels> = {
     },
   },
 
+  /* ---- Grupos de `site_settings` (pantallas de configuración) ---- */
+
+  brand_settings: {
+    name: { label: 'Nombre del negocio' },
+    tagline: { label: 'Lema', hint: 'Una línea corta bajo el nombre. Opcional.' },
+    logo: { label: 'Logotipo', hint: 'Opcional. Sirve de imagen de reserva al compartir el enlace.' },
+    favicon: { label: 'Icono del navegador' },
+  },
+
+  contact_settings: {
+    whatsapp: {
+      label: 'WhatsApp',
+      hint: 'Solo dígitos con código de país, sin "+". Ejemplo: 50760000000.',
+    },
+    phone_display: { label: 'Teléfono (como se muestra)', hint: 'Ejemplo: 6000-0000.' },
+    phone: {
+      label: 'Teléfono (para llamar)',
+      hint: 'Con "+" si es internacional. Ejemplo: +50760000000.',
+    },
+    email: { label: 'Correo' },
+    address: { label: 'Dirección' },
+    maps_url: {
+      label: 'Enlace de Google Maps',
+      hint: 'El que se abre con el botón "Cómo llegar".',
+      type: 'url',
+    },
+    maps_embed_url: {
+      label: 'Enlace del mapa para insertar',
+      hint: 'De Google Maps: Compartir → Insertar un mapa. Es lo que dibuja el mapa en la página de contacto.',
+      type: 'url',
+    },
+    instagram_url: { label: 'Instagram', type: 'url' },
+    tiktok_url: { label: 'TikTok', type: 'url' },
+    facebook_url: { label: 'Facebook', type: 'url' },
+    booking_message_generic: {
+      label: 'Mensaje de reserva general',
+      hint: 'Es lo que aparece ya escrito en WhatsApp al pulsar el botón.',
+      type: 'textarea',
+    },
+    booking_message_service: {
+      label: 'Mensaje de reserva por servicio',
+      hint: 'Escribe {servicio} donde deba ir el nombre del servicio.',
+      type: 'textarea',
+    },
+  },
+
   services: {
     ...COMMON,
     mode: {

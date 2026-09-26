@@ -34,15 +34,15 @@ import { fieldConfig, type FormLabels } from './form-labels';
  * que hay con lo que había para saber si hace falta guardar.
  */
 
-export interface DynamicFormProps {
+export interface DynamicFormProps<T = unknown> {
   /** Esquema del contenido. */
   schema: z.ZodTypeAny;
-  /** Clave del mapa de etiquetas (`hero`, `negocio`…). */
+  /** Clave del mapa de etiquetas (`hero`, `brand_settings`…). */
   labelsKey: string;
   /** Contenido actual. */
-  initialData: unknown;
+  initialData: T;
   /** Se llama en cada cambio, con el contenido completo actualizado. */
-  onChange: (data: unknown) => void;
+  onChange: (data: T) => void;
   /** Errores por ruta de campo, tal como los devuelve el guardado. */
   errors?: Record<string, string>;
   /** Desactiva todos los campos (mientras se guarda). */
@@ -460,14 +460,14 @@ function FieldRenderer({
   );
 }
 
-export default function DynamicForm({
+export default function DynamicForm<T>({
   schema,
   labelsKey,
   initialData,
   onChange,
   errors,
   disabled,
-}: DynamicFormProps) {
+}: DynamicFormProps<T>) {
   const descriptor = describeField(schema);
   const data = record(initialData);
 
@@ -490,7 +490,10 @@ export default function DynamicForm({
           value={data[field.name]}
           errors={errors}
           disabled={disabled}
-          onChange={(next) => onChange({ ...data, [field.name]: next })}
+          // Los valores llegan como `unknown` porque el formulario no puede validar: el esquema
+          // sirve para saber qué campos hay, no para comprobar el dato en cada pulsación. Quien
+          // recibe el borrador (`T`) es quien lo declara con su tipo real.
+          onChange={(next) => onChange({ ...data, [field.name]: next } as unknown as T)}
         />
       ))}
     </div>

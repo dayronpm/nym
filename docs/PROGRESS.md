@@ -17,12 +17,12 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. Siguen las pantallas de configuración y la subida de imágenes |
+| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. La **2.4** (pantallas de configuración) tiene ya `/admin/negocio`; faltan servicios, SEO y apariencia |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
-| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 116 kB de First Load JS |
+| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 122 kB de First Load JS |
 | **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
 | **Grafo de conocimiento** | 566 nodos · 1223 aristas · 36 comunidades (Graphify, backend DeepSeek) |
 
@@ -388,10 +388,35 @@ esquema lo añade al panel sin tocar el motor.
       formulario enseñe lo mismo que guardaría el sitio
 - [ ] Falta: activar y desactivar un bloque, reordenar (Fase 3) y los avisos flotantes (2.5)
 
-### 2.4 y 2.5 *(después)*
+### 2.4 Pantallas de configuración *(en curso)*
 
-- `/admin/negocio` · `/admin/servicios` · `/admin/seo` · `/admin/apariencia` (con la
-  inyección de `site_settings.theme` en el sitio, hoy solo vive en `globals.css`)
+La configuración del negocio, agrupada por temas y no por columnas de la base de datos: cada
+tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
+
+- [x] `/admin/negocio` — marca, contacto y horarios. Cada tarjeta es un borrador independiente
+      y se guarda por separado: guardar el teléfono no reenvía la marca
+- [x] `core/components/admin/useDraft.ts` — el borrador en un solo sitio (valor, aviso de
+      cambios sin guardar, errores, guardado y mensaje). Lo usan las tarjetas de configuración
+      y las de bloque: antes la lógica estaba copiada en la de bloque
+- [x] `core/app/admin/(panel)/negocio/HoursForm.tsx` — los horarios van **escritos a mano**: son
+      siete días fijos (`z.array(DayHours).length(7)`), así que una lista con "añadir" y
+      "quitar" dejaría crear un octavo día o borrar el lunes. Cada día tiene su casilla de
+      cerrado y hasta dos tramos, por si se cierra al mediodía
+- [x] La marca y el contacto salen del **mismo esquema que valida el servidor**
+      (`BrandSettings`, `ContactSettings`), así que formulario y base de datos no pueden
+      discrepar; las palabras las sigue poniendo `form-labels.ts` (`brand_settings`,
+      `contact_settings`)
+- [x] Los errores del servidor llegan con la ruta del esquema maestro (`contact.email`) y cada
+      tarjeta les quita el prefijo de su sección antes de pintarlos (ver trampa 33)
+- [x] `FormMessage` usa ya los tokens `danger` y `success`, que existían desde la Fase 1 sin
+      que nadie los usara
+- [ ] Falta: `/admin/servicios` (catálogo único), `/admin/seo` (`seo_defaults` y metadatos por
+      página, con una mutación nueva para `pages`) y `/admin/apariencia` (tema: hoy
+      `site_settings.theme` se guarda pero no se aplica, y las fuentes son de `next/font`, o
+      sea de tiempo de compilación, así que hace falta una lista curada)
+
+### 2.5 Imágenes y avisos *(después)*
+
 - `/admin/imagenes` — subida con compresión WebP ≤ 1600 px
 - Avisos flotantes y estado por tarjeta
 
@@ -590,6 +615,24 @@ Cada una costó tiempo; están ordenadas por gravedad.
     `item` vuelve a ser "posiblemente `undefined`" (`TS18048`), porque la declaración se eleva
     y podría llamarse antes. La salida limpia es copiar el valor a una constante **antes** de
     las funciones (`const itemSchema = item.schema`), no poner un `!`.
+32. **Un render-prop no cruza la frontera servidor/cliente.** La tarjeta de configuración
+    (`DraftCard`) recibe sus campos como **función**, porque cada grupo se edita distinto, y la
+    pantalla que la usa es un componente de cliente. Si la página de servidor intentara pasar
+    ese `children`, Next no tendría nada serializable que mandar. La regla: **la composición
+    con funciones vive entera en el cliente**; del servidor solo cruzan datos.
+33. **Los errores de `site_settings` llegan con la ruta del esquema maestro.** El guardado
+    valida la fila completa, así que los `fieldErrors` vienen como `contact.email` y no como
+    `email`. Cada tarjeta quita el prefijo de su sección antes de pasarlos al formulario; sin
+    eso los errores de configuración **no se verían** y parecería que no hay validación.
+34. **`onChange: (data: unknown) => void` rompe a quien pasa un tipo concreto.** TypeScript
+    rechaza la asignación por contravarianza (`TS2322`: `unknown` no es asignable a
+    `BrandSettings`). `DynamicForm` es genérico (`DynamicFormProps<T>`) y el `unknown` se queda
+    dentro, en el único punto donde el motor compone el objeto.
+35. **Dos entradas del mapa de etiquetas no pueden llamarse igual.** El bloque `contact` de las
+    páginas y el grupo `contact` de `site_settings` se llamaban los dos `contact`, y el archivo
+    no compilaba (`TS1117`: *an object literal cannot have multiple properties with the same
+    name*). Los grupos de configuración se llaman `brand_settings` y `contact_settings`:
+    el nombre de la clave **es** la clave del mapa.
 
 ---
 
@@ -610,10 +653,11 @@ Cada una costó tiempo; están ordenadas por gravedad.
 - La invalidación de la caché es **gruesa** (una etiqueta por tipo de contenido, no por
   página). Es deliberado y está razonado en `core/data/cache-tags.ts`; se afina si el sitio
   crece.
-- Los avisos de error del panel usan el **acento del tema** como color de aviso, porque la
-  paleta no tiene un color de peligro. Debería tener uno propio (`danger`, con su token en el
-  tema y su variable CSS) para que un error no dependa de que el acento sea cálido. Se añade
-  con el trabajo de apariencia de la Fase 2.
+- ~~Los avisos de error del panel usan el **acento del tema** como color de aviso.~~ **Resuelto
+  en la 2.4**: `core/styles/globals.css` ya tenía `--color-danger` y `--color-success` desde la
+  Fase 1 y `tailwind.config.ts` los expone como `danger` y `success`; lo que faltaba era usarlos.
+  `core/components/admin/FormMessage.tsx` pinta ya los errores en rojo y las confirmaciones en
+  verde, así que un error se lee como un error con cualquier paleta.
 - `block.Form` **no lo usa nadie**: el editor resuelve el esquema en el cliente. O se le da un
   uso (formularios propios para bloques con subida de archivos) o se quita del contrato al
   cerrar la Fase 2. Dejarlo sin decidir es lo que convierte un contrato en una promesa vacía.
@@ -626,8 +670,8 @@ Cada una costó tiempo; están ordenadas por gravedad.
   contraste 4.5:1 antes de guardar (Fase 2).
 - Los formularios de bloque se escriben a mano hasta que exista `DynamicForm` (Fase 2).
 - `docs/DEPLOYMENT.md` y `docs/SCHEMA.md` están pendientes (opcionales en el plan).
-- `core/app/admin/[seccion]/page.tsx` todavía no existen: el dashboard lista las
-  secciones pero ninguna es navegable (Fase 2).
+- El dashboard del panel lista las cinco secciones, pero solo `/admin/paginas` y
+  `/admin/negocio` son navegables; las otras tres aparecen como pendientes (Fase 2).
 - Las migraciones `001_storage.sql` crean el bucket y sus políticas; si algún push falla
   por permisos sobre el esquema `storage`, el bucket se puede crear desde el panel.
 

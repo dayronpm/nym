@@ -8,7 +8,8 @@ import type { DayHours, WeekDay } from '@/types/settings';
  * sitio que tocar si el formato cambia.
  */
 
-const DAY_NAMES: Record<WeekDay, string> = {
+/** Nombre de cada día en español, para mostrarlo en el panel y en el pie. */
+export const DAY_NAMES: Record<WeekDay, string> = {
   mon: 'Lunes',
   tue: 'Martes',
   wed: 'Miércoles',
