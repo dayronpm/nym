@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. La **2.4** (pantallas de configuración) tiene ya `/admin/negocio`, `/admin/servicios` y `/admin/seo`; falta apariencia |
+| **Fase actual** | **Fase 2.4 cerrada** (pantallas de configuración: negocio, servicios, SEO y apariencia). Sigue la **2.5**: subida de imágenes y avisos flotantes |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -419,9 +419,18 @@ tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
 - [x] `/admin/seo` — los valores por defecto del sitio (`seo_defaults`) y **una tarjeta por
       página** con su título, su descripción y su imagen al compartir. Necesitó una mutación
       nueva (`update-page.ts`), porque la tabla `pages` no es `site_settings`
-- [ ] Falta: `/admin/apariencia` (tema: hoy `site_settings.theme` se guarda pero no se aplica, y
-      las fuentes son de `next/font`, o sea de tiempo de compilación, así que hace falta una
-      lista curada)
+- [x] `/admin/apariencia` — el tema: la paleta, las tipografías y las esquinas. Con esto el tema
+      deja de ser un dato decorativo: `lib/theme.ts` lo convierte en las **mismas variables CSS**
+      que ya usa `globals.css`, así que cambiar de paleta no toca ni un componente
+- [x] Contraste: `SiteThemeColors` exige 4.5:1 entre el texto y el fondo (y contra las tarjetas),
+      con la cuenta de WCAG en `lib/contrast.ts`. El tema se elige desde el panel y una paleta
+      bonita pero ilegible es un sitio roto que nadie revisa
+- [x] Las fuentes y las esquinas se eligen de **listas cerradas** (`form-labels.ts`): `next/font`
+      carga en tiempo de compilación, así que un nombre escrito a mano no existiría en el
+      navegador. Para eso el formulario generado aprendió a pintar un selector a partir del mapa
+      de etiquetas (`FieldConfig.options`)
+- [ ] Falta (2.5): `/admin/imagenes` y los avisos flotantes. Y la subida de archivos, que hoy se
+      hace subiendo la imagen a mano al bucket y pegando la ruta
 
 ### 2.5 Imágenes y avisos *(después)*
 
@@ -653,6 +662,13 @@ Cada una costó tiempo; están ordenadas por gravedad.
     escribiría de verdad. El harness sirve para **mirar** la pantalla —y encontró los errores
     del motor de formularios y los `id` duplicados—, nunca para guardar, y se borra antes de
     cerrar el bloque.
+38. **Las variables de `next/font` no se pueden llamar como el papel que cumplen.** El layout
+    raíz las declaraba `--font-heading` y `--font-body`, que son exactamente los tokens que el
+    tema tiene que decidir: con ese nombre, elegir otra fuente desde el panel era imposible.
+    Ahora se llaman `--font-cormorant` y `--font-inter` (la familia) y el papel lo asigna el
+    tema. Y ojo con dónde va la hoja: el `<style>` con los tokens tiene que llegar **después**
+    de `globals.css` (el del layout del sitio lo hace) y apuntar a `:root`, no a un contenedor,
+    porque el fondo del `body` y la tipografía base también salen de ahí.
 
 ---
 
@@ -685,9 +701,16 @@ Cada una costó tiempo; están ordenadas por gravedad.
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
   fuentes, es esto.
-- El tema de `site_settings.theme` **se guarda pero no se aplica**: el sitio lee los
-  tokens de `globals.css`. Falta inyectarlo en el `<style>` del root layout y validar el
-  contraste 4.5:1 antes de guardar (Fase 2).
+- ~~El tema de `site_settings.theme` **se guarda pero no se aplica**.~~ **Resuelto en la 2.4**:
+  `lib/theme.ts` lo convierte en las variables CSS que ya usaba `globals.css` y el layout del
+  sitio lo inyecta. Queda una limitación conocida y a propósito: las tipografías elegibles son
+  las dos que carga `next/font` en tiempo de compilación, así que **añadir una fuente es un
+  cambio de código** (y hay que añadirla a `FONT_STACKS` en `lib/theme.ts`).
+- `SelectField` es el único campo del formulario generado que **no se desactiva** mientras se
+  guarda (su interfaz no acepta `disabled`). Se nota poco —el botón ya está desactivado— pero
+  conviene arreglarlo al tocar `form-fields.tsx`.
+- El catálogo de servicios y las páginas se guardan con las claves de `site_settings` y de
+  `pages`. La subida de imágenes (2.5) es lo que falta para no tener que pegar rutas a mano.
 - Los formularios de bloque se escriben a mano hasta que exista `DynamicForm` (Fase 2).
 - `docs/DEPLOYMENT.md` y `docs/SCHEMA.md` están pendientes (opcionales en el plan).
 - El dashboard del panel lista las cinco secciones, pero solo `/admin/paginas`,

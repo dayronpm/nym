@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { getSiteSettings } from '@/data/queries/site-settings';
 import { buildBusinessJsonLd, serializeJsonLd } from '@/lib/seo';
+import { themeCss } from '@/lib/theme';
 
 /**
  * Layout del sitio público.
@@ -45,6 +46,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
+      {/* El tema del negocio (paleta, tipografías y esquinas) sobrescribe los tokens de
+          globals.css. Va aquí y no en el layout raíz porque el panel no debe heredarlo, y va
+          antes que nada para que el navegador no llegue a pintar con los colores por defecto. */}
+      <style dangerouslySetInnerHTML={{ __html: themeCss(settings.theme) }} />
+
       {/* Datos estructurados del negocio local (schema.org, tipo `DaySpa`). Van en el
           <body> a propósito: Google los acepta igual y así no hay que montarlos con
           `next/script`, que añadiría JavaScript por unos datos que son texto. */}

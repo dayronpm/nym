@@ -7,15 +7,19 @@ import '@/styles/globals.css';
 /**
  * Fuentes de la plantilla.
  *
- * Se descargan y sirven desde el propio sitio (sin llamadas a Google en tiempo
- * de ejecución). Al ser de compilación, las tipografías elegibles desde el
- * panel se limitarán a una lista curada declarada aquí (Fase 2).
+ * Se descargan y sirven desde el propio sitio (sin llamadas a Google en tiempo de ejecución).
+ * Al ser de compilación, las tipografías elegibles desde el panel se limitan a esta lista
+ * curada: añadir una fuente es un cambio de código, no un dato que se pueda escribir.
+ *
+ * Las variables llevan el **nombre de la familia** (`--font-inter`) y no el papel que cumplen
+ * (`--font-heading`): el papel lo decide `site_settings.theme` y lo inyecta el layout del sitio
+ * (`lib/theme.ts`). Con un nombre por papel no se podrían intercambiar desde el panel.
  */
 const headingFont = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['500', '600'],
   display: 'swap',
-  variable: '--font-heading',
+  variable: '--font-cormorant',
   fallback: ['ui-serif', 'Georgia', 'serif'],
 });
 
@@ -23,7 +27,7 @@ const bodyFont = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   display: 'swap',
-  variable: '--font-body',
+  variable: '--font-inter',
   fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
 });
 

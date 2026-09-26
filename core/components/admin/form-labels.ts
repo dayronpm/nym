@@ -22,6 +22,13 @@ export interface FieldConfig {
   hint?: string;
   /** Input concreto, cuando no se deduce del esquema. */
   type?: 'text' | 'url' | 'email' | 'textarea';
+  /**
+   * Opciones cerradas para un campo de texto (fuentes, radios).
+   *
+   * Hace falta porque el esquema no puede expresar "solo estas" cuando el dato es un texto
+   * libre (`z.string()`): la lista curada vive aquí, que es el archivo de las palabras.
+   */
+  options?: readonly { value: string; label: string }[];
   /** Etiquetas legibles para un selector cuyos valores son técnicos. */
   optionLabels?: Record<string, string>;
   /** Para listas: el campo que da el título del elemento plegado. */
@@ -43,6 +50,34 @@ const PAGE_OPTIONS: Record<string, string> = {
   nosotros: 'Nosotros',
   contacto: 'Contacto',
 };
+
+/** Fuentes que carga `next/font` en el layout raíz (`core/app/layout.tsx`). */
+const FONT_OPTIONS = [
+  { value: 'Cormorant Garamond', label: 'Cormorant Garamond (serif)' },
+  { value: 'Inter', label: 'Inter (sin serif)' },
+] as const;
+
+/** Radios disponibles, en píxeles. La lista es corta a propósito: cuatro valores por medida. */
+const RADIUS_SMALL = [
+  { value: '0px', label: 'Sin redondear' },
+  { value: '4px', label: '4 px' },
+  { value: '6px', label: '6 px' },
+  { value: '10px', label: '10 px' },
+] as const;
+
+const RADIUS_MEDIUM = [
+  { value: '0px', label: 'Sin redondear' },
+  { value: '8px', label: '8 px' },
+  { value: '12px', label: '12 px' },
+  { value: '20px', label: '20 px' },
+] as const;
+
+const RADIUS_LARGE = [
+  { value: '0px', label: 'Sin redondear' },
+  { value: '16px', label: '16 px' },
+  { value: '20px', label: '20 px' },
+  { value: '32px', label: '32 px' },
+] as const;
 
 /** Campos que comparten casi todos los bloques. */
 const COMMON: FormLabels = {
@@ -124,6 +159,43 @@ export const FORM_LABELS: Record<string, FormLabels> = {
       label: 'Mensaje de reserva por servicio',
       hint: 'Escribe {servicio} donde deba ir el nombre del servicio.',
       type: 'textarea',
+    },
+  },
+
+  theme: {
+    colors: {
+      label: 'Colores',
+      hint: 'El panel comprueba que el texto se lea sobre el fondo: no deja guardar una paleta por debajo de 4.5:1.',
+    },
+    fonts: {
+      label: 'Tipografías',
+      hint: 'Se eligen entre las fuentes que carga el sitio. Añadir otra es un cambio de código, no un ajuste del panel.',
+    },
+    radius: { label: 'Esquinas' },
+
+    bg: { label: 'Fondo del sitio' },
+    surface: { label: 'Tarjetas y formularios' },
+    surface_alt: {
+      label: 'Secciones alternas',
+      hint: 'Franjas de fondo distinto que separan unas secciones de otras.',
+    },
+    text: { label: 'Color del texto' },
+    text_muted: { label: 'Texto secundario', hint: 'Fechas, ayudas y textos de apoyo.' },
+    border: { label: 'Bordes y líneas finas' },
+    primary: { label: 'Color de acento', hint: 'Botones, enlaces y detalles.' },
+    primary_hover: { label: 'Acento al pasar el ratón' },
+    primary_soft: { label: 'Acento suave', hint: 'Fondos de avisos y resaltados.' },
+    on_primary: { label: 'Texto sobre el acento', hint: 'El color de la letra dentro de los botones.' },
+
+    heading: { label: 'Fuente de los títulos', options: FONT_OPTIONS },
+    body: { label: 'Fuente del texto', options: FONT_OPTIONS },
+
+    sm: { label: 'Esquinas pequeñas', hint: 'Campos de formulario y etiquetas.', options: RADIUS_SMALL },
+    md: { label: 'Esquinas medianas', hint: 'Botones y tarjetas.', options: RADIUS_MEDIUM },
+    lg: {
+      label: 'Esquinas grandes',
+      hint: 'Imágenes destacadas y contenedores.',
+      options: RADIUS_LARGE,
     },
   },
 

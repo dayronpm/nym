@@ -30,7 +30,7 @@ const SECTIONS: { href: string; label: string; description: string; ready: boole
     href: '/admin/apariencia',
     label: 'Apariencia',
     description: 'Colores, tipografías y esquinas.',
-    ready: false,
+    ready: true,
   },
   {
     href: '/admin/imagenes',

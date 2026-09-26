@@ -386,6 +386,22 @@ function FieldRenderer({
     );
   }
 
+  // Un campo de texto con opciones cerradas se pinta como selector: es lo que permite limitar
+  // una fuente o un radio a la lista curada. Un texto libre aquí no se podría aplicar de verdad.
+  if (descriptor.kind === 'text' && config.options) {
+    return (
+      <SelectField
+        label={config.label}
+        id={id}
+        hint={config.hint}
+        error={error}
+        options={config.options.map((option) => ({ ...option, raw: option.value }))}
+        value={String(value ?? '')}
+        onChange={(option) => onChange(option.raw)}
+      />
+    );
+  }
+
   if (descriptor.kind === 'select') {
     const options = withOptionLabels(descriptor.options ?? [], config.optionLabels);
 

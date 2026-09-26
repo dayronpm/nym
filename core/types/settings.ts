@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MediaRef } from '@/blocks/shared';
+import { contrastRatio } from '@/lib/contrast';
 import { hexColor, phoneNumber, time24h, whatsappNumber } from '@/lib/validation';
 
 /**
@@ -21,18 +22,36 @@ import { hexColor, phoneNumber, time24h, whatsappNumber } from '@/lib/validation
 /* Tema (tokens de diseño)                                                     */
 /* -------------------------------------------------------------------------- */
 
-export const SiteThemeColors = z.object({
-  bg: hexColor(),
-  surface: hexColor(),
-  surface_alt: hexColor(),
-  text: hexColor(),
-  text_muted: hexColor(),
-  border: hexColor(),
-  primary: hexColor(),
-  primary_hover: hexColor(),
-  primary_soft: hexColor(),
-  on_primary: hexColor(),
-});
+/**
+ * Colores del tema.
+ *
+ * Las dos comprobaciones de contraste no son un capricho estético: el tema se elige desde el
+ * panel, y una paleta bonita pero ilegible (texto claro sobre fondo claro) es un sitio roto que
+ * nadie revisa. Se exige el mínimo de WCAG AA para texto normal (4.5:1), contra el fondo del
+ * sitio y contra las tarjetas, y el error apunta al campo que hay que cambiar.
+ */
+export const SiteThemeColors = z
+  .object({
+    bg: hexColor(),
+    surface: hexColor(),
+    surface_alt: hexColor(),
+    text: hexColor(),
+    text_muted: hexColor(),
+    border: hexColor(),
+    primary: hexColor(),
+    primary_hover: hexColor(),
+    primary_soft: hexColor(),
+    on_primary: hexColor(),
+  })
+  .refine((colors) => contrastRatio(colors.text, colors.bg) >= 4.5, {
+    message:
+      'El texto y el fondo no se distinguen lo suficiente (mínimo 4.5:1). Oscurece el texto o aclara el fondo.',
+    path: ['text'],
+  })
+  .refine((colors) => contrastRatio(colors.text, colors.surface) >= 4.5, {
+    message: 'El texto no se lee sobre las tarjetas (mínimo 4.5:1).',
+    path: ['surface'],
+  });
 
 export const SiteTheme = z.object({
   colors: SiteThemeColors,
