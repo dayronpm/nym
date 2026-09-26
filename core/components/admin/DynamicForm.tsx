@@ -127,12 +127,26 @@ function TextareaField({
  * Cada elemento es una tarjeta plegable con su formulario dentro, y los botones de subir y
  * bajar están aquí aunque el arrastrar y soltar llegue en la Fase 3: sin ellos, quitar una
  * fila mal colocada obligaría a rehacerla.
+ *
+ * Se recibe `itemFields` —el mapa de etiquetas del elemento que la contiene, si la lista está
+ * dentro de otra— porque las listas se anidan: las categorías del catálogo llevan dentro su
+ * lista de servicios, y cada nivel necesita sus propias palabras (un `items` dentro de una
+ * categoría no se llama igual que un `items` en un bloque).
  */
-function ArrayField({ field, path, labelsKey, value, errors, disabled, onChange }: RendererProps) {
+function ArrayField({
+  field,
+  path,
+  labelsKey,
+  value,
+  errors,
+  disabled,
+  itemFields,
+  onChange,
+}: RendererProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const descriptor = field.descriptor;
-  const config = fieldConfig(labelsKey, field.name);
+  const config = fieldConfig(labelsKey, field.name, itemFields);
   const items = Array.isArray(value) ? value : [];
 
   // Se guarda el elemento en constantes propias: dentro de las funciones de abajo
@@ -335,6 +349,7 @@ function FieldRenderer({
         field={field}
         path={path}
         labelsKey={labelsKey}
+        itemFields={itemFields}
         value={value}
         errors={errors}
         disabled={disabled}

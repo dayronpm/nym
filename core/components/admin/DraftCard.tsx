@@ -1,28 +1,34 @@
 'use client';
 
 import FormMessage from '@/components/admin/FormMessage';
-import { useDraft } from '@/components/admin/useDraft';
-
-import { saveSettingsAction, type SettingsSection } from './actions';
+import { useDraft, type SaveOutcome } from '@/components/admin/useDraft';
 
 /**
  * Tarjeta de un grupo de configuración: título, aviso de cambios sin guardar, guardar y los
  * campos dentro.
  *
- * Los campos llegan como función porque cada grupo se edita distinto: la mayoría con el
+ * Vive en `components/admin` y no dentro de una pantalla porque la usan varias: los grupos de
+ * `site_settings` (negocio, servicios, apariencia, SEO) y, más adelante, los metadatos de cada
+ * página. Todas se comportan igual —cada una guarda lo suyo por separado— y por eso comparten la
+ * tarjeta y el gancho `useDraft`.
+ *
+ * Los campos llegan como función porque cada grupo se edita distinto: casi todos con el
  * formulario generado desde su esquema, y los horarios con uno escrito a mano (son siete días
  * fijos, y añadir o quitar días no tiene sentido).
  *
- * Los errores que devuelve el servidor vienen con la ruta del esquema maestro
- * (`contact.email`), así que aquí se les quita el prefijo de la sección para que el formulario
- * los encuentre donde toca (`email`). Sin esto, los errores de configuración no se verían.
+ * Los errores que devuelve el servidor llegan con la ruta del esquema maestro o del envoltorio
+ * de la acción (`brand.email`, `services_catalog.categories.0.name`). Con `errorPrefix` se les
+ * quita esa cabecera para que el formulario los encuentre donde toca. Sin esto, los errores de
+ * configuración no se verían.
  */
 
 export interface DraftCardProps<T> {
   title: string;
   description?: string;
-  /** Sección de `site_settings` que guarda esta tarjeta. */
-  section: SettingsSection;
+  /** Se llama al pulsar Guardar. Cada pantalla trae la suya. */
+  save: (value: T) => Promise<SaveOutcome>;
+  /** Cabecera que el servidor antepone a las rutas de error (`'brand.'`). */
+  errorPrefix?: string;
   initialValue: T;
   children: (props: {
     value: T;
@@ -35,15 +41,18 @@ export interface DraftCardProps<T> {
 export default function DraftCard<T>({
   title,
   description,
-  section,
+  save,
+  errorPrefix,
   initialValue,
   children,
 }: DraftCardProps<T>) {
-  const draft = useDraft<T>(() => initialValue, (value) => saveSettingsAction(section, value));
+  const draft = useDraft<T>(() => initialValue, save);
 
+  const prefix = errorPrefix ?? '';
   const localErrors: Record<string, string> = {};
+
   for (const [path, message] of Object.entries(draft.errors)) {
-    localErrors[path.startsWith(`${section}.`) ? path.slice(section.length + 1) : path] = message;
+    localErrors[prefix && path.startsWith(prefix) ? path.slice(prefix.length) : path] = message;
   }
 
   return (

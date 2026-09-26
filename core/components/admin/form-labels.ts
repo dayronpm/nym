@@ -127,6 +127,41 @@ export const FORM_LABELS: Record<string, FormLabels> = {
     },
   },
 
+  services_catalog: {
+    categories: {
+      label: 'Categorías de servicios',
+      hint: 'Agrupa los servicios como quieras (por zona, por tipo). Si no necesitas categorías, deja una sola con todo dentro.',
+      itemTitle: 'name',
+      addLabel: 'Añadir categoría',
+      itemFields: {
+        id: { label: 'Identificador interno', hidden: true },
+        name: { label: 'Nombre de la categoría' },
+        description: { label: 'Descripción de la categoría', type: 'textarea' },
+        items: {
+          label: 'Servicios',
+          hint: 'Lo que se ve en Inicio (resumen) y en la página de Servicios.',
+          itemTitle: 'name',
+          addLabel: 'Añadir servicio',
+          itemFields: {
+            id: { label: 'Identificador interno', hidden: true },
+            name: { label: 'Nombre del servicio' },
+            description: { label: 'Descripción', type: 'textarea' },
+            price: {
+              label: 'Precio (USD)',
+              hint: 'Opcional. Se muestra junto a la duración.',
+            },
+            duration_minutes: {
+              label: 'Duración (minutos)',
+              hint: 'Opcional. Ejemplo: 60.',
+            },
+            image: { label: 'Imagen del servicio' },
+            enabled: { label: 'Se muestra', hint: 'Desmárcalo para ocultarlo sin borrarlo.' },
+          },
+        },
+      },
+    },
+  },
+
   services: {
     ...COMMON,
     mode: {

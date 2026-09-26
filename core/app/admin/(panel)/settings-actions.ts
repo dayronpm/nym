@@ -12,15 +12,16 @@ import {
 /**
  * Guardado de un grupo de la configuración del sitio.
  *
- * Cada pantalla manda **solo su sección** (`brand`, `contact`, `hours`…), nunca la fila entera:
- * así dos pantallas no pueden pisarse los cambios entre ellas. Aun así, la mutación valida el
+ * Lo usan todas las pantallas de configuración (negocio, servicios, SEO, apariencia). Cada una
+ * manda **solo su sección** (`brand`, `contact`, `services_catalog`…), nunca la fila entera: así
+ * dos pantallas no pueden pisarse los cambios entre ellas. Aun así, la mutación valida el
  * resultado **completo** con el esquema maestro antes de escribir, así que un parche que deje la
  * configuración en un estado que el sitio no sepa leer no llega a la base de datos.
  *
  * La revalidación es distinta a la de un bloque, y es importante: la configuración se ve en
- * **todas** las páginas (encabezado, pie, horarios), así que se rehace el layout completo y no
- * una ruta suelta. `revalidatePath('/', 'layout')` revalida el layout raíz y todo lo que cuelga
- * de él.
+ * **todas** las páginas (encabezado, pie, horarios, catálogo de servicios), así que se rehace el
+ * layout completo y no una ruta suelta. `revalidatePath('/', 'layout')` revalida el layout raíz
+ * y todo lo que cuelga de él.
  */
 
 export type SettingsSection = keyof SiteSettingsPatch;

@@ -17,7 +17,13 @@ const SECTIONS: { href: string; label: string; description: string; ready: boole
   {
     href: '/admin/negocio',
     label: 'Negocio',
-    description: 'Contacto, horarios y catálogo de servicios.',
+    description: 'Contacto y horarios.',
+    ready: true,
+  },
+  {
+    href: '/admin/servicios',
+    label: 'Servicios',
+    description: 'El catálogo único que usan Inicio y la página de Servicios.',
     ready: true,
   },
   {
