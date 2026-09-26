@@ -1,8 +1,10 @@
 /**
- * Dashboard del panel (Fase 0: estructura mínima).
+ * Dashboard del panel: el índice de las secciones de edición.
  *
- * Las secciones reales (Páginas y bloques, Negocio, Apariencia, Imágenes, SEO)
- * se implementan en las fases 2 y 3.
+ * Las tarjetas **no** son enlaces todavía, y es a propósito: un enlace a una pantalla que
+ * no existe lleva a un 404 dentro del propio panel, que es peor que no ofrecerlo. Se
+ * activan a medida que cada sección se construye. Mientras tanto, el contenido del sitio
+ * se carga con `npm run seed`.
  */
 const SECTIONS = [
   { href: '/admin/paginas', label: 'Páginas y bloques' },
@@ -17,7 +19,8 @@ export default function AdminDashboardPage() {
     <main className="container-page section-y">
       <h1 className="text-4xl">Panel</h1>
       <p className="mt-2 text-text-muted">
-        Sesión iniciada. Las secciones de edición se habilitan en la Fase 2.
+        Desde aquí se edita todo el contenido del sitio. Las secciones se activan a medida
+        que están listas.
       </p>
 
       <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -27,7 +30,7 @@ export default function AdminDashboardPage() {
             className="rounded-md border border-border bg-surface p-5 shadow-soft"
           >
             <span className="font-medium">{section.label}</span>
-            <p className="mt-1 text-sm text-text-muted">Pendiente</p>
+            <p className="mt-1 text-sm text-text-muted">En construcción</p>
           </li>
         ))}
       </ul>

@@ -10,10 +10,9 @@ import { createSupabaseMiddlewareClient } from '@/data/supabase-middleware';
  * layout protegido del panel repite la comprobación como garantía final.
  *
  * El matcher solo cubre `/admin/*`, así que el sitio público nunca paga el
- * coste de este middleware. Se excluyen:
- *   - `/admin/login`            (debe ser accesible sin sesión)
- *   - `/api/*`                  (no aplica)
- *   - archivos estáticos
+ * coste de este middleware. Dentro del panel, `PUBLIC_ADMIN_PATHS` son las
+ * únicas rutas que se pueden abrir sin sesión (el login y el flujo de
+ * restablecimiento de contraseña); todo lo demás redirige al login.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -45,19 +44,29 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLoginRoute = pathname.startsWith('/admin/login');
+  const isPublicRoute = PUBLIC_ADMIN_PATHS.some((path) => pathname.startsWith(path));
 
-  if (!user && !isLoginRoute) {
+  if (!user && !isPublicRoute) {
     return redirectKeepingSession(request, '/admin/login', getResponse);
   }
 
-  // Con sesión activa no tiene sentido volver a mostrar el login.
-  if (user && isLoginRoute) {
+  // Con sesión activa no tiene sentido volver a mostrar el login. Las otras rutas públicas
+  // (el callback del correo) sí se dejan pasar: se usan justo para cerrar el flujo.
+  if (user && pathname.startsWith('/admin/login')) {
     return redirectKeepingSession(request, '/admin', getResponse);
   }
 
   return getResponse();
 }
+
+/**
+ * Rutas del panel accesibles sin sesión.
+ *
+ * `/admin/auth/callback` es la que abre el enlace del correo de restablecimiento, y
+ * `/admin/recuperar` el formulario que lo pide: si exigieran sesión, el usuario que ha
+ * olvidado la contraseña no podría entrar nunca.
+ */
+const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/recuperar', '/admin/auth/callback'];
 
 /**
  * Redirige conservando las cookies que Supabase haya renovado durante la

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { createSupabaseServerClient } from '@/data/supabase';
+import PanelHeader from '@/components/admin/PanelHeader';
 import { isSupabaseConfigured } from '@/config/env';
+import { createSupabaseServerClient } from '@/data/supabase';
 
 /**
  * El panel nunca puede servirse desde caché: cada petición depende de la sesión
@@ -25,6 +26,9 @@ export const metadata: Metadata = {
  *
  * Aquí se valida la sesión EN EL SERVIDOR (defensa en profundidad: el
  * middleware hace la redirección temprana, este layout es la garantía final).
+ *
+ * El encabezado del panel —con el correo de la sesión y el botón de cerrar sesión— sale
+ * de aquí, así que todas las pantallas protegidas lo comparten sin repetirlo.
  */
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   // Sin credenciales configuradas no se puede validar nada: se envía al login
@@ -42,5 +46,10 @@ export default async function AdminPanelLayout({ children }: { children: React.R
     redirect('/admin/login');
   }
 
-  return <div className="min-h-screen bg-surface-alt">{children}</div>;
+  return (
+    <div className="min-h-screen bg-surface-alt">
+      <PanelHeader email={user.email} />
+      {children}
+    </div>
+  );
 }

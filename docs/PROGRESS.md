@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 CERRADA** — sitio público completo: 5 páginas, los 10 bloques, Inicio como índice y SEO. Lo siguiente es la Fase 2 (el panel) |
+| **Fase actual** | **Fase 2 en curso** — el sitio público quedó cerrado en la Fase 1; ahora se construye el panel. Hecha la **2.1 (autenticación)**, sigue la **2.2 (`DynamicForm`)** |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -317,7 +317,56 @@ Las desviaciones respecto al plan (shims, grupo `(panel)`, migración `001_stora
 
 ---
 
-## 5. Fases siguientes (resumen, sin detallar todavía)
+## 5. Fase 2 en curso y fases siguientes
+
+### 2.1 Autenticación ✅ *(hecha, 26/09)*
+
+- [x] Login real con Supabase Auth (`signInWithPassword`) desde una **Server Action**: el
+      formulario se envía aunque el navegador no cargue JavaScript y la contraseña va del
+      formulario al servidor, sin pasar por código de navegador
+- [x] `/admin/recuperar` pide el enlace por correo; `/admin/auth/callback` canjea el código
+      PKCE por la sesión y deja al usuario en `/admin/nueva-clave`
+- [x] `/admin/nueva-clave` guarda la contraseña nueva (8 caracteres mínimo y repetida)
+- [x] Cerrar sesión desde el encabezado del panel, también sin JavaScript
+- [x] Rutas públicas del panel declaradas en un solo sitio (`PUBLIC_ADMIN_PATHS`, en el
+      middleware): login, recuperar y callback. Todo lo demás redirige al login
+- [x] Mensajes en español y **neutros**: no se distingue "ese correo no existe" de "esa
+      contraseña no es". Con un único administrador esa información no le sirve al dueño y
+      en cambio le sirve a quien pruebe cuentas. Sí se distinguen los dos casos que **solo**
+      pueden ocurrir con credenciales correctas: correo sin confirmar y límite de envíos
+- [x] `?next=` validado (solo rutas internas del panel) para que no sea una redirección
+      abierta hacia un sitio que imite al panel
+
+> **Acción pendiente en Supabase (la tiene que hacer quien administre el proyecto):**
+> añadir en *Authentication → URL Configuration → Redirect URLs* estas dos direcciones:
+> `http://localhost:3000/admin/auth/callback` y `https://<dominio>/admin/auth/callback`.
+> Sin ellas, el enlace del correo no puede volver al panel.
+
+Verificado con el servidor de producción: `/admin`, `/admin/nueva-clave` y `/admin/paginas`
+redirigen al login sin sesión; `/admin/recuperar` y el callback responden **sin** sesión; el
+callback sin código (o con uno inválido) vuelve al login con aviso. Y las Server Actions,
+contra Supabase de verdad: credenciales incorrectas devuelven "Correo o contraseña
+incorrectos." y la petición de restablecimiento muestra su confirmación.
+
+**Falta comprobar con la contraseña real** el login correcto y el ciclo completo del correo:
+son las dos únicas cosas que no se pueden probar sin las credenciales del administrador.
+
+### 2.2 `DynamicForm` desde zod ⏳ *siguiente*
+
+El motor de formularios que genera los campos a partir del esquema zod de cada bloque (o de
+cada trozo de `site_settings`). Es la pieza de la que dependen todas las pantallas de
+edición, así que va antes que ellas.
+
+### 2.3 a 2.5 *(después)*
+
+- `/admin/paginas` y `/admin/paginas/[slug]` — tarjetas plegables por bloque, guardar,
+  revalidar
+- `/admin/negocio` · `/admin/servicios` · `/admin/seo` · `/admin/apariencia` (con la
+  inyección de `site_settings.theme` en el sitio, hoy solo vive en `globals.css`)
+- `/admin/imagenes` — subida con compresión WebP ≤ 1600 px
+- Toasts y estado por tarjeta (guardado / sin guardar / error)
+
+### Fases siguientes (resumen)
 
 - **Fase 2 — Panel A (editar contenido).** Login real con Supabase Auth y "olvidé mi
   contraseña" · `DynamicForm` generado desde zod · `/admin/paginas` y
@@ -454,6 +503,11 @@ Cada una costó tiempo; están ordenadas por gravedad.
     con la salida fácil: los archivos **estáticos** de `app/` (un `icon.svg`, por ejemplo)
     no se pueden reexportar desde `core/` con un shim —se copiarían, y habría dos
     originales—, así que el favicon es una **ruta** (`core/app/favicon/route.ts`).
+28. **Cerrar la terminal no mata el servidor.** En Windows, cerrar la ventana o matar la
+    terminal deja el proceso de `next start` vivo y el siguiente `npm start` falla con
+    `EADDRINUSE: address already in use :::3000`. Se comprueba y se libera sin salir del
+    proyecto:
+    `Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`.
 
 ---
 
@@ -474,6 +528,10 @@ Cada una costó tiempo; están ordenadas por gravedad.
 - La invalidación de la caché es **gruesa** (una etiqueta por tipo de contenido, no por
   página). Es deliberado y está razonado en `core/data/cache-tags.ts`; se afina si el sitio
   crece.
+- Los avisos de error del panel usan el **acento del tema** como color de aviso, porque la
+  paleta no tiene un color de peligro. Debería tener uno propio (`danger`, con su token en el
+  tema y su variable CSS) para que un error no dependa de que el acento sea cálido. Se añade
+  con el trabajo de apariencia de la Fase 2.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
