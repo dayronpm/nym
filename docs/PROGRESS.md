@@ -17,13 +17,14 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 1 casi cerrada** — Inicio es el **índice del sitio** (un resumen de cada sección), los 10 bloques funcionando y las 5 páginas con contenido de ejemplo; solo falta la sección 1.4 (SEO) |
+| **Fase actual** | **Fase 1 CERRADA** — sitio público completo: 5 páginas, los 10 bloques, Inicio como índice y SEO. Lo siguiente es la Fase 2 (el panel) |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
 | **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 116 kB de First Load JS |
-| **Grafo de conocimiento** | 523 nodos · 1047 aristas · 30 comunidades (Graphify, backend DeepSeek) |
+| **Rendimiento** | Lighthouse **móvil** sobre el build de producción (25/09): 99 · 100 · 100 · 100 |
+| **Grafo de conocimiento** | 566 nodos · 1223 aristas · 36 comunidades (Graphify, backend DeepSeek) |
 
 ### Arranque rápido en una sesión nueva
 
@@ -97,7 +98,7 @@ docs/                     ARCHITECTURE.md · PROGRESS.md · custom/README.md
 
 ---
 
-## 3. Fase 1 — Sitio público ⏳ EN CURSO (solo falta la sección 1.4)
+## 3. Fase 1 — Sitio público ✅ CERRADA
 
 Criterios de aceptación del plan:
 
@@ -116,10 +117,14 @@ Criterios de aceptación del plan:
       "Domingo: Cerrado")
 - [x] El mapa incrustado carga con `loading="lazy"` *(y carga de verdad: el iframe de
       Google Maps responde dentro de la página)*
-- [ ] `<title>`, `<meta name="description">`, Open Graph y `sitemap.xml`
-- [ ] El JSON-LD de negocio local incluye nombre, teléfono, dirección, horarios y `sameAs`
+- [x] `<title>`, `<meta name="description">`, Open Graph y `sitemap.xml`
+      *(los cinco títulos y descripciones comprobados en el HTML generado, cada uno con su
+      `canonical`)*
+- [x] El JSON-LD de negocio local incluye nombre, teléfono, dirección, horarios y `sameAs`
+      *(tipo `DaySpa`, domingo omitido por estar cerrado, según schema.org)*
 - [x] Los enlaces internos funcionan *(navegación y pie derivados de `PAGE_SLUGS`)*
-- [ ] Lighthouse móvil ≥ 85 en Performance, Accessibility, Best Practices y SEO
+- [x] Lighthouse móvil ≥ 85 en Performance, Accessibility, Best Practices y SEO
+      *→ **99 · 100 · 100 · 100** sobre el build de producción*
 
 ### Tareas, en orden propuesto
 
@@ -214,14 +219,36 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 
 Verificado leyendo el HTML prerenderizado de las cinco rutas.
 
-**1.4 SEO y rendimiento**
+**1.4 SEO y rendimiento** ✅ *(hecha, 25/09)*
 
-- [ ] `core/lib/seo.ts` — generación de metadatos por página
-- [ ] JSON-LD de negocio local (`DaySpa`) con `openingHoursSpecification` y `sameAs`
-- [ ] `sitemap.xml` (`core/app/sitemap.ts`)
-- [ ] Etiquetas de caché + `revalidateTag` en las queries (la base para la Fase 2)
-- [ ] `core/lib/formatting.ts` — horas agrupadas y moneda con `Intl.NumberFormat`
-- [ ] Pasar Lighthouse móvil ≥ 85
+- [x] `core/lib/seo.ts` — metadatos por página: `<title>`, `description`, `canonical` y Open
+      Graph/Twitter. La **portada se titula con la marca y su lema**, no con la palabra
+      "Inicio": es lo que aparece en Google
+- [x] `generateMetadata` en cada ruta. **Tiene que salir del archivo de la ruta**, así que
+      los shims de `app/` lo reexportan junto al `default` (comprobado que Next lo lee)
+- [x] JSON-LD de negocio local (`DaySpa`) con `openingHoursSpecification`, `sameAs` y
+      dirección, generado desde `site_settings`. Va en el `<body>`, que es donde Google
+      acepta el JSON-LD sin necesidad de `next/script`
+- [x] `sitemap.xml` (`core/app/sitemap.ts`) generado desde `pages`, en el orden de
+      `PAGE_SLUGS`, y `robots.txt` con la referencia al mapa
+- [x] Imagen Open Graph (`seo_defaults.default_og_image`, con el logotipo como último
+      respaldo). Sin ella el enlace compartido se ve **sin foto** en WhatsApp
+- [x] Favicon generado en `/favicon` con la inicial del negocio sobre el color del tema,
+      en lugar de un binario en el repositorio
+- [x] Etiquetas de caché en las queries (`blocks`, `pages`, `site-settings`), listas para
+      que la Fase 2 invalide al guardar (ver `core/data/cache-tags.ts`)
+- [x] `core/lib/formatting.ts` — horas agrupadas y moneda con `Intl.NumberFormat` *(hecho en 1.1)*
+- [x] Lighthouse móvil ≥ 85 → **99 · 100 · 100 · 100**, sobre el build de producción
+
+Lighthouse encontró tres cosas y **se arreglaron las tres**, no se ignoraron: un
+`aria-label` sobre un párrafo (prohibido por ARIA), el nombre accesible de los enlaces de
+reels (no contenía el texto visible) y un 404 de `/favicon.ico` que Chromium pide siempre.
+La accesibilidad y las buenas prácticas pasaron de 96 a 100 con esos tres arreglos.
+
+**Nota sobre la medición:** se hizo con Lighthouse 12 apuntando al build de producción y
+al perfil **móvil** (el que pide el plan). En esta máquina no hay Chrome, así que se usó
+Edge como motor (`CHROME_PATH`), que es el mismo motor. En el día a día, la vía simple es
+Chrome > DevTools > Lighthouse > *Analyze page load*.
 
 **1.5 Inicio como índice del sitio** ✅ *(hecho, 25/09)*
 
@@ -257,6 +284,7 @@ enlaces con su flecha y cada corte exacto (6 de 9 fotos, 2 de 4 reels, 3 de 4 pe
 | `18ae417` | Diseño: hero sin botones y tarjetas de servicio con imagen de ejemplo |
 | `bbeb66a` | Bloques `contact`, `location_hours`, `reels` y `gallery` (10 de 10) |
 | `b11a23b` | Inicio como índice del sitio: resumen de cada sección, `source_page` para no duplicar contenido y el enlace de salida |
+| `4924587` | SEO: metadatos por página, JSON-LD, sitemap, favicon, caché con etiquetas y los tres arreglos de Lighthouse |
 
 ---
 
@@ -407,6 +435,25 @@ Cada una costó tiempo; están ordenadas por gravedad.
     las referencias a otras páginas a `core/blocks/links.ts`. **Antes de añadir una
     importación a `blocks/shared.ts` o a `types/settings.ts`, comprobar que no cierra el
     círculo.**
+24. **`next/font/google` descarga las tipografías durante el build.** Si la red falla, el
+    build muere con `An error occurred in next/font. TypeError: Cannot read properties of
+    null (reading '1')`, que no menciona las fuentes por ningún lado. Pasó una vez y
+    desapareció al reintentar: era red, no código. Si se vuelve crónico, la salida es pasar
+    a `next/font/local` con los archivos dentro del repositorio.
+25. **`aria-label` no vale en cualquier elemento.** Sobre un `<p>` o un `<div>` (roles
+    `paragraph`/`generic`) ARIA lo **prohíbe**: el navegador lo ignora, un lector de
+    pantalla no oye la etiqueta y Lighthouse lo marca (`aria-prohibited-attr`). Si hay que
+    nombrar algo, se le da un rol que lo admita —las estrellas de valoración llevan
+    `role="img"`— o se usa texto visualmente oculto.
+26. **Un `aria-label` que no contiene el texto visible incumple WCAG 2.5.3**
+    (`label-content-name-mismatch`): quien navega dictando por voz dice lo que ve, así que
+    el nombre accesible tiene que incluir la etiqueta visible. En los reels, el contexto
+    ("Ver reel en…") pasó a ser un `<span className="sr-only">` en vez de un `aria-label`.
+27. **Chromium pide `/favicon.ico` aunque no haya ninguna etiqueta que lo declare.** Si no
+    existe, es un 404 en la consola y cuenta en las buenas prácticas de Lighthouse. Y ojo
+    con la salida fácil: los archivos **estáticos** de `app/` (un `icon.svg`, por ejemplo)
+    no se pueden reexportar desde `core/` con un shim —se copiarían, y habría dos
+    originales—, así que el favicon es una **ruta** (`core/app/favicon/route.ts`).
 
 ---
 
@@ -418,9 +465,15 @@ Cada una costó tiempo; están ordenadas por gravedad.
 - Los reels son **manuales**: la miniatura y el enlace se suben a mano. La intención es que
   algún día se actualicen solos cuando el negocio publique en Instagram o TikTok (API o
   feed). Hasta entonces, cada reel nuevo se añade desde el panel.
-- Los bloques de resumen leen otra página, así que **al revalidar hay que revalidar las
-  dos**: si cambia `/galeria`, Inicio también. Es parte de las etiquetas de caché de la
-  sección 1.4.
+- El favicon es un **monograma generado** a partir del nombre y la paleta. Cuando el panel
+  permita subir uno propio (`brand.favicon`, Fase 2), la ruta `/favicon` lo servirá y el
+  monograma quedará de respaldo.
+- Open Graph usa **una sola imagen de reserva para todo el sitio**. El campo
+  `pages.og_image` ya existe y `buildPageMetadata` lo respeta, pero todavía no hay panel
+  para subir una imagen por página (Fase 2).
+- La invalidación de la caché es **gruesa** (una etiqueta por tipo de contenido, no por
+  página). Es deliberado y está razonado en `core/data/cache-tags.ts`; se afina si el sitio
+  crece.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
