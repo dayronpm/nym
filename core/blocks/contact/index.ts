@@ -1,5 +1,5 @@
 import { defineBlock } from '@/blocks/defineBlock';
-import BlockFormPending from '@/components/admin/BlockFormPending';
+import { createBlockForm } from '@/components/admin/createBlockForm';
 
 import ContactBlock from './ContactBlock';
 import { CONTACT_DEFAULTS, ContactSchema } from './schema';
@@ -8,7 +8,7 @@ export const contactBlock = defineBlock(
   'contact',
   ContactSchema,
   ContactBlock,
-  BlockFormPending,
+  createBlockForm(ContactSchema, 'contact'),
   CONTACT_DEFAULTS,
   1,
   { label: 'Contacto', description: 'Datos y botones de contacto, sin formulario.' },

@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2 en curso** — el sitio público quedó cerrado en la Fase 1; ahora se construye el panel. Hecha la **2.1 (autenticación)**, sigue la **2.2 (`DynamicForm`)** |
+| **Fase actual** | **Fase 2 en curso** — hechas la **2.1 (autenticación)**, la **2.2 (`DynamicForm`)** y la **2.3 (páginas y bloques)**. Siguen las pantallas de configuración y la subida de imágenes |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -309,7 +309,8 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Hero sin botones | **Decisión de producto (25/09):** la página ya tiene reserva en el botón fijo del encabezado y al final, así que el hero no repite ninguno. Se quitaron `primary_cta` y `secondary_cta` y el bloque sube a **v2**. La portada empieza más natural |
 | Tarjetas de servicio | Reservan una franja 3:2 arriba para la imagen del servicio. Si el servicio no tiene imagen, la tarjeta se queda sin esa franja (no se deja un hueco vacío) |
 | Chrome del sitio público | Grupo de rutas `core/app/(sitio)/` con su propio `layout.tsx` (Header + Footer). El `layout.tsx` raíz solo pone `<html>`, fuentes y tema, porque también envuelve `/admin` |
-| Esquemas de bloque en el panel | `DynamicForm` genérico en la Fase 2; hasta entonces, formularios a mano |
+| Esquemas de bloque en el panel | **`DynamicForm` generado desde zod** (26/09). El motor está en `core/lib/zod-form.ts` y las palabras, en `form-labels.ts`. `block.Form` sigue declarado en el contrato, pero el editor resuelve el esquema en el cliente (`core/blocks/schemas.ts`) porque el formulario necesita estado: un módulo `'use client'` se puede *renderizar*, no *llamar*, así que el registro no puede construir el formulario |
+| Etiquetas de los campos | **No van en los esquemas.** Son presentación y los esquemas son el contrato de los datos (los lee también el sitio público). Viven en `form-labels.ts`, con un respaldo derivado del nombre técnico para que ningún campo quede sin etiqueta |
 
 Las desviaciones respecto al plan (shims, grupo `(panel)`, migración `001_storage`, ESLint 8,
 `core/lib/contact.ts`) están documentadas y justificadas en
@@ -351,20 +352,48 @@ incorrectos." y la petición de restablecimiento muestra su confirmación.
 **Falta comprobar con la contraseña real** el login correcto y el ciclo completo del correo:
 son las dos únicas cosas que no se pueden probar sin las credenciales del administrador.
 
-### 2.2 `DynamicForm` desde zod ⏳ *siguiente*
+### 2.2 `DynamicForm` desde zod ✅ *(hecha, 26/09)*
 
-El motor de formularios que genera los campos a partir del esquema zod de cada bloque (o de
-cada trozo de `site_settings`). Es la pieza de la que dependen todas las pantallas de
-edición, así que va antes que ellas.
+El motor del panel: recorre el esquema de un contenido y pinta sus campos. Añadir un campo a un
+esquema lo añade al panel sin tocar el motor.
 
-### 2.3 a 2.5 *(después)*
+- [x] `core/lib/zod-form.ts` — introspección con **API pública de zod** (`instanceof`,
+      `unwrap`, `innerType`, `shape`, `options`, `isOptional`, `safeParse`), nunca leyendo
+      `_def` a mano: funcionaría hoy y se rompería en la siguiente actualización
+- [x] Reparto de responsabilidades: **zod dice la estructura** (campos, tipos, límites,
+      valores por defecto) y `core/components/admin/form-labels.ts` **dice las palabras**
+      (etiquetas en español, ayudas y el input concreto cuando hace falta)
+- [x] Los validadores propios se marcan con `.describe('kind:color')` y compañía, en
+      `core/lib/validation.ts`: cualquier esquema que use `hexColor()` hereda el selector de
+      color sin repetir nada
+- [x] Campos soportados: texto, área de texto, número, casilla, selector (incluidos los
+      `z.union` de literales, como las columnas de la galería), color, hora, teléfono, imagen,
+      objetos anidados y **listas de objetos** (fotos, personas, preguntas, testimonios,
+      vídeos) con añadir, quitar y subir/bajar
+- [x] Un tipo no soportado se **avisa** en el formulario en vez de desaparecer en silencio
+- [x] Plegado por elemento con título legible, marca de "sin guardar" según el borrador y
+      errores **por ruta de campo** (`images.0.caption`) pintados donde toca
+- [x] Los diez bloques declaran ya su formulario generado y `BlockFormPending` se ha borrado
 
-- `/admin/paginas` y `/admin/paginas/[slug]` — tarjetas plegables por bloque, guardar,
-  revalidar
+### 2.3 Páginas y bloques ✅ *(hecha, 26/09)*
+
+- [x] `/admin/paginas` — lista de páginas desde la tabla `pages`, sin listas a mano
+- [x] `/admin/paginas/[slug]` — los bloques en su orden, cada uno plegable con su formulario
+- [x] Guardar desde la tarjeta con una Server Action: se valida en el servidor y los errores
+      vuelven al formulario
+- [x] **Revalidación doble** al guardar: `revalidateTag` para las lecturas y `revalidatePath`
+      para el HTML. Y si el bloque no es de Inicio se rehace **Inicio también**, porque resume
+      las demás secciones: es el cierre del cabo suelto de la 1.4
+- [x] El borrador arranca rellenado con los valores por defecto del esquema, para que el
+      formulario enseñe lo mismo que guardaría el sitio
+- [ ] Falta: activar y desactivar un bloque, reordenar (Fase 3) y los avisos flotantes (2.5)
+
+### 2.4 y 2.5 *(después)*
+
 - `/admin/negocio` · `/admin/servicios` · `/admin/seo` · `/admin/apariencia` (con la
   inyección de `site_settings.theme` en el sitio, hoy solo vive en `globals.css`)
 - `/admin/imagenes` — subida con compresión WebP ≤ 1600 px
-- Toasts y estado por tarjeta (guardado / sin guardar / error)
+- Avisos flotantes y estado por tarjeta
 
 ### Rendimiento medido *(26/09, build de producción servido en local)*
 
@@ -550,6 +579,17 @@ Cada una costó tiempo; están ordenadas por gravedad.
     aleatorio y no lo es**. Se arregla con `npm run clean` y volviendo a compilar y
     arrancar. **Comprobación rápida: si `.next\BUILD_ID` no existe, el directorio está
     roto.**
+30. **Una función de un módulo `'use client'` no se puede *llamar* desde el servidor.** El
+    registro de bloques (servidor) llama a `createBlockForm(...)` al cargarse. Al poner esa
+    fábrica en un módulo con `'use client'`, la importación se sustituye por una referencia
+    opaca que solo se puede *renderizar*, y el build muere al recopilar las páginas con un
+    `TypeError: s is not a function` que no menciona ni el archivo ni el bloque. La fábrica
+    va **sin** `'use client'`; lo que devuelve envuelve a un componente de cliente.
+31. **TypeScript pierde el estrechamiento dentro de una `function` declarada después.** Con
+    `const item = descriptor.item; if (!item) return null;`, dentro de una `function` interna
+    `item` vuelve a ser "posiblemente `undefined`" (`TS18048`), porque la declaración se eleva
+    y podría llamarse antes. La salida limpia es copiar el valor a una constante **antes** de
+    las funciones (`const itemSchema = item.schema`), no poner un `!`.
 
 ---
 
@@ -574,6 +614,9 @@ Cada una costó tiempo; están ordenadas por gravedad.
   paleta no tiene un color de peligro. Debería tener uno propio (`danger`, con su token en el
   tema y su variable CSS) para que un error no dependa de que el acento sea cálido. Se añade
   con el trabajo de apariencia de la Fase 2.
+- `block.Form` **no lo usa nadie**: el editor resuelve el esquema en el cliente. O se le da un
+  uso (formularios propios para bloques con subida de archivos) o se quita del contrato al
+  cerrar la Fase 2. Dejarlo sin decidir es lo que convierte un contrato en una promesa vacía.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las

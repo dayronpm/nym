@@ -1,17 +1,43 @@
+import Link from 'next/link';
+
 /**
  * Dashboard del panel: el índice de las secciones de edición.
  *
- * Las tarjetas **no** son enlaces todavía, y es a propósito: un enlace a una pantalla que
- * no existe lleva a un 404 dentro del propio panel, que es peor que no ofrecerlo. Se
- * activan a medida que cada sección se construye. Mientras tanto, el contenido del sitio
- * se carga con `npm run seed`.
+ * Cada tarjeta es un enlace cuando la pantalla existe y una tarjeta quieta cuando todavía no:
+ * un enlace a una pantalla que no está construida lleva a un 404 dentro del propio panel, que
+ * es peor que no ofrecerlo.
  */
-const SECTIONS = [
-  { href: '/admin/paginas', label: 'Páginas y bloques' },
-  { href: '/admin/negocio', label: 'Negocio' },
-  { href: '/admin/apariencia', label: 'Apariencia' },
-  { href: '/admin/imagenes', label: 'Imágenes' },
-  { href: '/admin/seo', label: 'SEO' },
+const SECTIONS: { href: string; label: string; description: string; ready: boolean }[] = [
+  {
+    href: '/admin/paginas',
+    label: 'Páginas y bloques',
+    description: 'El contenido de las cinco páginas.',
+    ready: true,
+  },
+  {
+    href: '/admin/negocio',
+    label: 'Negocio',
+    description: 'Contacto, horarios y catálogo de servicios.',
+    ready: false,
+  },
+  {
+    href: '/admin/apariencia',
+    label: 'Apariencia',
+    description: 'Colores, tipografías y esquinas.',
+    ready: false,
+  },
+  {
+    href: '/admin/imagenes',
+    label: 'Imágenes',
+    description: 'Subir y sustituir fotos.',
+    ready: false,
+  },
+  {
+    href: '/admin/seo',
+    label: 'SEO',
+    description: 'Títulos y descripciones para los buscadores.',
+    ready: false,
+  },
 ];
 
 export default function AdminDashboardPage() {
@@ -29,8 +55,17 @@ export default function AdminDashboardPage() {
             key={section.href}
             className="rounded-md border border-border bg-surface p-5 shadow-soft"
           >
-            <span className="font-medium">{section.label}</span>
-            <p className="mt-1 text-sm text-text-muted">En construcción</p>
+            {section.ready ? (
+              <Link href={section.href} className="block">
+                <span className="font-medium">{section.label}</span>
+                <p className="mt-1 text-sm text-text-muted">{section.description}</p>
+              </Link>
+            ) : (
+              <>
+                <span className="font-medium text-text-muted">{section.label}</span>
+                <p className="mt-1 text-sm text-text-muted">En construcción</p>
+              </>
+            )}
           </li>
         ))}
       </ul>

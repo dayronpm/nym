@@ -1,5 +1,5 @@
 import { defineBlock } from '@/blocks/defineBlock';
-import BlockFormPending from '@/components/admin/BlockFormPending';
+import { createBlockForm } from '@/components/admin/createBlockForm';
 
 import HeroBlock from './HeroBlock';
 import { HERO_DEFAULTS, HeroSchema } from './schema';
@@ -14,7 +14,7 @@ export const heroBlock = defineBlock(
   'hero',
   HeroSchema,
   HeroBlock,
-  BlockFormPending,
+  createBlockForm(HeroSchema, 'hero'),
   HERO_DEFAULTS,
   2,
   { label: 'Hero', description: 'Portada de Inicio: texto e imagen lado a lado.' },

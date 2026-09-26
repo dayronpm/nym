@@ -1,4 +1,4 @@
-import { PAGE_LABELS, PAGE_SLUGS } from '@/types/settings';
+import { PAGE_LABELS, PAGE_SLUGS, type PageSlug } from '@/types/settings';
 
 /**
  * Enlaces de navegación del sitio.
@@ -22,4 +22,15 @@ export const NAV_ITEMS: NavItem[] = PAGE_SLUGS.map((slug) => ({
 /** Ruta pública de una página, a partir de su slug. */
 export function pageHref(slug: string): string {
   return slug === 'inicio' ? '/' : `/${slug}`;
+}
+
+/**
+ * Comprueba que un valor de la base de datos es una página de verdad.
+ *
+ * Necesario porque un `jsonb` (o un parámetro de la URL) puede traer cualquier cosa: el
+ * esquema valida lo que escribe el panel, pero un dato antiguo o manipulado a mano no pasa
+ * por ahí.
+ */
+export function isPageSlug(value: string): value is PageSlug {
+  return (PAGE_SLUGS as readonly string[]).includes(value);
 }

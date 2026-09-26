@@ -4,8 +4,9 @@ import { SHARED_CONTENT_FIELD } from '@/blocks/shared';
 import { CACHE_TAGS } from '@/data/cache-tags';
 import { DataError } from '@/data/errors';
 import { createSupabasePublicClient, createSupabaseServerClient } from '@/data/supabase';
+import { isPageSlug } from '@/lib/navigation';
 import type { BlockRow } from '@/types/models';
-import { PAGE_SLUGS, type PageSlug } from '@/types/settings';
+import type { PageSlug } from '@/types/settings';
 
 /**
  * Lectura de bloques.
@@ -46,11 +47,6 @@ const readPageBlocks = unstable_cache(
   ['blocks-by-page'],
   { tags: [CACHE_TAGS.blocks] },
 );
-
-/** Comprueba que un valor guardado en un `jsonb` es una página de verdad. */
-function isPageSlug(value: string): value is PageSlug {
-  return (PAGE_SLUGS as readonly string[]).includes(value);
-}
 
 /** Un `jsonb` visto como objeto, o `null` si no lo es. */
 function asObject(data: BlockRow['data']): Record<string, unknown> | null {

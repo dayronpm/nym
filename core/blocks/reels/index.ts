@@ -1,5 +1,5 @@
 import { defineBlock } from '@/blocks/defineBlock';
-import BlockFormPending from '@/components/admin/BlockFormPending';
+import { createBlockForm } from '@/components/admin/createBlockForm';
 
 import ReelsBlock from './ReelsBlock';
 import { REELS_DEFAULTS, ReelsSchema } from './schema';
@@ -8,7 +8,7 @@ export const reelsBlock = defineBlock(
   'reels',
   ReelsSchema,
   ReelsBlock,
-  BlockFormPending,
+  createBlockForm(ReelsSchema, 'reels'),
   REELS_DEFAULTS,
   1,
   { label: 'Reels / Redes', description: 'Tarjetas con miniatura y enlace, sin embeds.' },

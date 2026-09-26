@@ -5,6 +5,12 @@ import { z } from 'zod';
  *
  * Los esquemas de los bloques y de `site_settings` importan de aquí para no
  * repetir expresiones regulares ni mensajes de error.
+ *
+ * **Marca `kind:`** — los validadores propios se describen con `.describe('kind:…')`. Es API
+ * pública de zod y es lo que permite que el panel genere el input correcto (un selector de
+ * color, un campo de hora, uno de teléfono) sin adivinar el tipo por el nombre del campo ni
+ * inspeccionar la expresión regular. Al vivir aquí, cualquier esquema que use `hexColor()`
+ * hereda el selector de color: la información está en un solo sitio. Ver `core/lib/zod-form.ts`.
  */
 
 /** Color hexadecimal de 3 o 6 dígitos (tokens del tema). */
@@ -20,19 +26,19 @@ export const WHATSAPP_PATTERN = /^\d{8,15}$/;
 export const PHONE_PATTERN = /^\+?\d{7,15}$/;
 
 export function hexColor(message = 'Usa un color hexadecimal, por ejemplo #B0603F.') {
-  return z.string().regex(HEX_COLOR_PATTERN, message);
+  return z.string().regex(HEX_COLOR_PATTERN, message).describe('kind:color');
 }
 
 export function time24h(message = 'Usa el formato 24 h, por ejemplo 09:00.') {
-  return z.string().regex(TIME_24H_PATTERN, message);
+  return z.string().regex(TIME_24H_PATTERN, message).describe('kind:time');
 }
 
 export function whatsappNumber(message = 'Solo dígitos con código de país, sin "+".') {
-  return z.string().regex(WHATSAPP_PATTERN, message);
+  return z.string().regex(WHATSAPP_PATTERN, message).describe('kind:tel');
 }
 
 export function phoneNumber(message = 'Teléfono inválido. Ejemplo: +50760000000.') {
-  return z.string().regex(PHONE_PATTERN, message);
+  return z.string().regex(PHONE_PATTERN, message).describe('kind:tel');
 }
 
 /** Dominio real de un enlace de Instagram (incluye subdominios). */
