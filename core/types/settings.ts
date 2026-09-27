@@ -53,19 +53,92 @@ export const SiteThemeColors = z
     path: ['surface'],
   });
 
-export const SiteTheme = z.object({
-  colors: SiteThemeColors,
-  fonts: z.object({
-    /** Nombre de la fuente de títulos. Limitada a la lista curada del código. */
-    heading: z.string().min(1),
-    body: z.string().min(1),
-  }),
-  radius: z.object({
-    sm: z.string().min(1),
-    md: z.string().min(1),
-    lg: z.string().min(1),
-  }),
+/**
+ * Direcciones admitidas de un degradado.
+ *
+ * Son palabras de CSS y están cerradas a propósito: el degradado se escribe en la hoja de
+ * estilos, así que un texto libre sería CSS inventado desde el panel. Con una lista cerrada,
+ * lo que se elige siempre se puede aplicar.
+ */
+export const GRADIENT_DIRECTIONS = [
+  'to bottom',
+  'to top',
+  'to right',
+  'to left',
+  'to bottom right',
+  'to bottom left',
+] as const;
+
+/**
+ * Degradado de una zona (el fondo del sitio, las secciones alternas).
+ *
+ * `enabled` existe para poder probarlo y volver atrás sin perder los colores elegidos: apagado,
+ * la zona vuelve a su color plano y lo guardado sigue ahí.
+ */
+export const ThemeGradient = z.object({
+  enabled: z.boolean().default(false),
+  from: hexColor().default('#FAF7F2'),
+  to: hexColor().default('#F3EDE4'),
+  direction: z.enum(GRADIENT_DIRECTIONS).default('to bottom'),
 });
+
+export type ThemeGradient = z.infer<typeof ThemeGradient>;
+
+/** ¿Se lee el texto sobre los dos extremos del degradado? */
+function gradientIsReadable(text: string, gradient: ThemeGradient): boolean {
+  return contrastRatio(text, gradient.from) >= 4.5 && contrastRatio(text, gradient.to) >= 4.5;
+}
+
+/**
+ * Tema del sitio: colores, degradados, tipografías y esquinas.
+ *
+ * Los degradados se validan contra el color del texto igual que el fondo liso: un degradado
+ * bonito con un extremo oscuro deja el texto ilegible en esa mitad, y eso no se ve en una
+ * vista previa pequeña del panel.
+ */
+export const SiteTheme = z
+  .object({
+    colors: SiteThemeColors,
+    gradients: z
+      .object({
+        page: ThemeGradient,
+        section_alt: ThemeGradient,
+      })
+      // Con valor por defecto para que las filas guardadas antes de que existieran los
+      // degradados sigan siendo válidas: se rellenan al leer y se escriben al siguiente guardado.
+      .default({
+        page: { enabled: false, from: '#FAF7F2', to: '#F3EDE4', direction: 'to bottom' },
+        section_alt: { enabled: false, from: '#F3EDE4', to: '#FFFFFF', direction: 'to bottom' },
+      }),
+    fonts: z.object({
+      /** Nombre de la fuente de títulos. Limitada a la lista curada del código. */
+      heading: z.string().min(1),
+      body: z.string().min(1),
+    }),
+    radius: z.object({
+      sm: z.string().min(1),
+      md: z.string().min(1),
+      lg: z.string().min(1),
+    }),
+  })
+  .refine(
+    (theme) => !theme.gradients.page.enabled || gradientIsReadable(theme.colors.text, theme.gradients.page),
+    {
+      message:
+        'Con este degradado el texto no se lee sobre el fondo (mínimo 4.5:1 en los dos extremos). Suaviza el degradado o cambia el color del texto.',
+      path: ['gradients', 'page', 'from'],
+    },
+  )
+  .refine(
+    (theme) =>
+      !theme.gradients.section_alt.enabled ||
+      gradientIsReadable(theme.colors.text, theme.gradients.section_alt),
+    {
+      message:
+        'Con este degradado el texto no se lee en las secciones alternas (mínimo 4.5:1 en los dos extremos).',
+      path: ['gradients', 'section_alt', 'from'],
+    },
+  );
 
 export type SiteTheme = z.infer<typeof SiteTheme>;
 
@@ -82,6 +155,10 @@ export const DEFAULT_THEME: SiteTheme = {
     primary_hover: '#93502F',
     primary_soft: '#F1DDD2',
     on_primary: '#FFFFFF',
+  },
+  gradients: {
+    page: { enabled: false, from: '#FAF7F2', to: '#F3EDE4', direction: 'to bottom' },
+    section_alt: { enabled: false, from: '#F3EDE4', to: '#FFFFFF', direction: 'to bottom' },
   },
   fonts: {
     heading: 'Cormorant Garamond',

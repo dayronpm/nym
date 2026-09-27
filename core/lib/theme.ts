@@ -1,4 +1,4 @@
-import type { SiteTheme } from '@/types/settings';
+import { GRADIENT_DIRECTIONS, type SiteTheme, type ThemeGradient } from '@/types/settings';
 
 /**
  * El tema de `site_settings` convertido en variables CSS.
@@ -42,6 +42,26 @@ function declaration(name: string, value: string): string {
   return `--${name}:${value}`;
 }
 
+/** Direcciones válidas, para no escribir CSS que venga de fuera de la lista cerrada. */
+const DIRECTIONS = new Set<string>(GRADIENT_DIRECTIONS);
+
+/**
+ * Degradado en palabras de CSS, o `none` si el dueño lo tiene apagado.
+ *
+ * Devolver `none` en lugar de no declarar la variable es deliberado: así la hoja siempre puede
+ * escribir `background-image: var(--gradient-page, none)` sin ramificaciones, y apagar un
+ * degradado es un cambio de dato, no de código.
+ */
+function gradientOf(value: ThemeGradient | undefined): string {
+  // El `undefined` no es teórico: un tema guardado antes de que existieran los degradados (o
+  // una lectura cacheada de entonces) no trae la clave, y esto se ejecuta al pintar **todas**
+  // las páginas: sin la guarda, el sitio entero se cae con un 500 por un dato que falta.
+  if (!value?.enabled) return 'none';
+
+  const direction = DIRECTIONS.has(value.direction) ? value.direction : 'to bottom';
+  return `linear-gradient(${direction}, ${value.from}, ${value.to})`;
+}
+
 /**
  * Hoja de estilo con el tema del negocio.
  *
@@ -50,7 +70,7 @@ function declaration(name: string, value: string): string {
  * estaba. Va después de la hoja global, así que gana por orden.
  */
 export function themeCss(theme: SiteTheme): string {
-  const { colors, fonts, radius: corners } = theme;
+  const { colors, gradients, fonts, radius: corners } = theme;
 
   const declarations = [
     declaration('color-bg', colors.bg),
@@ -63,6 +83,8 @@ export function themeCss(theme: SiteTheme): string {
     declaration('color-primary-hover', colors.primary_hover),
     declaration('color-primary-soft', colors.primary_soft),
     declaration('color-on-primary', colors.on_primary),
+    declaration('gradient-page', gradientOf(gradients?.page)),
+    declaration('gradient-section', gradientOf(gradients?.section_alt)),
     declaration('font-heading', fontStack(fonts.heading)),
     declaration('font-body', fontStack(fonts.body)),
     declaration('radius-sm', radius(corners.sm, '6px')),

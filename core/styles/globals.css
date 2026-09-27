@@ -69,6 +69,12 @@
 
   body {
     background-color: var(--color-bg);
+    /* El degradado del tema, si el negocio tiene uno puesto. `fixed` lo ata a la ventana y no
+       al alto del documento, que es lo que evita que un degradado claro se acabe a mitad de
+       una página larga. Apagado, la variable vale `none` y no pasa nada. */
+    background-image: var(--gradient-page, none);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--color-text);
     font-family: var(--font-body);
     font-size: 16px;
@@ -143,4 +149,7 @@
    Fuera de @layer a propósito: necesita ganar a las utilidades de Tailwind. */
 .site-main > section:nth-of-type(even) {
   background-color: var(--color-surface-alt);
+  /* Un degradado no tiene tamaño propio: se estira al alto de la sección, así que no se repite
+     ni hace falta `cover`. */
+  background-image: var(--gradient-section, none);
 }

@@ -51,6 +51,16 @@ const PAGE_OPTIONS: Record<string, string> = {
   contacto: 'Contacto',
 };
 
+/** Direcciones de un degradado, en palabras que se entienden sin saber CSS. */
+const GRADIENT_DIRECTION_LABELS: Record<string, string> = {
+  'to bottom': 'De arriba abajo',
+  'to top': 'De abajo arriba',
+  'to right': 'De izquierda a derecha',
+  'to left': 'De derecha a izquierda',
+  'to bottom right': 'En diagonal hacia la derecha',
+  'to bottom left': 'En diagonal hacia la izquierda',
+};
+
 /** Fuentes que carga `next/font` en el layout raíz (`core/app/layout.tsx`). */
 const FONT_OPTIONS = [
   { value: 'Cormorant Garamond', label: 'Cormorant Garamond (serif)' },
@@ -172,6 +182,20 @@ export const FORM_LABELS: Record<string, FormLabels> = {
       hint: 'Se eligen entre las fuentes que carga el sitio. Añadir otra es un cambio de código, no un ajuste del panel.',
     },
     radius: { label: 'Esquinas' },
+
+    gradients: {
+      label: 'Degradados',
+      hint: 'Un degradado suave en lugar de un color plano. Es opcional: apagado, la zona usa su color y lo que hayas elegido se conserva.',
+    },
+    page: { label: 'Fondo del sitio', hint: 'Se ve por detrás de todo el contenido.' },
+    section_alt: {
+      label: 'Secciones alternas',
+      hint: 'Las franjas que separan unas secciones de otras.',
+    },
+    enabled: { label: 'Usar degradado' },
+    from: { label: 'Color inicial' },
+    to: { label: 'Color final' },
+    direction: { label: 'Dirección', optionLabels: GRADIENT_DIRECTION_LABELS },
 
     bg: { label: 'Fondo del sitio' },
     surface: { label: 'Tarjetas y formularios' },
