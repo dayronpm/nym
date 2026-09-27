@@ -1,4 +1,5 @@
 import CopyButton from '@/components/admin/CopyButton';
+import DeleteMediaButton from '@/components/admin/DeleteMediaButton';
 import { MEDIA_FOLDERS } from '@/blocks/shared';
 import { createSupabaseServerClient } from '@/data/supabase';
 import { getPublicMediaUrl } from '@/lib/storage';
@@ -99,7 +100,10 @@ export default async function AdminImagenesPage() {
                             <span className="text-xs text-text-muted">
                               {formatKb(file.metadata?.size)}
                             </span>
-                            <CopyButton value={path} />
+                            <div className="flex items-center gap-2">
+                              <CopyButton value={path} />
+                              <DeleteMediaButton path={path} />
+                            </div>
                           </div>
                         </div>
                       </li>
