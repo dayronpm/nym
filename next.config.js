@@ -14,6 +14,11 @@ const nextConfig = {
     // Se usa comodín de hostname para no depender de leer .env.local aquí
     // (next.config.js se evalúa antes de cargar los archivos de entorno).
     formats: ['image/webp'],
+    // Menos variantes que generar. Por defecto Next añade 2048 y 3840 px, y con fotos de 1600 px
+    // de ancho como máximo esos dos anchos no se sirven nunca: solo alargan el `srcset` de cada
+    // imagen (nueve entradas por foto en el HTML) y le piden al optimizador variantes que nadie
+    // llega a descargar. Con la lista recortada, el HTML lleva las que se usan de verdad.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     remotePatterns: [
       {
         protocol: 'https',
