@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2.4 cerrada** (pantallas de configuración: negocio, servicios, SEO y apariencia). Sigue la **2.5**: subida de imágenes y avisos flotantes |
+| **Fase actual** | **Fase 2 cerrada** (2.1 autenticación · 2.2 `DynamicForm` · 2.3 páginas y bloques · 2.4 pantallas de configuración · 2.5 imágenes y avisos). Sigue la **Fase 3**: reordenar bloques, activarlos y desactivarlos, y la vista previa |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
@@ -432,10 +432,24 @@ tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
 - [ ] Falta (2.5): `/admin/imagenes` y los avisos flotantes. Y la subida de archivos, que hoy se
       hace subiendo la imagen a mano al bucket y pegando la ruta
 
-### 2.5 Imágenes y avisos *(después)*
+### 2.5 Imágenes y avisos ✅ *(hecha, 27/09)*
 
-- `/admin/imagenes` — subida con compresión WebP ≤ 1600 px
-- Avisos flotantes y estado por tarjeta
+- [x] **Subida desde cada campo de imagen** del panel. La compresión va **en el navegador** (canvas
+      a WebP, 1600 px de ancho máximo, calidad 75: la misma receta de `scripts/prepare-images.mjs`),
+      así que la foto del móvil (3-5 MB) no viaja entera y el servidor no necesita `sharp` ni ver
+      el archivo completo
+- [x] La acción de subida guarda con el **cliente de sesión**, así que quien autoriza son las
+      políticas del bucket y no la función; la carpeta se comprueba contra `MEDIA_FOLDERS`
+- [x] Se informa del antes y el después (peso y medidas): es el argumento que convence al dueño
+      de subir las fotos tal como salen del móvil
+- [x] `/admin/imagenes` — el catálogo de lo subido, por carpeta, con la ruta a la vista y botón de
+      copiar. Su razón de ser es la ruta: para reutilizar una foto hay que pegarla en el campo de
+      otro bloque
+- [x] **Avisos flotantes** para cualquier guardado del panel, desde el gancho compartido `useDraft`.
+      Sin contexto ni proveedor: un módulo con suscriptores y `useSyncExternalStore`, y el estado
+      fuera de React para que el aviso sobreviva a los re-renders de quien lo pide
+- [ ] Pendiente para más adelante: elegir una imagen **ya subida** desde el propio campo (hoy se
+      copia la ruta desde `/admin/imagenes`)
 
 ### Rendimiento medido *(26/09, build de producción servido en local)*
 
