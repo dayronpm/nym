@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { getBlockDefinition } from '@/blocks/registry';
+import BlockOrderButtons from '@/components/admin/BlockOrderButtons';
 import { getAllBlocksByPage } from '@/data/queries/blocks';
 import { getPage } from '@/data/queries/pages';
 import { isPageSlug } from '@/lib/navigation';
@@ -13,9 +14,9 @@ import BlockCard from './BlockCard';
  * Es la pantalla principal del panel: los bloques en su orden, cada uno plegado, con su
  * formulario dentro y su botón de guardar.
  *
- * Deliberadamente **no** hay interruptor de activar/desactivar ni arrastrar para reordenar:
- * eso es la Fase 3. El orden se muestra para que se entienda la página, y el estado
- * (activado u oculto) se avisa, pero se cambia más adelante.
+ * Cada bloque trae su interruptor de activar o desactivar y sus flechas para moverlo de sitio.
+ * Las flechas escriben el orden nuevo en la base de datos: el orden es de la **página**, así que
+ * la lista completa de identificadores se pasa desde aquí y no desde la tarjeta.
  *
  * Se leen **todos** los bloques, desactivados incluidos: la política RLS del público solo
  * deja ver los activos, y aquí hacen falta todos para poder editarlos.
@@ -37,7 +38,7 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
       </p>
 
       <ul className="mt-8 space-y-3">
-        {blocks.map((block) => {
+        {blocks.map((block, index) => {
           const definition = getBlockDefinition(block.type);
 
           if (!definition) {
@@ -62,6 +63,14 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
               {...(definition.description ? { description: definition.description } : {})}
               initialData={block.data}
               enabled={block.enabled}
+              orderControls={
+                <BlockOrderButtons
+                  page={params.slug}
+                  ids={blocks.map((item) => item.id)}
+                  index={index}
+                  label={definition.label}
+                />
+              }
             />
           );
         })}

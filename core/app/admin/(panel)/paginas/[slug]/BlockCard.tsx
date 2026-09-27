@@ -37,6 +37,14 @@ export interface BlockCardProps {
   initialData: unknown;
   /** Si está desactivado, el bloque no se ve en el sitio. */
   enabled: boolean;
+  /**
+   * Controles para mover el bloque de sitio, si la pantalla los ofrece.
+   *
+   * Llegan desde fuera porque el orden es cosa de la lista, no del bloque: una tarjeta no sabe
+   * cuáles son sus hermanas ni en qué posición está. Se pasan como nodo ya renderizado para que
+   * la tarjeta no tenga que conocer la acción de reordenar.
+   */
+  orderControls?: React.ReactNode;
 }
 
 export default function BlockCard({
@@ -47,6 +55,7 @@ export default function BlockCard({
   description,
   initialData,
   enabled,
+  orderControls,
 }: BlockCardProps) {
   const [open, setOpen] = useState(false);
   const schema = getBlockSchema(type);
@@ -107,6 +116,8 @@ export default function BlockCard({
             </span>
           ) : null}
         </button>
+
+        {orderControls}
 
         <button
           type="button"

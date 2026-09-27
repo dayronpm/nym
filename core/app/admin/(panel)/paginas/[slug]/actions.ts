@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 
 import { CACHE_TAGS } from '@/data/cache-tags';
 import { DataError, ValidationError } from '@/data/errors';
+import { reorderBlocks } from '@/data/mutations/reorder-blocks';
 import { saveBlock } from '@/data/mutations/save-block';
 import { setBlockEnabled } from '@/data/mutations/set-block-enabled';
 import { pageHref, isPageSlug } from '@/lib/navigation';
@@ -127,4 +128,50 @@ export async function setBlockEnabledAction({
       ? 'Bloque visible en el sitio.'
       : 'Bloque oculto. El contenido sigue guardado, listo para volver a mostrarlo.',
   };
+}
+
+/** Resultado de reordenar los bloques de una página. */
+export interface ReorderBlocksResult {
+  ok: boolean;
+  message: string;
+}
+
+/**
+ * Guarda el orden nuevo de los bloques de una página.
+ *
+ * La lista de identificadores que llega es el orden **final**, no un movimiento suelto. Se
+ * revalida como todo lo demás: el orden cambia la página pública, y si no se rehace su HTML el
+ * cambio no se vería hasta una hora después.
+ */
+export async function reorderBlocksAction({
+  page,
+  ids,
+}: {
+  page: string;
+  ids: string[];
+}): Promise<ReorderBlocksResult> {
+  if (ids.length === 0) {
+    return { ok: false, message: 'No hay bloques que ordenar.' };
+  }
+
+  try {
+    await reorderBlocks(ids);
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof DataError
+          ? error.message
+          : 'No se pudo guardar el orden. Inténtalo de nuevo.',
+    };
+  }
+
+  revalidateTag(CACHE_TAGS.blocks);
+
+  if (isPageSlug(page)) {
+    revalidatePath(pageHref(page));
+    if (page !== 'inicio') revalidatePath('/');
+  }
+
+  return { ok: true, message: 'Orden guardado. El sitio ya lo muestra así.' };
 }
