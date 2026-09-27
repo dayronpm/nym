@@ -96,12 +96,20 @@ export function groupHours(hours: DayHours[]): HoursLine[] {
   return lines;
 }
 
-/** Precio en la moneda configurada del sitio. */
+/**
+ * Precio en la moneda configurada del sitio.
+ *
+ * `narrowSymbol` es lo que convierte "USD 30,00" en "$30": quien lee una carta de servicios lee
+ * un precio, no una divisa. Y un importe entero va sin decimales, que es como se escriben las
+ * tarifas (30, no 30,00).
+ */
 export function formatPrice(amount: number, currency: string): string {
   return new Intl.NumberFormat('es-PA', {
     style: 'currency',
     currency,
-    minimumFractionDigits: 2,
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 

@@ -46,8 +46,11 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
   function renderPrice(item: ServiceItem) {
     // El plan es explícito: precio oculto o ausente -> etiqueta de consulta.
     const showAmount = data.show_prices && typeof item.price === 'number';
+    // "Desde" y no el importe a secas: en una carta de servicios el precio es el punto de
+    // partida del trabajo, y sin esa palabra parece una tarifa cerrada. Solo se antepone
+    // cuando hay importe: si el precio está oculto, la etiqueta ya dice lo que toca.
     const text = showAmount
-      ? formatPrice(item.price as number, settings.currency)
+      ? `Desde ${formatPrice(item.price as number, settings.currency)}`
       : data.price_hidden_label;
 
     return <span className={showAmount ? 'font-medium' : 'text-sm text-text-muted'}>{text}</span>;
