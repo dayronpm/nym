@@ -195,7 +195,86 @@ const { data: inserted, error: insertError } = await supabase
 if (insertError) abort(`No se pudieron insertar los bloques: ${insertError.message}`);
 
 /* -------------------------------------------------------------------------- */
-/* 8. Resumen                                                                  */
+/* 8. Usuario administrador                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Busca el id de un usuario por su correo.
+ *
+ * Hace falta porque la API de administración no tiene "obtener por correo": solo
+ * `createUser`, que devuelve el id únicamente cuando crea la cuenta. `perPage` alto a
+ * propósito: este proyecto tiene un único administrador, no merece la pena paginar.
+ */
+async function findUserIdByEmail(email) {
+  const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error) abort(`No se pudieron listar los usuarios: ${error.message}`);
+
+  const target = email.toLowerCase();
+  return data.users.find((user) => user.email?.toLowerCase() === target)?.id ?? null;
+}
+
+// Las credenciales salen del entorno y no tienen valor por defecto a propósito: un seed
+// con contraseña inventada dejaría el panel abierto a quien leyese el repositorio. Si
+// falta alguna, se avisa y el seed termina bien: el contenido ya está cargado y el
+// administrador se puede crear a mano (README, paso 5).
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
+let adminReady = false;
+
+if (!adminEmail || !adminPassword) {
+  const missing = [!adminEmail && 'ADMIN_EMAIL', !adminPassword && 'ADMIN_PASSWORD']
+    .filter(Boolean)
+    .join(' y ');
+  console.log(`\n  ⚠ Administrador: se salta el paso (falta ${missing} en .env.local).`);
+  console.log('    Defínelas y vuelve a lanzar el seed, o crea el usuario a mano (README, paso 5).');
+} else {
+  // `email_confirm: true` evita el correo de confirmación: sin esto el dueño no podría
+  // entrar hasta abrir su bandeja, y el panel no tiene registro público donde hacerlo.
+  const { data: created, error: createError } = await supabase.auth.admin.createUser({
+    email: adminEmail,
+    password: adminPassword,
+    email_confirm: true,
+  });
+
+  // Relanzar el seed es lo normal, así que "ya existe" no es un fallo: se ignora y se
+  // sigue, que el paso siguiente deja igualmente el rol en 'admin'.
+  const alreadyExists =
+    Boolean(createError) && /already|registered|exists|duplicate/i.test(createError.message);
+  if (createError && !alreadyExists) {
+    abort(`No se pudo crear el usuario administrador: ${createError.message}`);
+  }
+
+  let userId = created?.user?.id ?? null;
+  if (!userId) userId = await findUserIdByEmail(adminEmail);
+  if (!userId) abort(`No se encontró el usuario "${adminEmail}" después de crearlo.`);
+
+  // La migración 000 trae el disparador `on_auth_user_created`, que da de alta el perfil
+  // con `role = 'viewer'`. Aquí se promueve a 'admin'. El `select` distingue "no había
+  // fila" (proyecto sin el disparador) de "actualizada"; en el primer caso se crea.
+  const { data: updated, error: roleError } = await supabase
+    .from('profiles')
+    .update({ role: 'admin', updated_at: new Date().toISOString() })
+    .eq('id', userId)
+    .select('id');
+
+  if (roleError) abort(`No se pudo asegurar el rol de administrador: ${roleError.message}`);
+
+  if ((updated?.length ?? 0) === 0) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({ id: userId, email: adminEmail, role: 'admin' });
+
+    if (profileError) {
+      abort(`No se pudo crear el perfil del administrador: ${profileError.message}`);
+    }
+  }
+
+  adminReady = true;
+  console.log(`\n  ✔ Usuario administrador listo: ${adminEmail}`);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 9. Resumen                                                                  */
 /* -------------------------------------------------------------------------- */
 
 const byPage = new Map();
@@ -214,6 +293,13 @@ console.log('\n    Reparto por página:');
 for (const [page, types] of byPage) {
   console.log(`      ${page.padEnd(10)} ${types.join(', ')}`);
 }
-console.log(
-  '\n    Recordatorio: quita ALLOW_SEED_RESET del entorno de producción si lo pusiste.\n',
-);
+
+if (adminReady) {
+  console.log(`\n    Entra al panel en /admin/login con: ${adminEmail}`);
+  console.log('    La contraseña es la de ADMIN_PASSWORD en `.env.local`; cámbiala en tu primera entrada.');
+} else {
+  console.log('\n    El administrador NO se creó: faltaba ADMIN_EMAIL o ADMIN_PASSWORD en `.env.local`.');
+  console.log('    Defínelas y vuelve a lanzar el seed, o créalo a mano (README, paso 5).');
+}
+
+console.log('\n    Recordatorio: quita ALLOW_SEED_RESET del entorno de producción si lo pusiste.\n');

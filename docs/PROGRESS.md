@@ -9,7 +9,7 @@
 >   original completo (fuente de verdad del **qué**).
 > - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — arquitectura y decisiones técnicas (el **cómo**).
 >
-> Última actualización: **25 de septiembre de 2026**.
+> Última actualización: **27 de septiembre de 2026**.
 
 ---
 
@@ -495,8 +495,10 @@ JavaScript, aunque solo en `/admin`).
 - **Fase 3 — Panel B (composición).** Interruptor `enabled` por bloque · arrastrar y
   soltar para reordenar · persistir `order` · funciona en móvil (toque) y escritorio.
 - **Fase 4 — Preset y clonado.** `core/presets/spa.ts` con contenido neutro ·
-  `scripts/seed.ts` con la guarda `ALLOW_SEED_RESET` y creación del admin · README de
-  clonado · checklist de la sección 6.9 del plan.
+  `scripts/seed.mjs` con la guarda `ALLOW_SEED_RESET` y la **creación del administrador**
+  desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` (si falta alguna, el seed avisa y sigue: no inventa
+  credenciales; si el usuario ya existe, no falla y solo asegura el rol `admin`) · README
+  de clonado · checklist de la sección 6.9 del plan.
 - **Hito.** Congelar la plantilla (`template-v1.0`), marcarla como repositorio plantilla
   en GitHub y crear la copia de N&M.
 - **Fase 5 — Personalización de N&M.** Solo en la copia. Verde y dorado por tokens,

@@ -77,7 +77,7 @@ npm run dev          # http://localhost:3000
 | `npm run db:link` | Vincula el proyecto local con el de Supabase (`supabase link`) |
 | `npm run db:push` | Aplica las migraciones (`supabase db push`) |
 | `npm run db:types` | Regenera `core/types/supabase.ts` |
-| `npm run seed` | Carga el contenido de ejemplo en Supabase. Exige `ALLOW_SEED_RESET=true` porque **borra los bloques existentes** |
+| `npm run seed` | Carga el contenido de ejemplo en Supabase y crea el usuario administrador (con `ADMIN_EMAIL`/`ADMIN_PASSWORD`). Exige `ALLOW_SEED_RESET=true` porque **borra los bloques existentes** |
 
 ---
 
@@ -198,6 +198,8 @@ Rellena `.env.local` con los valores del proyecto del cliente. Cada clave sale d
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clave publicable (`sb_publishable_...`). Se expone al navegador a propósito: la protegen las políticas RLS |
 | `SUPABASE_SECRET_KEY` | Clave secreta (`sb_secret_...`). **Omite RLS**: solo vale en servidor (seed y tareas administrativas). Nunca lleva el prefijo `NEXT_PUBLIC_` |
 | `NEXT_PUBLIC_SITE_URL` | URL pública del sitio, sin barra final. La usan el `sitemap`, el `canonical` y Open Graph (que tienen que ser absolutos). Puede quedarse vacía hasta que exista el dominio: en Vercel se usa `VERCEL_URL` y en local `http://localhost:3000` |
+| `ADMIN_EMAIL` | Correo del administrador que crea el seed (paso 5). Si falta, el seed no lo crea y lo avisa |
+| `ADMIN_PASSWORD` | Contraseña inicial de ese administrador. **Provisional:** se cambia desde el panel en la primera entrada. Si falta, el seed no lo crea y lo avisa |
 | `ALLOW_SEED_RESET` | Interruptor de seguridad del seed (ver paso 4). En producción se deja en `false` o sin definir |
 
 `.env.local` **nunca se versiona** (ya está en `.gitignore`) y no se comparte ni se
@@ -215,7 +217,11 @@ existentes; genera y sube al bucket las imágenes que declara el preset (PNG de
 color plano, no fotos) y las registra en `media`; actualiza la marca, el contacto,
 el catálogo de servicios y los valores de SEO de `site_settings` (deja el tema y
 los horarios tal como los dejó la migración); rellena los títulos y las
-descripciones de las cinco páginas; e inserta los bloques.
+descripciones de las cinco páginas; inserta los bloques; y crea el usuario
+administrador a partir de `ADMIN_EMAIL` y `ADMIN_PASSWORD`. Si falta alguna de
+esas dos variables, se salta ese paso y lo avisa por consola, en lugar de
+inventar credenciales; relanzar el seed con el usuario ya creado tampoco falla
+(detecta el "ya registrado" y solo se asegura de que el rol siga en `admin`).
 
 La guarda `ALLOW_SEED_RESET` existe porque el seed **borra los bloques**: sin
 ella, un `npm run seed` despistado en el proyecto de un cliente con contenido real
@@ -228,11 +234,15 @@ lanzar el seed; y si ya habías compilado, ejecuta antes `npm run clean` o el bu
 seguirá sirviendo el contenido cacheado (ver las trampas en
 [`docs/PROGRESS.md`](docs/PROGRESS.md)).
 
-### 5. Crear el usuario administrador y entrar al panel
+### 5. Usuario administrador y entrada al panel
 
-No hay registro público: cada instalación tiene un solo administrador. **Pendiente:**
-el plan contempla que el propio seed cree este usuario, pero hoy `scripts/seed.mjs`
-no lo hace (solo carga contenido), así que se crea a mano:
+No hay registro público: cada instalación tiene un solo administrador, y **lo crea el
+propio seed** (paso 4) a partir de `ADMIN_EMAIL` y `ADMIN_PASSWORD` de `.env.local`. El
+correo queda confirmado y el perfil con `role = 'admin'`, así que no hace falta ningún
+paso manual.
+
+Si el seed **se saltó** ese paso (porque faltaba alguna de las dos variables), lo avisa
+por consola y el administrador se puede crear a mano, como alternativa:
 
 1. En el panel de Supabase: *Authentication > Users > Add user*, con el correo y
    la contraseña del dueño, y marca *Auto Confirm User* (si no, no podrá entrar
@@ -246,11 +256,16 @@ no lo hace (solo carga contenido), así que se crea a mano:
 
    Sin `role = 'admin'` el panel deja entrar pero no deja guardar: la escritura
    está reservada a `is_admin()`.
-3. Añade en *Authentication > URL Configuration > Redirect URLs* el
-   `.../admin/auth/callback` de local y de producción
-   (`http://localhost:3000/admin/auth/callback` y
-   `https://<dominio>/admin/auth/callback`). Sin ellas, el enlace de "olvidé mi
-   contraseña" no puede volver al panel.
+
+En ambos casos, **cambia la contraseña en la primera entrada**: la de `ADMIN_PASSWORD`
+es provisional. Se cambia desde el panel abriendo `/admin/nueva-clave` con la sesión
+iniciada.
+
+Añade además en *Authentication > URL Configuration > Redirect URLs* el
+`.../admin/auth/callback` de local y de producción
+(`http://localhost:3000/admin/auth/callback` y
+`https://<dominio>/admin/auth/callback`). Sin ellas, el enlace de "olvidé mi
+contraseña" no puede volver al panel.
 
 El panel no se enlaza desde ninguna página pública: se entra escribiendo
 `/admin/login` a mano y con correo y contraseña.
@@ -288,6 +303,8 @@ del dominio en Supabase (paso 5).
   metadatos y `Disallow: /admin`); ver más arriba *Cómo se mantiene oculto el
   panel*. Nunca se enlaza a `/admin` desde el sitio público.
 - **`ALLOW_SEED_RESET` no se queda activo** en el entorno de producción.
+- **La contraseña del administrador que crea el seed es provisional.** `ADMIN_PASSWORD`
+  sirve solo para la primera entrada; se cambia desde el panel (`/admin/nueva-clave`).
 - **El contenido real se edita desde el panel.** El preset es solo el andamio
   inicial. Lo que no se pueda hacer desde el panel va en `custom/`
   (`custom/components/`, `custom/styles/`, `custom/public/`), **nunca** en `core/`.
