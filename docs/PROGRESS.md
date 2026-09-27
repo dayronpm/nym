@@ -8,6 +8,7 @@
 > - [`plan-desarrollo-plantilla-spa.md`](../plan-desarrollo-plantilla-spa.md) — el plan
 >   original completo (fuente de verdad del **qué**).
 > - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — arquitectura y decisiones técnicas (el **cómo**).
+> - [`docs/RECREAR.md`](RECREAR.md) — cómo se llega a este estado desde cero (el **porqué** de cada fase).
 >
 > Última actualización: **27 de septiembre de 2026**.
 
@@ -17,14 +18,14 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fase 2 cerrada** (2.1 autenticación · 2.2 `DynamicForm` · 2.3 páginas y bloques · 2.4 pantallas de configuración · 2.5 imágenes y avisos). Sigue la **Fase 3**: reordenar bloques, activarlos y desactivarlos, y la vista previa |
+| **Fase actual** | **Fases 0 a 3 cerradas.** La 3 se cerró por decisión: se reordena con flechas y el arrastre se descartó a propósito. La **Fase 4** está cerrada salvo el **ensayo del seed en un proyecto Supabase limpio**, que es del dueño. La **Fase 5** (personalización de N&M) está pendiente y vive solo en la copia. Entre la 4 y la 5: congelar la plantilla como **`template-v1.0`** |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
-| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 123 kB de First Load JS |
+| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 123 kB de First Load JS *(medido en el build del 26/09)* |
 | **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
-| **Grafo de conocimiento** | 566 nodos · 1223 aristas · 36 comunidades (Graphify, backend DeepSeek) |
+| **Grafo de conocimiento** | 832 nodos · 1949 aristas · 49 comunidades (Graphify, backend DeepSeek) |
 
 ### Arranque rápido en una sesión nueva
 
@@ -59,13 +60,12 @@ Criterios de aceptación del plan, uno por uno:
 - [x] El sitio público carga en `http://localhost:3000`
 - [x] El panel redirige `/admin` a `/admin/login` sin sesión
 - [x] Las variables de entorno no exponen la clave secreta al navegador
-- [ ] `npm run seed` funciona con `ALLOW_SEED_RESET=true` → **movido a la Fase 4**
+- [x] `npm run seed` funciona con `ALLOW_SEED_RESET=true` → **cumplido en la Fase 4**
 
-> El último punto es una **contradicción del plan**: su criterio de la Fase 0 exige que
-> `npm run seed` funcione, pero el contenido que el seed carga (el preset "Spa") es un
+> Este punto venía de una **contradicción del plan**: su criterio de la Fase 0 exigía que
+> `npm run seed` funcionara, pero el contenido que el seed carga (el preset "Spa") era un
 > entregable de la Fase 4. Se decidió no escribir un seed a medias que borrase contenido
-> sin cargar nada. `package.json` mantiene el script, y el README avisa de que todavía
-> no existe.
+> sin cargar nada, y el criterio quedó aparcado hasta que la Fase 4 lo cerró.
 
 ### Lo que se construyó
 
@@ -78,7 +78,7 @@ core/
 ├── lib/                  validation · contact · storage
 ├── styles/               globals.css (tokens) + tailwind.config.ts
 └── types/                supabase (generado) · models (derivado) · settings (zod)
-app/ · middleware.ts · tailwind.config.ts · postcss.config.js   ← shims de raíz
+app/ · middleware.ts · tailwind.config.ts   ← shims de raíz
 supabase/migrations/      000_initial.sql · 001_storage.sql
 docs/                     ARCHITECTURE.md · PROGRESS.md · custom/README.md
 ```
@@ -173,7 +173,8 @@ componentes → HTML.
 - [x] `reels` — tarjetas 9:16 con miniatura propia; la plataforma se valida por dominio
 
 Añadido de paso: `core/components/BlockHeading.tsx` (encabezado estándar de bloque, lo
-usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
+usan 8 bloques). `core/components/admin/BlockFormPending.tsx` se añadió entonces y se borró
+en la 2.2, al declarar los diez bloques su formulario generado.
 
 > **Nota sobre `faq`:** usa `<details>/<summary>` en lugar del `<button>` con
 > `aria-expanded`/`aria-controls` del plan. Hace lo mismo sin una línea de JavaScript
@@ -185,10 +186,9 @@ usan 8 bloques) y `core/components/admin/BlockFormPending.tsx`.
 > registradas y dibujarlos a mano habría metido SVG de terceros en la plantilla por un
 > detalle puramente estético. Se puede cambiar en cualquier momento sin tocar los esquemas.
 
-> **Nota sobre los formularios:** los bloques se registran con `BlockFormPending` en lugar
-> de con formularios propios. En la Fase 1 no hay ninguna pantalla que los alcance, y el
-> plan pide que se generen desde el esquema zod: escribirlos a mano ahora sería trabajo
-> sin verificar y condenado a reescribirse. La Fase 2 los sustituye por `DynamicForm`.
+> ✅ **Resuelto (2.2).** En la Fase 1 los bloques se registraban con `BlockFormPending`, un
+> marcador, porque todavía no había ninguna pantalla que los alcanzara. Los diez declaran ya su
+> formulario generado por `DynamicForm` desde el esquema zod, y el marcador se borró.
 
 > ✅ **Resuelto.** El criterio de aceptación de la Fase 1 pide ver "el contenido del seed
 > del preset Spa", pero el preset era un entregable de la Fase 4: sin contenido de ejemplo
@@ -304,12 +304,12 @@ Estas venían de ambigüedades del plan. Ya están resueltas; **no volver a preg
 | Enlace a la sección completa | Texto con flecha, no botón. Se guarda la **página** (`more.page`), no la URL: la ruta se deriva con `pageHref()`, así que desde el panel no se puede dejar un enlace roto |
 | Mapa y horarios | El mapa (`location_hours`) solo en `/contacto`; los horarios ya se ven en el pie de todas las páginas |
 | Nombre del esquema de `services` | `ServicesSchema` (en el plan chocaba con su entrada del registro) |
-| Ruta `/admin/servicios` | Se añade en la Fase 2 |
+| Ruta `/admin/servicios` | Se añadió en la Fase 2 |
 | Cliente para el sitio público | **Sin sesión** (`createSupabasePublicClient`), para poder cachear |
 | Hero sin botones | **Decisión de producto (25/09):** la página ya tiene reserva en el botón fijo del encabezado y al final, así que el hero no repite ninguno. Se quitaron `primary_cta` y `secondary_cta` y el bloque sube a **v2**. La portada empieza más natural |
 | Tarjetas de servicio | Reservan una franja 3:2 arriba para la imagen del servicio. Si el servicio no tiene imagen, la tarjeta se queda sin esa franja (no se deja un hueco vacío) |
 | Chrome del sitio público | Grupo de rutas `core/app/(sitio)/` con su propio `layout.tsx` (Header + Footer). El `layout.tsx` raíz solo pone `<html>`, fuentes y tema, porque también envuelve `/admin` |
-| Esquemas de bloque en el panel | **`DynamicForm` generado desde zod** (26/09). El motor está en `core/lib/zod-form.ts` y las palabras, en `form-labels.ts`. `block.Form` sigue declarado en el contrato, pero el editor resuelve el esquema en el cliente (`core/blocks/schemas.ts`) porque el formulario necesita estado: un módulo `'use client'` se puede *renderizar*, no *llamar*, así que el registro no puede construir el formulario |
+| Esquemas de bloque en el panel | **`DynamicForm` generado desde zod** (26/09). El motor está en `core/lib/zod-form.ts` y las palabras, en `core/components/admin/form-labels.ts`. El editor resuelve el esquema en el cliente (`core/blocks/schemas.ts`) porque el formulario necesita estado: un módulo `'use client'` se puede *renderizar*, no *llamar*, así que el registro no puede construir el formulario. `block.Form` se quitó del contrato al cerrar la Fase 2 (696eaed): ya no lo declaraba nadie |
 | Etiquetas de los campos | **No van en los esquemas.** Son presentación y los esquemas son el contrato de los datos (los lee también el sitio público). Viven en `form-labels.ts`, con un respaldo derivado del nombre técnico para que ningún campo quede sin etiqueta |
 
 Las desviaciones respecto al plan (shims, grupo `(panel)`, migración `001_storage`, ESLint 8,
@@ -318,7 +318,7 @@ Las desviaciones respecto al plan (shims, grupo `(panel)`, migración `001_stora
 
 ---
 
-## 5. Fase 2 en curso y fases siguientes
+## 5. Fases 2, 3 y 4
 
 ### 2.1 Autenticación ✅ *(hecha, 26/09)*
 
@@ -386,9 +386,9 @@ esquema lo añade al panel sin tocar el motor.
       las demás secciones: es el cierre del cabo suelto de la 1.4
 - [x] El borrador arranca rellenado con los valores por defecto del esquema, para que el
       formulario enseñe lo mismo que guardaría el sitio
-- [ ] Falta: activar y desactivar un bloque, reordenar (Fase 3) y los avisos flotantes (2.5)
+- [x] Activar y desactivar un bloque, reordenar (Fase 3) y los avisos flotantes (2.5): cerrados después
 
-### 2.4 Pantallas de configuración *(en curso)*
+### 2.4 Pantallas de configuración ✅ *(hecha, 26/09)*
 
 La configuración del negocio, agrupada por temas y no por columnas de la base de datos: cada
 tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
@@ -429,8 +429,7 @@ tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
       carga en tiempo de compilación, así que un nombre escrito a mano no existiría en el
       navegador. Para eso el formulario generado aprendió a pintar un selector a partir del mapa
       de etiquetas (`FieldConfig.options`)
-- [ ] Falta (2.5): `/admin/imagenes` y los avisos flotantes. Y la subida de archivos, que hoy se
-      hace subiendo la imagen a mano al bucket y pegando la ruta
+- [x] `/admin/imagenes`, los avisos flotantes y la subida de archivos: cerrados en la 2.5
 
 ### 2.5 Imágenes y avisos ✅ *(hecha, 27/09)*
 
@@ -450,6 +449,36 @@ tarjeta lee y guarda **su grupo** de `site_settings`, no la fila entera.
       fuera de React para que el aviso sobreviva a los re-renders de quien lo pide
 - [ ] Pendiente para más adelante: elegir una imagen **ya subida** desde el propio campo (hoy se
       copia la ruta desde `/admin/imagenes`)
+
+### Fase 3 — Panel B (composición) ✅ *(cerrada, 27/09; el arrastre se descartó a propósito)*
+
+- [x] Interruptor para activar y desactivar cada bloque, desde su tarjeta
+- [x] Reordenar con **flechas** de subir y bajar (`core/components/admin/BlockOrderButtons.tsx`),
+      que funcionan igual con ratón, con el dedo y con el teclado, y anuncian lo que hacen a quien
+      usa un lector de pantalla
+- [x] `core/data/mutations/set-block-enabled.ts` y `reorder-blocks.ts`; la acción de reordenar
+      recibe la **lista completa de identificadores**, no solo el bloque movido
+- [x] Sin migración de datos: `order` y `enabled` ya existían desde la fase 0
+
+> **Decisión del dueño: el arrastre se descartó a propósito.** El plan pedía arrastrar y soltar,
+> pero arrastrar con el dedo exige eventos de puntero, umbrales y una zona de soltado, y en un
+> móvil se falla mucho. Las flechas hacen lo mismo y son accesibles. Si el arrastre llega algún
+> día, será un atajo **además** de las flechas, nunca en su lugar.
+
+### Fase 4 — Preset y clonado ✅ *(cerrada, 27/09; queda el ensayo del seed, del dueño)*
+
+- [x] `core/presets/spa.ts` — contenido de ejemplo neutro, nada de un negocio real
+- [x] `scripts/seed.mjs` ampliado: **crea el usuario administrador** desde
+      `ADMIN_EMAIL`/`ADMIN_PASSWORD`. Si falta alguna, avisa y sigue (no inventa credenciales); si
+      el usuario ya existe, no falla y solo vuelve a asegurar el rol `admin`
+- [x] Guarda `ALLOW_SEED_RESET` (borra los bloques: sin ella no toca nada) y la tabla `media`
+      intacta, para no dejar archivos huérfanos en el bucket
+- [x] Guía de clonado en el `README.md` y `docs/RECREAR.md` (cómo se llega a la plantilla desde cero)
+- [x] Hito de la etapa: **plantilla congelada como `template-v1.0`** (etiqueta git y
+      `docs/plantilla-v1.0.zip`)
+- [ ] **Pendiente (del dueño): el ensayo del seed en un proyecto Supabase limpio**, con la lista de
+      verificación de la sección 6.9 del plan. Es la única diferencia real que queda entre el plan
+      y el código
 
 ### Rendimiento medido *(26/09, build de producción servido en local)*
 
@@ -481,28 +510,18 @@ Dos conclusiones que cambian lo que merece la pena optimizar:
    El cuello de botella del sitio no es el código: es la imagen. Candidatos para la Fase 5:
    servirla desde el propio dominio en lugar del bucket, y revisar su peso real.
 
-Estas cifras son la **línea base**; conviene repetirlas al cerrar la Fase 2 (el panel añade
+Estas cifras son la **línea base**; conviene repetirlas al congelar la plantilla (el panel añade
 JavaScript, aunque solo en `/admin`).
 
-### Fases siguientes (resumen)
+### Lo que queda
 
-- **Fase 2 — Panel A (editar contenido).** Login real con Supabase Auth y "olvidé mi
-  contraseña" · `DynamicForm` generado desde zod · `/admin/paginas` y
-  `/admin/paginas/[slug]` · `/admin/negocio` · `/admin/apariencia` · `/admin/imagenes` ·
-  `/admin/seo` · `/admin/servicios` · subida de imágenes con compresión WebP ≤1600 px ·
-  toasts e indicador de estado por tarjeta · revalidación al guardar · **inyectar
-  `site_settings.theme` en el sitio (hoy el tema vive solo en `globals.css`)**.
-- **Fase 3 — Panel B (composición).** Interruptor `enabled` por bloque · arrastrar y
-  soltar para reordenar · persistir `order` · funciona en móvil (toque) y escritorio.
-- **Fase 4 — Preset y clonado.** `core/presets/spa.ts` con contenido neutro ·
-  `scripts/seed.mjs` con la guarda `ALLOW_SEED_RESET` y la **creación del administrador**
-  desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` (si falta alguna, el seed avisa y sigue: no inventa
-  credenciales; si el usuario ya existe, no falla y solo asegura el rol `admin`) · README
-  de clonado · checklist de la sección 6.9 del plan.
-- **Hito.** Congelar la plantilla (`template-v1.0`), marcarla como repositorio plantilla
-  en GitHub y crear la copia de N&M.
-- **Fase 5 — Personalización de N&M.** Solo en la copia. Verde y dorado por tokens,
-  contenido real, dominio propio.
+- **Fase 4, un punto:** el **ensayo del seed en un proyecto Supabase limpio** (del dueño).
+- **Fase 5 — Personalización de N&M.** Solo en la copia del negocio: verde y dorado por tokens,
+  contenido real y dominio propio.
+
+La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
+como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
+abren la etapa 2.
 
 ---
 
@@ -517,7 +536,9 @@ Cada una costó tiempo; están ordenadas por gravedad.
    cuenta. **Cómo diagnosticarlo:** mirar `"matchers"` en
    `.next/server/middleware-manifest.json`.
 2. **`core/app/` no lo detecta Next.js.** Hace falta un shim de una línea por ruta en
-   `app/`, y lo mismo para `middleware.ts`, `tailwind.config.ts` y `postcss.config.js`.
+   `app/`, y lo mismo para `middleware.ts`, `tailwind.config.ts`, `sitemap.ts`, `robots.ts`
+   y `favicon/route.ts`. (`postcss.config.js` vive en la raíz por la misma razón, pero es
+   configuración real, no un reexport.)
 3. **`Block<z.ZodTypeAny>` no sirve como comodín del registro.** TypeScript no resuelve
    `z.infer<S>` cuando `S` es el comodín y obliga a un `as unknown` por entrada. Se usa
    la interfaz `AnyBlock` de `core/blocks/registry.ts`, sin genéricos y sin casts.
@@ -685,53 +706,39 @@ Cada una costó tiempo; están ordenadas por gravedad.
     tema. Y ojo con dónde va la hoja: el `<style>` con los tokens tiene que llegar **después**
     de `globals.css` (el del layout del sitio lo hace) y apuntar a `:root`, no a un contenedor,
     porque el fondo del `body` y la tipografía base también salen de ahí.
+39. **No compilar ni limpiar `.next` con el servidor de desarrollo del usuario en marcha.**
+    Si se ejecuta `npm run build` o `npm run clean` mientras él tiene `npm run dev` abierto, sus
+    Server Actions empiezan a fallar con `TypeError: Failed to fetch` y **parece un fallo del
+    panel**. Antes de tocar el puerto 3000 o `.next`, avisar y comprobar qué lo ocupa:
+    `Get-NetTCPConnection -LocalPort 3000 -State Listen`.
+40. **En PowerShell, unas comillas escapadas dentro del mensaje de `git commit` rompen el
+    comando.** PowerShell no usa `\"` como escape: la cadena se cierra antes de tiempo, git
+    recibe el resto como nombres de archivo y el commit no se hace. Usa comillas simples para el
+    mensaje, o evita las comillas dentro.
 
 ---
 
 ## 7. Deuda técnica y pendientes conocidos
 
-- El seed se adelantó a la Fase 1 (existe, funciona y sube imágenes), así que a la Fase 4
-  le queda ampliar el preset a contenido neutro más completo y documentar el clonado en el
-  README. El README ya avisa de que el preset es de ejemplo.
-- Los reels son **manuales**: la miniatura y el enlace se suben a mano. La intención es que
-  algún día se actualicen solos cuando el negocio publique en Instagram o TikTok (API o
-  feed). Hasta entonces, cada reel nuevo se añade desde el panel.
-- El favicon es un **monograma generado** a partir del nombre y la paleta. Cuando el panel
-  permita subir uno propio (`brand.favicon`, Fase 2), la ruta `/favicon` lo servirá y el
-  monograma quedará de respaldo.
-- Open Graph usa **una sola imagen de reserva para todo el sitio**. El campo
-  `pages.og_image` ya existe y `buildPageMetadata` lo respeta, pero todavía no hay panel
-  para subir una imagen por página (Fase 2).
+- **Fase 4:** queda el **ensayo del seed en un proyecto Supabase limpio**, con la lista de
+  verificación de la sección 6.9 del plan. Es lo único que separa el plan del código.
+- **Los reels son manuales, por diseño**: la miniatura y el enlace se suben a mano. Es lo que
+  hay hasta que Instagram o TikTok ofrezcan API o feed.
+- **El arrastre de bloques se descartó a propósito**: se reordena con flechas, que funcionan
+  igual con ratón, con el dedo y con el teclado (decisión del dueño).
+- **Elegir una imagen ya subida desde el propio campo** sigue siendo copiar la ruta en
+  `/admin/imagenes` y pegarla en el campo del bloque.
 - La invalidación de la caché es **gruesa** (una etiqueta por tipo de contenido, no por
   página). Es deliberado y está razonado en `core/data/cache-tags.ts`; se afina si el sitio
   crece.
-- ~~Los avisos de error del panel usan el **acento del tema** como color de aviso.~~ **Resuelto
-  en la 2.4**: `core/styles/globals.css` ya tenía `--color-danger` y `--color-success` desde la
-  Fase 1 y `tailwind.config.ts` los expone como `danger` y `success`; lo que faltaba era usarlos.
-  `core/components/admin/FormMessage.tsx` pinta ya los errores en rojo y las confirmaciones en
-  verde, así que un error se lee como un error con cualquier paleta.
-- ~~`block.Form` **no lo usa nadie**: o se le da un uso o se quita del contrato al cerrar la Fase 2.~~
-  **Resuelto (696eaed)**: quitado del contrato, del registro (`AnyBlock` también lo declaraba), de los
-  diez `index.ts` y borrado `createBlockForm.tsx`. El editor resuelve los esquemas con
-  `BLOCK_SCHEMAS`, así que el campo era un muerto: 15 archivos, −85 líneas.
+- **Añadir una tipografía es un cambio de código**, no un cambio desde el panel: `next/font`
+  carga en tiempo de compilación y las fuentes elegibles son las de `FONT_STACKS`
+  (`core/lib/theme.ts`).
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
-  reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
+  reserva sin quejarse (el build sí las resolvió). Si algún día el build falla por las
   fuentes, es esto.
-- ~~El tema de `site_settings.theme` **se guarda pero no se aplica**.~~ **Resuelto en la 2.4**:
-  `lib/theme.ts` lo convierte en las variables CSS que ya usaba `globals.css` y el layout del
-  sitio lo inyecta. Queda una limitación conocida y a propósito: las tipografías elegibles son
-  las dos que carga `next/font` en tiempo de compilación, así que **añadir una fuente es un
-  cambio de código** (y hay que añadirla a `FONT_STACKS` en `lib/theme.ts`).
-- ~~`SelectField` es el único campo que no se desactiva mientras se guarda.~~ **Resuelto (696eaed)**:
-  acepta `disabled` y los dos sitios donde se pinta se lo pasan.
-- El catálogo de servicios y las páginas se guardan con las claves de `site_settings` y de
-  `pages`. La subida de imágenes (2.5) es lo que falta para no tener que pegar rutas a mano.
-- Los formularios de bloque se escriben a mano hasta que exista `DynamicForm` (Fase 2).
 - `docs/DEPLOYMENT.md` y `docs/SCHEMA.md` están pendientes (opcionales en el plan).
-- El dashboard del panel lista las cinco secciones, pero solo `/admin/paginas`,
-  `/admin/negocio`, `/admin/servicios` y `/admin/seo` son navegables; Imágenes aparece como
-  pendiente (Fase 2.5).
 - Las migraciones `001_storage.sql` crean el bucket y sus políticas; si algún push falla
   por permisos sobre el esquema `storage`, el bucket se puede crear desde el panel.
 

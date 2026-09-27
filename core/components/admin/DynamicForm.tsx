@@ -135,8 +135,8 @@ function TextareaField({
  * Lista editable: fotos, personas, preguntas, testimonios, vídeos.
  *
  * Cada elemento es una tarjeta plegable con su formulario dentro, y los botones de subir y
- * bajar están aquí aunque el arrastrar y soltar llegue en la Fase 3: sin ellos, quitar una
- * fila mal colocada obligaría a rehacerla.
+ * bajar están aquí a propósito: reordenar con un botón funciona igual con ratón, con el dedo y
+ * con teclado, y sin ellos quitar una fila mal colocada obligaría a rehacerla.
  *
  * Se recibe `itemFields` —el mapa de etiquetas del elemento que la contiene, si la lista está
  * dentro de otra— porque las listas se anidan: las categorías del catálogo llevan dentro su

@@ -48,8 +48,10 @@ export { default, dynamic } from '@/app/admin/(panel)/layout';
 `core/` sigue siendo la unidad completa y portable que se clona como plantilla;
 la raíz solo contiene el pegamento que Next.js necesita.
 
-**Archivos afectados:** `app/**`, `middleware.ts`, `tailwind.config.ts`,
-`postcss.config.js`.
+**Archivos afectados:** `app/**`, `middleware.ts` y `tailwind.config.ts` (este
+último reexporta desde `core/styles/`). `postcss.config.js` no entra aquí: vive en
+la raíz porque PostCSS se resuelve desde ahí, pero es configuración real —los dos
+plugins estándar de Tailwind, sin lógica propia—, no un reexport.
 
 **Al añadir una ruta nueva:** crear el archivo real en `core/app/...` y su shim
 en `app/...`. Si la ruta necesita exports de configuración (`metadata`,
@@ -84,7 +86,8 @@ porque el middleware se ejecutaba también en `/`.
 
 ## 3. Sistema de bloques (`defineBlock`)
 
-Un bloque es la unión de cuatro piezas declaradas en un solo sitio:
+Un bloque declara en un solo sitio su tipo, su esquema, su componente público y
+sus valores por defecto:
 
 ```ts
 // core/blocks/hero/index.ts
@@ -92,12 +95,16 @@ export const heroBlock = defineBlock(
   'hero',        // tipo, es lo que se guarda en blocks.type
   HeroSchema,    // esquema zod: el contrato de los datos
   HeroBlock,     // componente del sitio público
-  HeroForm,      // formulario del panel
   HERO_DEFAULTS, // valores por defecto
   1,             // versión del esquema
   { label: 'Hero', description: 'Portada de Inicio.' },
 );
 ```
+
+**El formulario del panel no forma parte del bloque.** Lo genera `DynamicForm`
+(`core/components/admin/DynamicForm.tsx`) a partir del esquema, y el editor lo
+resuelve con `BLOCK_SCHEMAS` (`core/blocks/schemas.ts`). Ni `defineBlock` ni los
+archivos de bloque declaran ya un formulario.
 
 **El esquema es la fuente única de verdad.** De él salen los tipos TypeScript, la
 validación al guardar y la validación al leer.
@@ -123,12 +130,15 @@ un campo opcional con `default` no la obliga.
 core/blocks/<tipo>/
 ├── schema.ts          esquema zod + valores por defecto
 ├── <Tipo>Block.tsx    componente público
-├── <Tipo>Form.tsx     formulario del panel
 └── index.ts           defineBlock + reexports
 ```
 
-El registro global está en `core/blocks/registry.ts`. Es la única lista que hay
-que tocar al añadir un bloque.
+El registro global está en `core/blocks/registry.ts` (bloque completo, con su
+componente) y su subconjunto de solo esquemas, en `core/blocks/schemas.ts`
+(`BLOCK_SCHEMAS`). El segundo existe por la frontera cliente/servidor: `registry.ts`
+arrastra los componentes públicos, así que no se puede importar desde el cliente, y
+el panel necesita el **esquema** en el cliente para generar el formulario. **Al añadir
+un bloque hay que tocar las dos listas.**
 
 ---
 
@@ -139,7 +149,7 @@ que tocar al añadir un bloque.
 
 ```
 core/data/
-├── supabase.ts             cliente de navegador, de servidor y administrativo
+├── supabase.ts             clientes público, de navegador, de servidor y administrativo
 ├── supabase-middleware.ts  cliente del middleware (runtime edge, aparte)
 ├── queries/                lectura
 └── mutations/              escritura
@@ -154,10 +164,13 @@ resolver esos imports (y el build avisaba de ello).
 
 | Función | Contexto | Clave |
 | --- | --- | --- |
+| `createSupabasePublicClient` | Sitio público, sin sesión (permite cachear) | publicable |
 | `createSupabaseBrowserClient` | Componentes cliente del panel | publicable |
 | `createSupabaseServerClient` | Server Components, route handlers | publicable |
-| `createSupabaseMiddlewareClient` | Solo middleware | publicable |
 | `createSupabaseAdminClient` | Solo servidor y scripts | **secreta** |
+
+El cliente del middleware (`createSupabaseMiddlewareClient`) vive aparte, en
+`core/data/supabase-middleware.ts`, por lo dicho arriba.
 
 ---
 
@@ -171,8 +184,9 @@ resolver esos imports (y el build avisaba de ello).
 | `site_settings` | Configuración del sitio | Una sola fila (`id = 1`) |
 | `media` | Registro de archivos subidos | Guarda la ruta, nunca la URL |
 
-`order` y `enabled` existen desde la fase 0 aunque el panel no los use hasta la
-fase 3. Así la fase 3 es solo interfaz.
+`order` y `enabled` existen desde la fase 0 y el panel los edita desde la fase 3
+(el interruptor de cada tarjeta y las flechas para reordenar). Como las columnas ya
+estaban, la fase 3 no necesitó ninguna migración.
 
 ### El catálogo de servicios es un dato único
 
@@ -215,9 +229,15 @@ tres sitios que hay que mantener sincronizados:
 deben tener exactamente los mismos valores que `globals.css`. Al cambiar un token
 hay que tocar los tres.
 
-> **Pendiente (Fase 2):** hoy `theme` se guarda en la base de datos pero el sitio
-> todavía lee los tokens de `globals.css`. Falta inyectar el tema en un `<style>`
-> del root layout y comprobar el contraste 4.5:1 antes de guardar.
+El tema guardado **sí se aplica**: `core/lib/theme.ts` lo convierte en esas mismas
+variables CSS y el layout del sitio las inyecta en un `<style>` sobre `:root`,
+después de `globals.css` para ganar por orden. Así cambiar la paleta desde
+`/admin/apariencia` no toca ningún componente. El contraste ≥ 4.5:1 se comprueba con
+la cuenta de WCAG de `core/lib/contrast.ts` antes de guardar.
+
+Las tipografías elegibles son las que carga `next/font` en tiempo de compilación:
+**añadir una fuente es un cambio de código** (hay que sumarla a `FONT_STACKS` en
+`core/lib/theme.ts`).
 
 ---
 
@@ -240,14 +260,15 @@ hay que tocar los tres.
    defecto.
 2. Crear `<Tipo>Block.tsx`, el componente público. No escribe colores ni textos
    literales: recibe `data` y `settings`.
-3. Crear `<Tipo>Form.tsx`, el formulario del panel. Emite cambios con
-   `onChange`, no guarda nada por su cuenta.
-4. Crear `index.ts` con `defineBlock(...)`.
-5. Registrarlo en `core/blocks/registry.ts`.
-6. Si el bloque usa una tabla nueva, añadir una migración en
+3. Crear `index.ts` con `defineBlock(...)`.
+4. Registrarlo en `core/blocks/registry.ts` y añadir el esquema a
+   `core/blocks/schemas.ts` (`BLOCK_SCHEMAS`).
+5. Si el bloque usa una tabla nueva, añadir una migración en
    `supabase/migrations/` con sus `GRANT` y sus políticas.
 
-El resto de la plantilla no se toca.
+El formulario del panel **no se escribe**: lo genera `DynamicForm` desde el esquema.
+Solo hay que añadir las etiquetas de los campos nuevos en
+`core/components/admin/form-labels.ts`. El resto de la plantilla no se toca.
 
 ---
 
@@ -263,7 +284,7 @@ impedían que la Fase 0 funcionara. Se corrigieron al implementar:
 | 3 | Las políticas de admin usaban `auth.uid() IN (SELECT id FROM profiles ...)`; con RLS activo y sin política de lectura devuelve 0 filas y **nadie sería admin** | Función `public.is_admin()` `SECURITY DEFINER` |
 | 4 | Faltaban políticas `DELETE` y la de `INSERT` en `pages` | Añadidas |
 | 5 | `/admin/servicios` se usaba en las reglas del bloque `services` pero no existía ni en la navegación ni en el árbol de carpetas | Ruta añadida al plan de trabajo de la fase 2 |
-| 6 | Inconsistencias de rutas: `core/types/` vs `src/types/supabase.ts`; `supabase/seed.ts` vs `scripts/seed.js` | Todo en `core/types/` y `scripts/seed.ts` |
+| 6 | Inconsistencias de rutas: `core/types/` vs `src/types/supabase.ts`; `supabase/seed.ts` vs `scripts/seed.js` | Todo en `core/types/` y `scripts/seed.mjs` |
 | 7 | `zod`, `@supabase/supabase-js` y `@supabase/ssr` estaban en `devDependencies` | Movidos a `dependencies` |
 | 8 | `@supabase/cli` no es el paquete correcto, y `supabase gen types >` no es la sintaxis válida | CLI oficial (`supabase`) como devDependency y `supabase gen types typescript --linked` |
 | 9 | El esquema del bloque `services` se exportaba como `ServicesBlock`, igual que su entrada en el registro | Se nombrará `ServicesSchema` |
@@ -286,10 +307,11 @@ Desviaciones deliberadas respecto al plan:
 
 ## 10. Deuda conocida
 
-- Los tipos de `core/types/models.ts` están escritos a mano y reflejan la
-  migración 000. Se sustituyen por los generados con `npm run db:types` en la
-  Fase 1.
-- El tema guardado en `site_settings.theme` todavía no se inyecta en el sitio
-  (sección 6).
-- Los formularios de bloque están generados a mano; el `DynamicForm` genérico
-  que los deriva del esquema zod es trabajo de la Fase 2.
+- Las tipografías elegibles son las que carga `next/font` en tiempo de
+  compilación: añadir una es un cambio de código (sección 6).
+- Elegir una imagen **ya subida** desde el propio campo sigue siendo copiar la
+  ruta en `/admin/imagenes`.
+- Los reels se añaden a mano, con su miniatura y su enlace, hasta que haya API o
+  feed de Instagram o TikTok.
+- La invalidación de la caché es gruesa (una etiqueta por tipo de contenido, no
+  por página). Es deliberado y está razonado en `core/data/cache-tags.ts`.
