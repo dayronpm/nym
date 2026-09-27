@@ -1,5 +1,4 @@
 import { defineBlock } from '@/blocks/defineBlock';
-import { createBlockForm } from '@/components/admin/createBlockForm';
 
 import LocationHoursBlock from './LocationHoursBlock';
 import { LOCATION_HOURS_DEFAULTS, LocationHoursSchema } from './schema';
@@ -8,7 +7,6 @@ export const locationHoursBlock = defineBlock(
   'location_hours',
   LocationHoursSchema,
   LocationHoursBlock,
-  createBlockForm(LocationHoursSchema, 'location_hours'),
   LOCATION_HOURS_DEFAULTS,
   1,
   {

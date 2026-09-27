@@ -22,7 +22,7 @@ import type { SiteSettings } from '@/types/settings';
  * entrada del registro.
  *
  * Esta interfaz describe la misma forma sin genéricos, con `any` justo donde el
- * tipo depende del bloque (los props del componente y del formulario). El tipo
+ * tipo depende del bloque (los props del componente). El tipo
  * específico — `HeroData`, etc. — se recupera validando con `parseBlockData`, que
  * es donde el esquema del bloque vuelve a entrar en juego.
  */
@@ -30,11 +30,6 @@ export interface AnyBlock {
   type: string;
   schema: z.ZodTypeAny;
   Component: ComponentType<{ data: any; settings: SiteSettings }>;
-  Form: ComponentType<{
-    initialData: any;
-    onChange: (data: any) => void;
-    errors?: Record<string, string>;
-  }>;
   defaults: any;
   version: number;
   label: string;
@@ -45,7 +40,7 @@ export interface AnyBlock {
  * Registro global de bloques.
  *
  * Es la única lista que hay que tocar al añadir un bloque nuevo. Cada entrada
- * aporta su esquema, su componente público, su formulario y sus valores por
+ * aporta su esquema, su componente público y sus valores por
  * defecto.
  *
  * La clave es el valor que se guarda en `blocks.type`.

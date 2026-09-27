@@ -1,5 +1,4 @@
 import { defineBlock } from '@/blocks/defineBlock';
-import { createBlockForm } from '@/components/admin/createBlockForm';
 
 import ServicesBlock from './ServicesBlock';
 import { SERVICES_DEFAULTS, ServicesSchema } from './schema';
@@ -14,7 +13,6 @@ export const servicesBlock = defineBlock(
   'services',
   ServicesSchema,
   ServicesBlock,
-  createBlockForm(ServicesSchema, 'services'),
   SERVICES_DEFAULTS,
   1,
   {

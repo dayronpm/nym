@@ -9,24 +9,17 @@ import type { SiteSettings } from '@/types/settings';
  * `defineBlock` une en un solo lugar:
  *   - el esquema zod      -> contrato de los datos del bloque
  *   - el componente       -> cómo se ve en el sitio público
- *   - el formulario       -> cómo se edita en el panel (Fase 2)
  *   - los valores por defecto
  *   - la versión          -> para migrar contenido si el esquema cambia
  *
- * Al añadir un bloque nuevo solo se escribe el esquema, el componente y el
- * formulario: el registro es automático (ver `registry.ts`).
+ * Al añadir un bloque nuevo solo se escribe el esquema y el componente: el
+ * registro es automático (ver `registry.ts`).
  */
 
 export interface BlockProps<TData> {
   data: TData;
   /** Configuración global del sitio: tema, contacto, horarios, catálogo. */
   settings: SiteSettings;
-}
-
-export interface BlockFormProps<TData> {
-  initialData: TData;
-  onChange: (data: TData) => void;
-  errors?: Record<string, string>;
 }
 
 export interface BlockOptions {
@@ -40,7 +33,6 @@ export interface Block<S extends z.ZodTypeAny = z.ZodTypeAny> {
   type: string;
   schema: S;
   Component: ComponentType<BlockProps<z.infer<S>>>;
-  Form: ComponentType<BlockFormProps<z.infer<S>>>;
   defaults: z.infer<S>;
   version: number;
   label: string;
@@ -51,7 +43,6 @@ export function defineBlock<S extends z.ZodTypeAny>(
   type: string,
   schema: S,
   Component: Block<S>['Component'],
-  Form: Block<S>['Form'],
   defaults: z.infer<S>,
   version = 1,
   options: BlockOptions = {},
@@ -60,7 +51,6 @@ export function defineBlock<S extends z.ZodTypeAny>(
     type,
     schema,
     Component,
-    Form,
     defaults,
     version,
     label: options.label ?? type,

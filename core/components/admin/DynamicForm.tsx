@@ -400,6 +400,7 @@ function FieldRenderer({
         id={id}
         hint={config.hint}
         error={error}
+        disabled={disabled}
         options={config.options.map((option) => ({ ...option, raw: option.value }))}
         value={String(value ?? '')}
         onChange={(option) => onChange(option.raw)}
@@ -427,6 +428,7 @@ function FieldRenderer({
         id={id}
         hint={config.hint}
         error={error}
+        disabled={disabled}
         options={selectable}
         value={selected}
         onChange={(option) => onChange(option.raw)}

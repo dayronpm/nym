@@ -30,16 +30,28 @@ export interface SelectFieldProps extends BaseProps {
   value: string;
   options: SelectOption[];
   onChange: (option: SelectOption) => void;
+  /** Se desactiva mientras se guarda, como el resto de los campos. */
+  disabled?: boolean;
 }
 
 /** Selector. Trabaja con el valor en texto, pero devuelve la opción entera para no perder
  *  el tipo original (hay selectores numéricos, como el de columnas de la galería). */
-export function SelectField({ label, id, hint, error, value, options, onChange }: SelectFieldProps) {
+export function SelectField({
+  label,
+  id,
+  hint,
+  error,
+  value,
+  options,
+  disabled,
+  onChange,
+}: SelectFieldProps) {
   return (
     <FieldRow label={label} id={id} hint={hint} error={error}>
       {(aria) => (
         <select
           {...aria}
+          disabled={disabled}
           className={cn(INPUT_CLASSES)}
           value={value}
           onChange={(event) => {
