@@ -3,8 +3,9 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 import { CACHE_TAGS } from '@/data/cache-tags';
-import { ValidationError } from '@/data/errors';
+import { DataError, ValidationError } from '@/data/errors';
 import { saveBlock } from '@/data/mutations/save-block';
+import { setBlockEnabled } from '@/data/mutations/set-block-enabled';
 import { pageHref, isPageSlug } from '@/lib/navigation';
 
 /**
@@ -76,4 +77,54 @@ export async function saveBlockAction({
   }
 
   return { ok: true, errors: {}, message: 'Guardado. El sitio ya muestra el cambio.' };
+}
+
+/** Resultado de mostrar u ocultar un bloque. */
+export interface SetBlockEnabledResult {
+  ok: boolean;
+  message: string;
+}
+
+/**
+ * Muestra u oculta un bloque.
+ *
+ * Se revalida igual que al guardar contenido, y por el mismo motivo: el HTML de la página está
+ * cacheado, y si no se rehace seguiría enseñando el bloque recién oculto durante una hora. Se
+ * rehace Inicio además cuando el bloque no es de Inicio, porque la portada resume las demás
+ * secciones.
+ */
+export async function setBlockEnabledAction({
+  id,
+  page,
+  enabled,
+}: {
+  id: string;
+  page: string;
+  enabled: boolean;
+}): Promise<SetBlockEnabledResult> {
+  try {
+    await setBlockEnabled(id, enabled);
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof DataError
+          ? error.message
+          : 'No se pudo cambiar la visibilidad. Inténtalo de nuevo.',
+    };
+  }
+
+  revalidateTag(CACHE_TAGS.blocks);
+
+  if (isPageSlug(page)) {
+    revalidatePath(pageHref(page));
+    if (page !== 'inicio') revalidatePath('/');
+  }
+
+  return {
+    ok: true,
+    message: enabled
+      ? 'Bloque visible en el sitio.'
+      : 'Bloque oculto. El contenido sigue guardado, listo para volver a mostrarlo.',
+  };
 }
