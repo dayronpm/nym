@@ -1,4 +1,7 @@
+import { NextResponse } from 'next/server';
+
 import { getSiteSettings } from '@/data/queries/site-settings';
+import { getMediaUrl } from '@/lib/storage';
 
 /**
  * Favicon.
@@ -13,8 +16,10 @@ import { getSiteSettings } from '@/data/queries/site-settings';
  * que habría que duplicarlos y existirían dos originales. Al ser un módulo, el shim de
  * una línea sí funciona.
  *
- * Cuando el panel permita subir un favicon propio (Fase 2), esta ruta lo servirá y el
- * monograma quedará como respaldo.
+ * Si el negocio ha subido un favicon propio desde el panel (`brand.favicon`), esta ruta lo sirve
+ * y el monograma queda de respaldo. Se responde con una **redirección** al archivo del bucket y
+ * no descargándolo aquí: el archivo es público, así que lo sirve (y lo cachea) el CDN de Supabase
+ * en lugar de gastar una ejecución nuestra por cada visita.
  */
 export const revalidate = 3600;
 
@@ -29,6 +34,11 @@ function escapeXml(value: string): string {
 
 export async function GET(): Promise<Response> {
   const settings = await getSiteSettings();
+
+  const custom = getMediaUrl(settings.brand.favicon);
+  if (custom) {
+    return NextResponse.redirect(custom, 307);
+  }
 
   const initial = settings.brand.name.trim().charAt(0).toUpperCase() || '·';
   // Los colores del tema están validados como hexadecimal por el esquema, así que se
