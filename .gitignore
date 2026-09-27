@@ -29,3 +29,8 @@ Thumbs.db
 
 # Herramientas locales de agentes (estado generado, específico de la máquina)
 graphify-out/
+
+# Fotos de prueba para colocar a mano: las fotos se quedan en la máquina (se suben al
+# bucket), al repositorio solo va la instrucción de la carpeta.
+imagenes-de-prueba/*
+!imagenes-de-prueba/LEEME.md
