@@ -708,9 +708,10 @@ Cada una costó tiempo; están ordenadas por gravedad.
   Fase 1 y `tailwind.config.ts` los expone como `danger` y `success`; lo que faltaba era usarlos.
   `core/components/admin/FormMessage.tsx` pinta ya los errores en rojo y las confirmaciones en
   verde, así que un error se lee como un error con cualquier paleta.
-- `block.Form` **no lo usa nadie**: el editor resuelve el esquema en el cliente. O se le da un
-  uso (formularios propios para bloques con subida de archivos) o se quita del contrato al
-  cerrar la Fase 2. Dejarlo sin decidir es lo que convierte un contrato en una promesa vacía.
+- ~~`block.Form` **no lo usa nadie**: o se le da un uso o se quita del contrato al cerrar la Fase 2.~~
+  **Resuelto (696eaed)**: quitado del contrato, del registro (`AnyBlock` también lo declaraba), de los
+  diez `index.ts` y borrado `createBlockForm.tsx`. El editor resuelve los esquemas con
+  `BLOCK_SCHEMAS`, así que el campo era un muerto: 15 archivos, −85 líneas.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (`El build sí las resolvió`). Si algún día el build falla por las
@@ -720,9 +721,8 @@ Cada una costó tiempo; están ordenadas por gravedad.
   sitio lo inyecta. Queda una limitación conocida y a propósito: las tipografías elegibles son
   las dos que carga `next/font` en tiempo de compilación, así que **añadir una fuente es un
   cambio de código** (y hay que añadirla a `FONT_STACKS` en `lib/theme.ts`).
-- `SelectField` es el único campo del formulario generado que **no se desactiva** mientras se
-  guarda (su interfaz no acepta `disabled`). Se nota poco —el botón ya está desactivado— pero
-  conviene arreglarlo al tocar `form-fields.tsx`.
+- ~~`SelectField` es el único campo que no se desactiva mientras se guarda.~~ **Resuelto (696eaed)**:
+  acepta `disabled` y los dos sitios donde se pinta se lo pasan.
 - El catálogo de servicios y las páginas se guardan con las claves de `site_settings` y de
   `pages`. La subida de imágenes (2.5) es lo que falta para no tener que pegar rutas a mano.
 - Los formularios de bloque se escriben a mano hasta que exista `DynamicForm` (Fase 2).
