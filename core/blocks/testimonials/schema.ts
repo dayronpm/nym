@@ -8,9 +8,9 @@ import { MediaRef } from '@/blocks/shared';
  * Decisión: testimonios escritos a mano en el panel, con imagen opcional (foto del
  * cliente o captura de una reseña).
  *
- * El bloque existe en la plantilla, pero N&M Salón Spa no lo usa: en su copia
- * queda desactivado. Si no hay testimonios activos, no se muestra — nada de
- * secciones vacías.
+ * El bloque existe en la plantilla, pero el preset lo trae vacío: los testimonios se
+ * escriben cuando el negocio los tenga. Si no hay ninguno activo, la sección no se
+ * muestra — nada de huecos.
  *
  * SEO: a propósito NO se generan datos estructurados `Review` ni
  * `AggregateRating` a partir de esto. Google no suele mostrar estrellas para

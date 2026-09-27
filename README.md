@@ -128,25 +128,174 @@ y `postcss.config.js`.
 
 ---
 
-## Cómo personalizar para un negocio nuevo
+## Montar el sitio de un negocio nuevo (guía paso a paso)
 
-1. **No toques este repositorio.** Créate una copia (botón *Use this template*
-   en GitHub, o `git clone`).
-2. En la copia, rellena `.env.local` con el proyecto de Supabase del cliente.
-3. `npm run db:push` y `npm run db:types`.
-4. `npm run seed` con `ALLOW_SEED_RESET=true` para cargar el contenido de
-   ejemplo.
-5. Edita el contenido desde `/admin` (textos, servicios, fotos, tema, SEO).
-6. Lo que no se pueda hacer desde el panel, va en `custom/`:
-   - `custom/components/` componentes propios
-   - `custom/styles/` estilos adicionales (nunca reescribir `globals.css`)
-   - `custom/public/` logo y otros assets
+Cada negocio es una **copia limpia** de esta plantilla, con su propio repositorio
+y su propio proyecto de Supabase. La plantilla original no se toca nunca: si
+aparece una mejora genérica, se corrige aquí, se etiqueta una versión nueva y se
+trae a las copias.
 
-Reglas de `custom/`:
+> El preset "Spa" (`core/presets/spa.ts`) es **contenido de ejemplo neutro**: un
+> negocio llamado "Nombre del Negocio", con servicios, precios, horarios y fotos
+> ficticios. El contenido real del cliente se mete **desde el panel** (`/admin`),
+> bloque a bloque. El seed solo sirve para no empezar con las páginas vacías.
 
-- **Nunca** se escribe nada específico de un negocio dentro de `core/`.
-- Antes de duplicar un componente en `custom/`, considera si la mejora es
-  genérica: si lo es, va a `core/` y se trae a la copia.
+Los comandos base (instalar, `db:login`/`db:link`/`db:push`/`db:types`) están en
+[Puesta en marcha](#puesta-en-marcha); aquí van en el orden concreto de una
+instalación por cliente.
+
+### 1. Crear el repositorio del cliente y clonarlo
+
+```bash
+# En GitHub: botón "Use this template" sobre esta plantilla y crear el
+# repositorio del cliente. Después, en tu máquina:
+git clone https://github.com/<cuenta>/<negocio>.git
+cd <negocio>
+npm install
+```
+
+Se usa *Use this template* y no un *fork* a propósito: un fork mantiene el enlace
+con el repositorio original y un `git pull` traería cambios de la plantilla, así
+que cada cliente dejaría de ser una copia independiente. Si ya clonaste la
+plantilla, cambia el remoto:
+`git remote set-url origin https://github.com/<cuenta>/<negocio>.git`.
+
+### 2. Crear el proyecto de Supabase del cliente y aplicar las migraciones
+
+Crea el proyecto en el panel de Supabase (elige la región más cercana al negocio y
+guarda la contraseña de la base de datos). Después:
+
+```bash
+npm run db:login   # autoriza el CLI en el navegador
+npm run db:link    # pide el project-ref y la contraseña de la base de datos
+npm run db:push    # aplica supabase/migrations/ en orden
+npm run db:types   # regenera core/types/supabase.ts con el esquema real
+```
+
+Las dos migraciones que se aplican:
+
+| Migración | Qué crea |
+| --- | --- |
+| `000_initial.sql` | Las tablas `profiles`, `pages`, `blocks`, `site_settings` y `media`, sus índices, la función `is_admin()`, el disparador que crea el perfil al dar de alta un usuario, las políticas RLS y los `GRANT`. Deja además las cinco páginas y la fila única de configuración |
+| `001_storage.sql` | El bucket de lectura pública `media` y sus políticas (lectura pública, escritura solo `admin`). Si el `push` fallara aquí, se crean a mano desde Storage en el panel |
+
+El esquema va **versionado en el repo**, no se toca a mano en el panel del
+cliente: así todas las instalaciones parten del mismo punto y una mejora futura se
+aplica con otra migración.
+
+### 3. Configurar las variables de entorno
+
+```bash
+cp .env.example .env.local   # en PowerShell: Copy-Item .env.example .env.local
+```
+
+Rellena `.env.local` con los valores del proyecto del cliente. Cada clave sale de
+**Project Settings > API** del panel de Supabase:
+
+| Variable | Qué es |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto: `https://<project-ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clave publicable (`sb_publishable_...`). Se expone al navegador a propósito: la protegen las políticas RLS |
+| `SUPABASE_SECRET_KEY` | Clave secreta (`sb_secret_...`). **Omite RLS**: solo vale en servidor (seed y tareas administrativas). Nunca lleva el prefijo `NEXT_PUBLIC_` |
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio, sin barra final. La usan el `sitemap`, el `canonical` y Open Graph (que tienen que ser absolutos). Puede quedarse vacía hasta que exista el dominio: en Vercel se usa `VERCEL_URL` y en local `http://localhost:3000` |
+| `ALLOW_SEED_RESET` | Interruptor de seguridad del seed (ver paso 4). En producción se deja en `false` o sin definir |
+
+`.env.local` **nunca se versiona** (ya está en `.gitignore`) y no se comparte ni se
+pega en un chat: la clave secreta omite RLS y quien la tenga puede escribir en la
+base de datos. Si se expone, se rota antes de entregar (paso 8).
+
+### 4. Cargar el contenido de ejemplo con el seed
+
+```powershell
+$env:ALLOW_SEED_RESET='true'; npm run seed
+```
+
+El seed usa la **clave secreta** y hace, en este orden: borra los `blocks`
+existentes; genera y sube al bucket las imágenes que declara el preset (PNG de
+color plano, no fotos) y las registra en `media`; actualiza la marca, el contacto,
+el catálogo de servicios y los valores de SEO de `site_settings` (deja el tema y
+los horarios tal como los dejó la migración); rellena los títulos y las
+descripciones de las cinco páginas; e inserta los bloques.
+
+La guarda `ALLOW_SEED_RESET` existe porque el seed **borra los bloques**: sin
+ella, un `npm run seed` despistado en el proyecto de un cliente con contenido real
+lo dejaría vacío. Si el valor no es `true`, el script se detiene sin tocar nada. En
+producción se queda sin definir o en `false`. La variable se pasa en la propia
+línea de comandos, sin tocar `.env.local`.
+
+Si editas el preset (`core/presets/spa.ts`) para acercarlo al negocio, vuelve a
+lanzar el seed; y si ya habías compilado, ejecuta antes `npm run clean` o el build
+seguirá sirviendo el contenido cacheado (ver las trampas en
+[`docs/PROGRESS.md`](docs/PROGRESS.md)).
+
+### 5. Crear el usuario administrador y entrar al panel
+
+No hay registro público: cada instalación tiene un solo administrador. **Pendiente:**
+el plan contempla que el propio seed cree este usuario, pero hoy `scripts/seed.mjs`
+no lo hace (solo carga contenido), así que se crea a mano:
+
+1. En el panel de Supabase: *Authentication > Users > Add user*, con el correo y
+   la contraseña del dueño, y marca *Auto Confirm User* (si no, no podrá entrar
+   hasta confirmar el correo).
+2. El disparador de la migración crea su fila en `profiles` con `role = 'viewer'`.
+   Cámbialo a administrador desde el *SQL Editor*:
+
+   ```sql
+   update public.profiles set role = 'admin' where email = '<correo-del-dueño>';
+   ```
+
+   Sin `role = 'admin'` el panel deja entrar pero no deja guardar: la escritura
+   está reservada a `is_admin()`.
+3. Añade en *Authentication > URL Configuration > Redirect URLs* el
+   `.../admin/auth/callback` de local y de producción
+   (`http://localhost:3000/admin/auth/callback` y
+   `https://<dominio>/admin/auth/callback`). Sin ellas, el enlace de "olvidé mi
+   contraseña" no puede volver al panel.
+
+El panel no se enlaza desde ninguna página pública: se entra escribiendo
+`/admin/login` a mano y con correo y contraseña.
+
+### 6. Arrancar en local y desplegar
+
+```bash
+npm run dev   # http://localhost:3000
+```
+
+Para publicar, sigue [Despliegue en Vercel](#despliegue-en-vercel). El detalle que
+no conviene olvidar: la raíz trae `vercel.json` con `"framework": "nextjs"` porque
+sin él Vercel no detecta el preset de Next.js y busca un sitio estático (falla con
+*"No Output Directory named `public`"*). Deja *Output Directory* y *Root Directory*
+vacíos y añade en Vercel las mismas variables de `.env.local`, con
+`ALLOW_SEED_RESET` sin definir.
+
+### 7. Conectar el dominio propio
+
+En Vercel: *Project > Settings > Domains > Add* y sigue las instrucciones de DNS
+del registrador del cliente (`A` o `CNAME`). Cuando el dominio ya resuelva, pon
+`NEXT_PUBLIC_SITE_URL` en `https://<dominio>` (sin barra final) y vuelve a
+desplegar: el `sitemap`, el `canonical` y Open Graph son absolutos y, sin ese
+valor, seguirían apuntando a la URL de Vercel. Y añade el `.../admin/auth/callback`
+del dominio en Supabase (paso 5).
+
+### 8. Precauciones de cada instalación
+
+- **Las claves son de cada cliente.** No se comparten entre proyectos ni se copian
+  de la plantilla. La clave secreta no se pega en chats, issues ni capturas.
+- **Rotar las claves antes de entregar**, y actualizar la plantilla con las nuevas.
+  (La clave secreta del proyecto de desarrollo se expuso en un chat el 25/09; la
+  decisión fue no rotar en ese momento y hacerlo justo antes de la entrega.)
+- **El panel no se indexa.** Tiene tres capas (`X-Robots-Tag`, `noindex` en los
+  metadatos y `Disallow: /admin`); ver más arriba *Cómo se mantiene oculto el
+  panel*. Nunca se enlaza a `/admin` desde el sitio público.
+- **`ALLOW_SEED_RESET` no se queda activo** en el entorno de producción.
+- **El contenido real se edita desde el panel.** El preset es solo el andamio
+  inicial. Lo que no se pueda hacer desde el panel va en `custom/`
+  (`custom/components/`, `custom/styles/`, `custom/public/`), **nunca** en `core/`.
+  Antes de duplicar un componente en `custom/`, valora si la mejora es genérica:
+  si lo es, va a `core/` y se trae a la copia.
+
+La lista de comprobación completa por instalación está en la sección 6.9 de
+[`plan-desarrollo-plantilla-spa.md`](plan-desarrollo-plantilla-spa.md).
 
 ---
 
