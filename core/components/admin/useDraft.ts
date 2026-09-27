@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { showToast } from './toast';
+
 /**
  * Borrador con guardado: la lógica que comparten todas las tarjetas del panel.
  *
@@ -76,9 +78,13 @@ export function useDraft<T>(
         setSavedValue(value);
         setErrors({});
         setFeedback({ tone: 'success', text: result.message });
+        // El aviso de dentro de la tarjeta queda como **estado** ("esto está guardado"); el
+        // flotante es para cuando no estás mirando esa tarjeta, que es la mayoría de las veces.
+        showToast(result.message);
       } else {
         setErrors(result.errors);
         setFeedback({ tone: 'error', text: result.message });
+        showToast(result.message, 'error');
       }
     } catch (error) {
       // Una acción del servidor puede fallar **sin devolver nada**: si el servidor se cayó, si
@@ -86,11 +92,12 @@ export function useDraft<T>(
       // error sube como excepción. Sin este `catch`, Next pinta su pantalla de error —"Failed to
       // fetch" y una pila de llamadas— que no le dice nada a quien está editando, y el borrador
       // parece perdido. Se avisa y se sigue: lo tecleado sigue ahí, listo para reintentar.
+      const message =
+        'No se pudo enviar el cambio: el servidor no respondió. Comprueba que el sitio sigue encendido e inténtalo otra vez.';
+
       setErrors({});
-      setFeedback({
-        tone: 'error',
-        text: 'No se pudo enviar el cambio: el servidor no respondió. Comprueba que el sitio sigue encendido e inténtalo otra vez.',
-      });
+      setFeedback({ tone: 'error', text: message });
+      showToast(message, 'error');
       console.error('[panel] no se pudo enviar el borrador:', error);
     } finally {
       setSaving(false);

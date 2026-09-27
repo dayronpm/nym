@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import PanelHeader from '@/components/admin/PanelHeader';
+import Toaster from '@/components/admin/Toaster';
 import { isSupabaseConfigured } from '@/config/env';
 import { createSupabaseServerClient } from '@/data/supabase';
 
@@ -50,6 +51,9 @@ export default async function AdminPanelLayout({ children }: { children: React.R
     <div className="min-h-screen bg-surface-alt">
       <PanelHeader email={user.email} />
       {children}
+      {/* Los avisos flotantes se montan una sola vez, aquí: cualquier pantalla del panel puede
+          avisar con `showToast` sin envolver nada. */}
+      <Toaster />
     </div>
   );
 }
