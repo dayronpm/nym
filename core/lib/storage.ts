@@ -27,7 +27,9 @@ export function getPublicMediaUrl(path: string): string | null {
 
 /** URL pública a partir de un `MediaRef`, o `null` si no hay imagen. */
 export function getMediaUrl(media: MediaRef | null | undefined): string | null {
-  if (!media) return null;
+  // Una ruta vacía cuenta como "sin imagen": es lo que se ve mientras no hay nada puesto y lo
+  // que deja un contenido antiguo que se guardó antes de que existiera esta comprobación.
+  if (!media || !media.path) return null;
   return getPublicMediaUrl(media.path);
 }
 

@@ -350,10 +350,14 @@ function FieldRenderer({
         id={id}
         hint={config.hint}
         folder={config.folder}
+        optional={descriptor.optional}
         value={mediaValue(value)}
         pathError={errors?.[`${path}.path`]}
         altError={errors?.[`${path}.alt`]}
         onChange={(next) => onChange(next)}
+        // Quitar una imagen es quitarla del contenido, no dejarla vacía: `MediaRef` exige una
+        // ruta con contenido, así que un `{ path: '' }` no pasaría la validación al guardar.
+        onClear={() => onChange(undefined)}
       />
     );
   }

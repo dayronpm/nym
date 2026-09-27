@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { uploadMediaAction } from '@/app/admin/(panel)/media-actions';
 import { baseNameOf, compressImage } from '@/lib/compress-image';
 import { cn } from '@/lib/cn';
+import { getMediaUrl } from '@/lib/storage';
 import type { SelectOption } from '@/lib/zod-form';
 
 import { FieldRow, INPUT_CLASSES } from './Field';
@@ -136,6 +137,16 @@ export interface MediaFieldProps extends BaseProps {
   pathHint?: string;
   /** Carpeta del bucket donde se guarda lo que se suba desde este campo. */
   folder?: string;
+  /**
+   * Si el campo puede quedarse sin imagen (`MediaRef.optional()`).
+   *
+   * Cuando no puede —la foto de un elemento de la galería, por ejemplo: un elemento sin imagen
+   * no tiene sentido— el botón de quitarla no aparece, porque dejaría el contenido en un estado
+   * que el esquema rechaza al guardar.
+   */
+  optional?: boolean;
+  /** Quita la imagen del contenido: borra la clave en lugar de guardar una ruta vacía. */
+  onClear?: () => void;
 }
 
 /**
@@ -157,12 +168,16 @@ export function MediaField({
   onChange,
   pathHint,
   folder = 'gallery',
+  optional,
+  onClear,
 }: MediaFieldProps) {
   const [upload, setUpload] = useState<{ busy: boolean; tone: 'success' | 'error'; text: string }>({
     busy: false,
     tone: 'success',
     text: '',
   });
+
+  const previewUrl = getMediaUrl(value);
 
   async function handleFile(file: File) {
     setUpload({ busy: true, tone: 'success', text: 'Comprimiendo…' });
@@ -204,6 +219,33 @@ export function MediaField({
       <legend className="px-1 text-sm font-medium">{label}</legend>
 
       {hint ? <p className="mb-3 text-sm text-text-muted">{hint}</p> : null}
+
+      {/* La vista previa es lo que permite **cambiar** una imagen a conciencia: sin ella se
+          edita una ruta a ciegas, sin saber qué hay puesto. */}
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        {previewUrl ? (
+          <img
+            src={previewUrl}
+            alt=""
+            loading="lazy"
+            className="h-20 w-20 rounded-sm border border-border bg-surface-alt object-cover"
+          />
+        ) : (
+          <span className="rounded-sm border border-dashed border-border px-3 py-7 text-sm text-text-muted">
+            Sin imagen
+          </span>
+        )}
+
+        {optional && value.path && onClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="min-h-[44px] rounded-sm border border-border px-3 text-sm text-danger transition-colors hover:bg-primary-soft"
+          >
+            Quitar la imagen
+          </button>
+        ) : null}
+      </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-3 rounded-sm bg-surface-alt p-3">
         <label
