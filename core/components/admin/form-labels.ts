@@ -39,6 +39,13 @@ export interface FieldConfig {
   itemFields?: FormLabels;
   /** Se conserva el valor pero no se muestra el campo (identificadores, por ejemplo). */
   hidden?: boolean;
+  /**
+   * Carpeta del bucket donde se guarda una imagen subida desde este campo.
+   *
+   * Es una pista para la subida, no una restricción: la ruta se puede escribir a mano y el
+   * servidor comprueba la carpeta contra la lista del proyecto de todas formas.
+   */
+  folder?: string;
 }
 
 export type FormLabels = Record<string, FieldConfig>;
@@ -280,7 +287,7 @@ export const FORM_LABELS: Record<string, FormLabels> = {
               label: 'Duración (minutos)',
               hint: 'Opcional. Ejemplo: 60.',
             },
-            image: { label: 'Imagen del servicio' },
+            image: { label: 'Imagen del servicio', folder: 'services' },
             enabled: { label: 'Se muestra', hint: 'Desmárcalo para ocultarlo sin borrarlo.' },
           },
         },

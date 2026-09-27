@@ -9,6 +9,14 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // Las acciones del servidor aceptan 1 MB de cuerpo por defecto. La subida de imágenes comprime
+  // en el navegador antes de enviar, así que el archivo que llega son decenas de KB; este margen
+  // es la red de seguridad por si esa compresión no está disponible: mejor aceptar la foto y
+  // guardarla que romper por tamaño sin poder explicarlo.
+  experimental: {
+    serverActions: { bodySizeLimit: '4mb' },
+  },
+
   images: {
     // Supabase Storage sirve las imágenes públicas desde este prefijo.
     // Se usa comodín de hostname para no depender de leer .env.local aquí

@@ -1,5 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+
+import { uploadMediaAction } from '@/app/admin/(panel)/media-actions';
+import { baseNameOf, compressImage } from '@/lib/compress-image';
 import { cn } from '@/lib/cn';
 import type { SelectOption } from '@/lib/zod-form';
 
@@ -130,21 +134,111 @@ export interface MediaFieldProps extends BaseProps {
   altError?: string;
   /** Texto de ayuda propio para la ruta (por ejemplo, la carpeta recomendada). */
   pathHint?: string;
+  /** Carpeta del bucket donde se guarda lo que se suba desde este campo. */
+  folder?: string;
 }
 
 /**
  * Imagen: ruta dentro del bucket y texto alternativo.
  *
- * La subida con compresión llega en el bloque 2.5 del panel; hasta entonces se edita la ruta,
- * que es lo que el bloque guarda de verdad (`MediaRef` nunca guarda una URL). Cada uno de los
- * dos campos lleva su propio error porque la validación los señala por separado.
+ * La ruta se puede escribir a mano (sigue siendo el dato que se guarda: `MediaRef` nunca guarda
+ * una URL) o subir un archivo. Al subir se comprime **en el navegador** antes de enviarlo: la
+ * foto de un móvil pasa de 3-5 MB a decenas de KB y el servidor no ve el archivo entero.
+ *
+ * Cada uno de los dos campos lleva su propio error porque la validación los señala por separado.
  */
-export function MediaField({ label, id, hint, pathError, altError, value, onChange, pathHint }: MediaFieldProps) {
+export function MediaField({
+  label,
+  id,
+  hint,
+  pathError,
+  altError,
+  value,
+  onChange,
+  pathHint,
+  folder = 'gallery',
+}: MediaFieldProps) {
+  const [upload, setUpload] = useState<{ busy: boolean; tone: 'success' | 'error'; text: string }>({
+    busy: false,
+    tone: 'success',
+    text: '',
+  });
+
+  async function handleFile(file: File) {
+    setUpload({ busy: true, tone: 'success', text: 'Comprimiendo…' });
+    const before = Math.round(file.size / 1024);
+
+    try {
+      const compressed = await compressImage(file);
+
+      const formData = new FormData();
+      formData.append('file', new File([compressed.blob], 'imagen.webp', { type: 'image/webp' }));
+      formData.append('folder', folder);
+
+      const result = await uploadMediaAction(formData);
+
+      if (!result.ok || !result.path) {
+        setUpload({ busy: false, tone: 'error', text: result.message });
+        return;
+      }
+
+      // El texto alternativo se propone a partir del nombre del archivo, y solo si está vacío:
+      // es una ayuda para no guardar una imagen sin alt, no una imposición.
+      onChange({ path: result.path, alt: value.alt || baseNameOf(file) });
+      setUpload({
+        busy: false,
+        tone: 'success',
+        text: `Subida: ${before} KB a ${compressed.kb} KB (${compressed.width}x${compressed.height}).`,
+      });
+    } catch (error) {
+      setUpload({
+        busy: false,
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'No se pudo preparar la imagen.',
+      });
+    }
+  }
+
   return (
     <fieldset className="rounded-sm border border-border p-4">
       <legend className="px-1 text-sm font-medium">{label}</legend>
 
       {hint ? <p className="mb-3 text-sm text-text-muted">{hint}</p> : null}
+
+      <div className="mb-3 flex flex-wrap items-center gap-3 rounded-sm bg-surface-alt p-3">
+        <label
+          className={cn(
+            'min-h-[44px] cursor-pointer rounded-sm border border-border bg-surface px-4 py-2 text-sm transition-colors hover:bg-primary-soft',
+            upload.busy && 'pointer-events-none opacity-40',
+          )}
+        >
+          {upload.busy ? 'Un momento…' : 'Subir una foto'}
+          <input
+            type="file"
+            accept="image/*"
+            disabled={upload.busy}
+            className="sr-only"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleFile(file);
+              // Se limpia para poder volver a elegir el mismo archivo (si no, el navegador
+              // lo considera "sin cambios" y no dispara el evento).
+              event.target.value = '';
+            }}
+          />
+        </label>
+
+        <p className="text-sm text-text-muted">Se comprime a WebP de 1600 px antes de subirla.</p>
+      </div>
+
+      {upload.text ? (
+        <p
+          role={upload.tone === 'error' ? 'alert' : 'status'}
+          className={cn('mb-3 text-sm', upload.tone === 'error' ? 'text-danger' : 'text-success')}
+        >
+          {upload.text}
+        </p>
+      ) : null}
 
       <div className="space-y-3">
         <FieldRow

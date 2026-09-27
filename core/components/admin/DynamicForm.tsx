@@ -349,6 +349,7 @@ function FieldRenderer({
         label={config.label}
         id={id}
         hint={config.hint}
+        folder={config.folder}
         value={mediaValue(value)}
         pathError={errors?.[`${path}.path`]}
         altError={errors?.[`${path}.alt`]}
