@@ -35,8 +35,8 @@ const SECTIONS: { href: string; label: string; description: string; ready: boole
   {
     href: '/admin/imagenes',
     label: 'Imágenes',
-    description: 'Subir y sustituir fotos.',
-    ready: false,
+    description: 'Todo lo subido, para reutilizar sus rutas.',
+    ready: true,
   },
   {
     href: '/admin/seo',
