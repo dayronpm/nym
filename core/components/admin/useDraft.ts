@@ -80,6 +80,18 @@ export function useDraft<T>(
         setErrors(result.errors);
         setFeedback({ tone: 'error', text: result.message });
       }
+    } catch (error) {
+      // Una acción del servidor puede fallar **sin devolver nada**: si el servidor se cayó, si
+      // se reinició a mitad del envío o si se fue la conexión, `fetch` no llega a responder y el
+      // error sube como excepción. Sin este `catch`, Next pinta su pantalla de error —"Failed to
+      // fetch" y una pila de llamadas— que no le dice nada a quien está editando, y el borrador
+      // parece perdido. Se avisa y se sigue: lo tecleado sigue ahí, listo para reintentar.
+      setErrors({});
+      setFeedback({
+        tone: 'error',
+        text: 'No se pudo enviar el cambio: el servidor no respondió. Comprueba que el sitio sigue encendido e inténtalo otra vez.',
+      });
+      console.error('[panel] no se pudo enviar el borrador:', error);
     } finally {
       setSaving(false);
     }
