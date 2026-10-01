@@ -75,10 +75,10 @@ export interface CheckboxFieldProps extends BaseProps {
   onChange: (checked: boolean) => void;
 }
 
-/** Casilla. Se usa `min-h-[44px]` en toda la fila: el objetivo táctil incluye la etiqueta. */
+/** Casilla. El objetivo táctil incluye la etiqueta; en escritorio la fila se aprieta. */
 export function CheckboxField({ label, id, hint, error, checked, onChange }: CheckboxFieldProps) {
   return (
-    <div className="flex min-h-[44px] items-start gap-3">
+    <div className="flex min-h-[44px] items-start gap-3 md:min-h-[36px]">
       <input
         id={id}
         type="checkbox"
@@ -123,14 +123,14 @@ export function ColorField({ label, id, hint, error, value, onChange }: ColorFie
             type="color"
             value={value || '#000000'}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 w-14 shrink-0 rounded-sm border border-border bg-surface"
+            className="h-10 w-12 shrink-0 rounded-sm border border-border bg-surface"
           />
           <input
             type="text"
             value={value}
             onChange={(event) => onChange(event.target.value)}
             spellCheck={false}
-            className="w-full rounded-sm border border-border bg-surface px-3 py-2.5 font-mono text-sm focus:border-primary"
+            className="w-full rounded-sm border border-border bg-surface px-3 py-2 font-mono text-sm focus:border-primary"
           />
         </div>
       )}
@@ -232,101 +232,107 @@ export function MediaField({
 
       {hint ? <p className="mb-3 text-sm text-text-muted">{hint}</p> : null}
 
-      {/* La vista previa es lo que permite **cambiar** una imagen a conciencia: sin ella se
-          edita una ruta a ciegas, sin saber qué hay puesto. */}
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        {previewUrl ? (
-          <img
-            src={previewUrl}
-            alt=""
-            loading="lazy"
-            className="h-20 w-20 rounded-sm border border-border bg-surface-alt object-cover"
-          />
-        ) : (
-          <span className="rounded-sm border border-dashed border-border px-3 py-7 text-sm text-text-muted">
-            Sin imagen
-          </span>
-        )}
-
-        {optional && value.path && onClear ? (
-          <button
-            type="button"
-            onClick={onClear}
-            className="min-h-[44px] rounded-sm border border-border px-3 text-sm text-danger transition-colors hover:bg-primary-soft"
-          >
-            Quitar la imagen
-          </button>
-        ) : null}
-      </div>
-
-      <div className="mb-3 flex flex-wrap items-center gap-3 rounded-sm bg-surface-alt p-3">
-        <label
-          className={cn(
-            'min-h-[44px] cursor-pointer rounded-sm border border-border bg-surface px-4 py-2 text-sm transition-colors hover:bg-primary-soft',
-            upload.busy && 'pointer-events-none opacity-40',
-          )}
-        >
-          {upload.busy ? 'Un momento…' : 'Subir una foto'}
-          <input
-            type="file"
-            accept="image/*"
-            disabled={upload.busy}
-            className="sr-only"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void handleFile(file);
-              // Se limpia para poder volver a elegir el mismo archivo (si no, el navegador
-              // lo considera "sin cambios" y no dispara el evento).
-              event.target.value = '';
-            }}
-          />
-        </label>
-
-        <p className="text-sm text-text-muted">Se comprime a WebP de 1600 px antes de subirla.</p>
-      </div>
-
-      {upload.text ? (
-        <p
-          role={upload.tone === 'error' ? 'alert' : 'status'}
-          className={cn('mb-3 text-sm', upload.tone === 'error' ? 'text-danger' : 'text-success')}
-        >
-          {upload.text}
-        </p>
-      ) : null}
-
-      <div className="space-y-3">
-        <FieldRow
-          label="Ruta"
-          id={`${id}-path`}
-          hint={pathHint ?? 'Ruta dentro del bucket, por ejemplo gallery/abc.webp'}
-          error={pathError}
-        >
-          {(aria) => (
-            <input
-              {...aria}
-              value={value.path}
-              onChange={(event) => onChange({ ...value, path: event.target.value })}
-              spellCheck={false}
-              className={cn(INPUT_CLASSES, 'font-mono text-sm')}
+      {/* En escritorio, la vista previa a un lado y los datos al otro: se ve la imagen y se
+          edita la ruta sin bajar la vista. En pantalla pequeña se apilan. */}
+      <div className="flex flex-col gap-4 md:flex-row">
+        <div className="flex shrink-0 items-start gap-3 md:w-36 md:flex-col">
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt=""
+              loading="lazy"
+              className="h-20 w-20 rounded-sm border border-border bg-surface-alt object-cover md:h-32 md:w-32"
             />
+          ) : (
+            <span className="rounded-sm border border-dashed border-border px-3 py-7 text-sm text-text-muted md:w-32 md:py-12 md:text-center">
+              Sin imagen
+            </span>
           )}
-        </FieldRow>
 
-        <FieldRow
-          label="Texto alternativo"
-          id={`${id}-alt`}
-          hint="Obligatorio: lo leen los buscadores y los lectores de pantalla."
-          error={altError}
-        >
-          {(aria) => (
-            <input
-              {...aria}
-              value={value.alt}
-              onChange={(event) => onChange({ ...value, alt: event.target.value })}
-              className={INPUT_CLASSES}
-            />
-          )}
-        </FieldRow>
+          {optional && value.path && onClear ? (
+            <button
+              type="button"
+              onClick={onClear}
+              className="min-h-[44px] rounded-sm border border-border px-3 text-sm text-danger transition-colors hover:bg-primary-soft"
+            >
+              Quitar la imagen
+            </button>
+          ) : null}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-3 rounded-sm bg-surface-alt p-3">
+            <label
+              className={cn(
+                'min-h-[44px] cursor-pointer rounded-sm border border-border bg-surface px-4 py-2 text-sm transition-colors hover:bg-primary-soft',
+                upload.busy && 'pointer-events-none opacity-40',
+              )}
+            >
+              {upload.busy ? 'Un momento…' : 'Subir una foto'}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={upload.busy}
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void handleFile(file);
+                  // Se limpia para poder volver a elegir el mismo archivo (si no, el navegador
+                  // lo considera "sin cambios" y no dispara el evento).
+                  event.target.value = '';
+                }}
+              />
+            </label>
+
+            <p className="text-sm text-text-muted">
+              Se comprime a WebP de 1600 px antes de subirla.
+            </p>
+          </div>
+
+          {upload.text ? (
+            <p
+              role={upload.tone === 'error' ? 'alert' : 'status'}
+              className={cn('mt-3 text-sm', upload.tone === 'error' ? 'text-danger' : 'text-success')}
+            >
+              {upload.text}
+            </p>
+          ) : null}
+
+          <div className="mt-3 grid gap-x-6 gap-y-3 md:grid-cols-2">
+            <FieldRow
+              label="Ruta"
+              id={`${id}-path`}
+              hint={pathHint ?? 'Ruta dentro del bucket, por ejemplo gallery/abc.webp'}
+              error={pathError}
+            >
+              {(aria) => (
+                <input
+                  {...aria}
+                  value={value.path}
+                  onChange={(event) => onChange({ ...value, path: event.target.value })}
+                  spellCheck={false}
+                  className={cn(INPUT_CLASSES, 'font-mono text-sm')}
+                />
+              )}
+            </FieldRow>
+
+            <FieldRow
+              label="Texto alternativo"
+              id={`${id}-alt`}
+              hint="Obligatorio: lo leen los buscadores y los lectores de pantalla."
+              error={altError}
+            >
+              {(aria) => (
+                <input
+                  {...aria}
+                  value={value.alt}
+                  onChange={(event) => onChange({ ...value, alt: event.target.value })}
+                  className={INPUT_CLASSES}
+                />
+              )}
+            </FieldRow>
+          </div>
+        </div>
       </div>
     </fieldset>
   );

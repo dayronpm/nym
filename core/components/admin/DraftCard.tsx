@@ -57,7 +57,9 @@ export default function DraftCard<T>({
 
   return (
     <section className="rounded-md border border-border bg-surface shadow-soft">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-4">
+      {/* La cabecera se queda pegada justo debajo de la barra superior: en una tarjeta larga, el
+          botón de guardar y el aviso de «Sin guardar» siguen a la vista mientras se edita. */}
+      <div className="sticky top-14 z-20 flex flex-wrap items-center justify-between gap-3 rounded-t-md border-b border-border bg-surface p-4">
         <div>
           <h2 className="text-xl">{title}</h2>
           {description ? <p className="mt-1 text-sm text-text-muted">{description}</p> : null}

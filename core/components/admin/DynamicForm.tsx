@@ -8,6 +8,7 @@ import {
   describeField,
   emptyValueFor,
   itemLabel,
+  type FieldDescriptor,
   type FieldEntry,
   type SelectOption,
 } from '@/lib/zod-form';
@@ -74,6 +75,37 @@ interface RendererProps {
 
 const ICON_BUTTON =
   'flex h-11 w-11 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-primary-soft hover:text-text disabled:opacity-40';
+
+/**
+ * Rejilla del formulario.
+ *
+ * El panel se usa casi siempre desde un ordenador, así que los campos van a **dos columnas**:
+ * los cortos (texto, número, selector, color, casilla) ocupan media fila y los largos (área de
+ * texto, imagen, listas y grupos) la fila entera. Es lo que evita que una pantalla de veinte
+ * campos sea un scroll eterno con cada campo a todo lo ancho.
+ */
+const FIELD_GRID = 'grid gap-x-6 gap-y-4 md:grid-cols-2';
+
+/** ¿El campo necesita la fila completa de la rejilla? */
+function isWideField(descriptor: FieldDescriptor): boolean {
+  return (
+    descriptor.kind === 'textarea' ||
+    descriptor.kind === 'media' ||
+    descriptor.kind === 'array' ||
+    descriptor.kind === 'group'
+  );
+}
+
+/** Celda de la rejilla: el campo va a media fila, o a la fila entera si es de los largos. */
+function FieldCell({
+  descriptor,
+  children,
+}: {
+  descriptor: FieldDescriptor;
+  children: React.ReactNode;
+}) {
+  return <div className={isWideField(descriptor) ? 'md:col-span-2' : undefined}>{children}</div>;
+}
 
 /** Un `jsonb` visto como objeto, para leer y componer valores. */
 function record(value: unknown): Record<string, unknown> {
@@ -253,23 +285,24 @@ function ArrayField({
               </div>
 
               {isOpen ? (
-                <div className="space-y-4 border-t border-border p-3">
+                <div className={cn(FIELD_GRID, 'border-t border-border p-3')}>
                   {itemFieldsDescriptor
                     ? itemFieldsDescriptor.map((child) => (
-                        <FieldRenderer
-                          key={child.name}
-                          field={child}
-                          path={`${path}.${index}.${child.name}`}
-                          labelsKey={labelsKey}
-                          idPrefix={idPrefix}
-                          itemFields={config.itemFields}
-                          value={record(item)[child.name]}
-                          errors={errors}
-                          disabled={disabled}
-                          onChange={(next) =>
-                            replaceAt(index, { ...record(item), [child.name]: next })
-                          }
-                        />
+                        <FieldCell key={child.name} descriptor={child.descriptor}>
+                          <FieldRenderer
+                            field={child}
+                            path={`${path}.${index}.${child.name}`}
+                            labelsKey={labelsKey}
+                            idPrefix={idPrefix}
+                            itemFields={config.itemFields}
+                            value={record(item)[child.name]}
+                            errors={errors}
+                            disabled={disabled}
+                            onChange={(next) =>
+                              replaceAt(index, { ...record(item), [child.name]: next })
+                            }
+                          />
+                        </FieldCell>
                       ))
                     : null}
                 </div>
@@ -319,24 +352,25 @@ function FieldRenderer({
 
   if (descriptor.kind === 'group') {
     return (
-      <fieldset className="rounded-sm border border-border p-4">
+      <fieldset className="rounded-sm border border-border p-4 md:col-span-2">
         <legend className="px-1 text-sm font-medium">{config.label}</legend>
         {config.hint ? <p className="mb-3 text-sm text-text-muted">{config.hint}</p> : null}
 
-        <div className="space-y-4">
+        <div className={FIELD_GRID}>
           {(descriptor.fields ?? []).map((child) => (
-            <FieldRenderer
-              key={child.name}
-              field={child}
-              path={`${path}.${child.name}`}
-              labelsKey={labelsKey}
-              idPrefix={idPrefix}
-              itemFields={itemFields}
-              value={record(value)[child.name]}
-              errors={errors}
-              disabled={disabled}
-              onChange={(next) => onChange({ ...record(value), [child.name]: next })}
-            />
+            <FieldCell key={child.name} descriptor={child.descriptor}>
+              <FieldRenderer
+                field={child}
+                path={`${path}.${child.name}`}
+                labelsKey={labelsKey}
+                idPrefix={idPrefix}
+                itemFields={itemFields}
+                value={record(value)[child.name]}
+                errors={errors}
+                disabled={disabled}
+                onChange={(next) => onChange({ ...record(value), [child.name]: next })}
+              />
+            </FieldCell>
           ))}
         </div>
       </fieldset>
@@ -534,22 +568,23 @@ export default function DynamicForm<T>({
   }
 
   return (
-    <div className="space-y-5">
+    <div className={cn(FIELD_GRID, 'max-w-4xl')}>
       {descriptor.fields.map((field) => (
-        <FieldRenderer
-          key={field.name}
-          field={field}
-          path={field.name}
-          labelsKey={labelsKey}
-          idPrefix={idPrefix}
-          value={data[field.name]}
-          errors={errors}
-          disabled={disabled}
-          // Los valores llegan como `unknown` porque el formulario no puede validar: el esquema
-          // sirve para saber qué campos hay, no para comprobar el dato en cada pulsación. Quien
-          // recibe el borrador (`T`) es quien lo declara con su tipo real.
-          onChange={(next) => onChange({ ...data, [field.name]: next } as unknown as T)}
-        />
+        <FieldCell key={field.name} descriptor={field.descriptor}>
+          <FieldRenderer
+            field={field}
+            path={field.name}
+            labelsKey={labelsKey}
+            idPrefix={idPrefix}
+            value={data[field.name]}
+            errors={errors}
+            disabled={disabled}
+            // Los valores llegan como `unknown` porque el formulario no puede validar: el esquema
+            // sirve para saber qué campos hay, no para comprobar el dato en cada pulsación. Quien
+            // recibe el borrador (`T`) es quien lo declara con su tipo real.
+            onChange={(next) => onChange({ ...data, [field.name]: next } as unknown as T)}
+          />
+        </FieldCell>
       ))}
     </div>
   );

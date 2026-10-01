@@ -96,7 +96,8 @@ export default function BlockCard({
 
   return (
     <li className="rounded-md border border-border bg-surface shadow-soft">
-      <div className="flex flex-wrap items-center gap-3 p-3">
+      {/* Cabecera pegajosa: al editar un bloque largo, el botón de guardar sigue a la vista. */}
+      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-3 rounded-t-md bg-surface p-3">
         <button
           type="button"
           onClick={() => setOpen(!open)}

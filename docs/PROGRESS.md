@@ -539,7 +539,8 @@ JavaScript, aunque solo en `/admin`).
   «oscuro» enseña el diseño claro y un sistema en oscuro ve el sitio crema), y el **panel
   reorganizado con la organización de Odoo** (barra superior con bandeja de usuario, menú
   lateral de secciones y panel de control con migas y buscador en Imágenes; las secciones
-  salen de una sola lista, `core/lib/admin-nav.ts`). La guía vive
+  salen de una sola lista, `core/lib/admin-nav.ts`), con los **formularios rediseñados para
+  escritorio** (dos columnas, campos más densos y el guardado siempre a la vista). La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento

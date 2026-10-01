@@ -8,8 +8,15 @@ import { cn } from '@/lib/cn';
  * a campo.
  */
 
+/**
+ * Estilos del campo de texto del panel.
+ *
+ * El panel se usa casi siempre desde un ordenador, así que a partir de `md` los campos van
+ * algo más densos (`text-sm`, menos relleno) y así caben dos por fila. En pantalla pequeña se
+ * mantiene el 16 px, que es lo que evita que iOS haga zoom al enfocar un campo.
+ */
 export const INPUT_CLASSES =
-  'mt-1 w-full rounded-sm border border-border bg-surface px-3 py-2.5 text-base focus:border-primary';
+  'mt-1 w-full rounded-sm border border-border bg-surface px-3 py-2 text-base focus:border-primary md:text-sm';
 
 /**
  * Envoltorio de un campo: etiqueta, control, ayuda y error.

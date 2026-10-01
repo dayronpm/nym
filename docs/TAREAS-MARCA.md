@@ -142,6 +142,13 @@ Hecha el 30/09. El panel se reorganizó como el de Odoo, sin tocar ninguna funci
   tarjetas de Inicio salen de ahí, así que una sección nueva aparece en los tres sitios.
 - `PanelHeader` se retiró (lo sustituye el armazón) y las pantallas ya no piden su propio
   `container-page`: el contenedor es del layout.
+- **Formularios de escritorio** (lo que el dueño pidió mejorar): el formulario generado va a
+  **dos columnas** —los campos cortos a media fila y los largos (área de texto, imagen, listas y
+  grupos) a fila entera— dentro de un ancho máximo de 896 px; los campos son algo más densos a
+  partir de `md` (16 px se mantiene en móvil para que iOS no haga zoom); el campo de imagen pone
+  la vista previa a un lado y la ruta y el alt al otro; y la cabecera de las tarjetas (Tema,
+  Marca, bloques) se queda **pegada** bajo la barra superior, con el botón Guardar y el aviso de
+  «Sin guardar» siempre a la vista.
 
 Pendiente: la revisión visual del dueño. Desde aquí no se pudo entrar al panel —las variables
 `ADMIN_EMAIL`/`ADMIN_PASSWORD` del seed no están en `.env.local`—, así que la comprobación fue
