@@ -90,12 +90,13 @@ function colorDeclarations(colors: SiteTheme['colors']): string[] {
  * Emite tres reglas y no una, porque el sitio tiene modo claro y oscuro:
  *
  *   1. `:root` — la paleta clara, siempre.
- *   2. `@media (prefers-color-scheme: dark)` — la oscura, para quien no ha elegido nada: el
- *      sitio, por defecto, sigue al sistema (que en el móvil es lo que se espera).
- *   3. `:root[data-theme="…"]` — la elección manual del visitante. El atributo lo escribe un
- *      script del layout raíz antes del primer pintado y el interruptor del encabezado
- *      después; el `:not([data-theme="light"])` de la regla 2 es lo que deja al interruptor
- *      ganar al sistema en los dos sentidos.
+ *   2. `@media (prefers-color-scheme: dark)` — la oscura, para quien eligió «seguir al
+ *      sistema» y lo tiene en oscuro. (Sin elección el sitio abre en oscuro; eso lo pone el
+ *      atributo `data-theme`, no esta consulta.)
+ *   3. `:root[data-theme="…"]` — la elección del visitante, o el **oscuro por defecto**. El
+ *      atributo lo escribe un script del layout raíz antes del primer pintado y el interruptor
+ *      del encabezado después; el `:not([data-theme="light"])` de la regla 2 es lo que deja al
+ *      atributo ganar al sistema en los dos sentidos.
  *
  * Se apunta a `:root` —y no a un contenedor— porque el fondo del `body` y la tipografía base
  * también salen de estos tokens: aplicarlos a un `<div>` dejaría el fondo del documento como

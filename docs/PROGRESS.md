@@ -533,7 +533,8 @@ JavaScript, aunque solo en `/admin`).
   Tras la revisión del dueño (30/09): **logo principal en el hero** (a la altura del texto;
   con medallón marfil para el modo oscuro), **fuera la banda de título** de las interiores
   (el `<h1>` queda oculto para lectores de pantalla) y **titulares de sección en esmeralda**
-  (oro claro en oscuro), como la muestra de la guía. La guía vive
+  (oro claro en oscuro), como la muestra de la guía; y **el sitio abre en la paleta oscura**
+  (bosque) por defecto, con el interruptor para pasar a claro o a seguir al sistema. La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento

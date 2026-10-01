@@ -9,7 +9,7 @@
 | # | Etapa | Estado |
 | --- | --- | --- |
 | 1 | Paleta de la guía aplicada por tokens + Jost | ✅ Hecha (30/09, commit `c4b457d`) |
-| 2 | Modo oscuro (por defecto sigue al sistema, con interruptor) | ✅ Hecha (30/09) |
+| 2 | Modo oscuro (interruptor oscuro/claro/sistema; hoy abre en oscuro) | ✅ Hecha (30/09) |
 | 3 | Escala tipográfica de la guía | ✅ Hecha (30/09) |
 | 4 | Logos de la guía (encabezado, pie, favicon) | ✅ Hecha (30/09) |
 | 5 | Organización, tamaños y aire de las secciones | ✅ Hecha (30/09) |
@@ -116,6 +116,12 @@ Notas de la revisión (decisiones del dueño, no se tocaron):
 - **Titulares en esmeralda**: los `h2` del sitio público van en el color de acento, como la
   muestra 26/30 de la guía (en oscuro, oro claro). Solo el sitio público; el panel conserva su
   propio estilo.
+- **El sitio abre en oscuro**: la paleta bosque pasa a ser el aspecto por defecto (antes abría
+  en marfil y seguía al sistema). El interruptor sigue ciclando oscuro → claro → seguir al
+  sistema, y «sistema» se guarda como elección explícita para distinguirla de «no he elegido
+  nada», que también abre en oscuro. *(Se descartó intercambiar las paletas de hueco: dejaría
+  el sitio crema para quien tenga el sistema en oscuro y un botón «oscuro» que enseña el diseño
+  claro.)*
 
 ## Etapa 6 — Panel estilo Odoo ⬜
 

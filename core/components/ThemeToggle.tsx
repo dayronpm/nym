@@ -3,15 +3,20 @@
 /**
  * Interruptor de tema del encabezado.
  *
- * Ciclo de tres estados: seguir al sistema → oscuro → claro. Desde «sistema», el primer clic
- * lleva al contrario de lo que se está viendo, para que siempre cambie algo; y se puede
- * volver a «sistema» cuando se quiera. La elección se guarda en `localStorage`
- * (`site-theme`) y se aplica como atributo `data-theme` en `<html>`.
+ * El sitio **abre en oscuro** (la paleta bosque, la principal de la marca) y el interruptor
+ * cicla: oscuro → claro → seguir al sistema. Desde «sistema» el primer clic lleva al contrario
+ * de lo que se está viendo, para que siempre cambie algo.
+ *
+ * La elección se guarda en `localStorage` (`site-theme`) con tres valores posibles —`'dark'`,
+ * `'light'` y `'system'`— y se aplica como atributo `data-theme` en `<html>`; con `'system'` el
+ * atributo se quita y decide `prefers-color-scheme`. Guardar `'system'` de forma explícita es
+ * lo que lo distingue de «no he elegido nada», que también abre en oscuro: si la clave se
+ * borrara, el script del layout volvería a poner oscuro en cada carga.
  *
  * Este componente no guarda estado en React a propósito: los tres iconos van siempre en el
  * botón y es el CSS quien enseña uno u otro según el atributo. Así el servidor pinta el
- * mismo HTML para todos, el script del layout raíz aplica la preferencia antes del primer
- * pintado, y no hay parpadeo ni desajuste de hidratación.
+ * mismo HTML para todos, el script del layout raíz aplica el tema antes del primer pintado,
+ * y no hay parpadeo ni desajuste de hidratación.
  */
 
 const STORAGE_KEY = 'site-theme';
@@ -43,11 +48,10 @@ function applyMode(mode: ThemeMode): string {
   }
 
   try {
-    if (mode) {
-      localStorage.setItem(STORAGE_KEY, mode);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    // `'system'` se guarda de forma explícita: distingue «elegí seguir al sistema» de «no he
+    // elegido nada» (que también abre en oscuro). Si se borrara la clave, el script del
+    // layout volvería a poner oscuro en la siguiente carga.
+    localStorage.setItem(STORAGE_KEY, mode ?? 'system');
   } catch {
     // Sin almacenamiento (modo privado estricto) el cambio vale para esta visita.
   }
