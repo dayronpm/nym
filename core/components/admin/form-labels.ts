@@ -139,8 +139,17 @@ export const FORM_LABELS: Record<string, FormLabels> = {
   brand_settings: {
     name: { label: 'Nombre del negocio' },
     tagline: { label: 'Lema', hint: 'Una línea corta bajo el nombre. Opcional.' },
-    logo: { label: 'Logotipo', hint: 'Opcional. Sirve de imagen de reserva al compartir el enlace.' },
-    favicon: { label: 'Icono del navegador' },
+    logo: {
+      label: 'Logotipo',
+      hint: 'Se muestra en el encabezado y el pie del sitio. Si no lo subes, se usa el nombre como texto. También sirve de imagen de reserva al compartir el enlace.',
+      folder: 'brand',
+    },
+    logo_dark: {
+      label: 'Logotipo para fondo oscuro',
+      hint: 'La versión para el modo oscuro (por ejemplo, en tonos claros). Si no la subes, se usa el logotipo normal.',
+      folder: 'brand',
+    },
+    favicon: { label: 'Icono del navegador', folder: 'brand' },
   },
 
   contact_settings: {

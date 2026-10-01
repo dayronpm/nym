@@ -181,3 +181,31 @@ html[data-theme='dark'] .theme-toggle-icon[data-mode='dark'],
 html[data-theme='light'] .theme-toggle-icon[data-mode='light'] {
   display: inline-block;
 }
+
+/* --- Logotipo en modo oscuro -------------------------------------------------
+
+   Cuando el negocio tiene variante oscura del logotipo, se pintan las dos imágenes y el
+   CSS enseña la que toca. Mismo mecanismo que los iconos del interruptor de tema: sin
+   atributo manda el sistema; `data-theme` manda sobre el sistema. Sin variante oscura, la
+   imagen clara no lleva la clase y esto no le hace nada. */
+.logo-oscuro {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme='light']) .logo-claro {
+    display: none;
+  }
+
+  html:not([data-theme='light']) .logo-oscuro {
+    display: block;
+  }
+}
+
+html[data-theme='dark'] .logo-claro {
+  display: none;
+}
+
+html[data-theme='dark'] .logo-oscuro {
+  display: block;
+}

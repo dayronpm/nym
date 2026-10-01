@@ -234,6 +234,13 @@ export const BrandSettings = z.object({
   name: z.string().min(1, 'El nombre del negocio es obligatorio.').max(80),
   tagline: z.string().max(160).optional(),
   logo: MediaRef.optional(),
+  /**
+   * Variante del logotipo para fondo oscuro.
+   *
+   * Casi todas las marcas definen una (el mismo logo en sus colores no siempre se lee sobre
+   * un fondo oscuro). Es opcional: sin ella, el modo oscuro usa el logotipo normal.
+   */
+  logo_dark: MediaRef.optional(),
   favicon: MediaRef.optional(),
 });
 

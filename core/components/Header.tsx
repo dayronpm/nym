@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import BrandLogo from '@/components/BrandLogo';
 import Button from '@/components/Button';
 import ThemeToggle from '@/components/ThemeToggle';
 import { buildWhatsappUrl, genericBookingMessage } from '@/lib/contact';
@@ -23,8 +24,13 @@ export default function Header({ settings }: { settings: SiteSettings }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg">
       <div className="container-page flex items-center justify-between gap-4 py-4">
-        <Link href="/" className="font-heading text-xl font-semibold leading-none">
-          {settings.brand.name}
+        <Link href="/" className="flex items-center gap-3">
+          <BrandLogo
+            brand={settings.brand}
+            className="h-10"
+            textClassName="font-heading text-xl font-semibold leading-none"
+            priority
+          />
         </Link>
 
         {/* Navegación de escritorio */}

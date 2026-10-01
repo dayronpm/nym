@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import BrandLogo from '@/components/BrandLogo';
 import { buildEmailUrl, buildPhoneUrl, socialLinks } from '@/lib/contact';
 import { groupHours } from '@/lib/formatting';
 import { NAV_ITEMS } from '@/lib/navigation';
@@ -24,7 +25,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
     <footer className="border-t border-border bg-surface-alt">
       <div className="container-page grid gap-10 py-14 md:grid-cols-3">
         <div>
-          <p className="font-heading text-xl font-semibold">{brand.name}</p>
+          <BrandLogo brand={brand} className="h-12" textClassName="font-heading text-xl font-semibold" />
           {brand.tagline ? <p className="mt-2 text-sm text-text-muted">{brand.tagline}</p> : null}
 
           {socials.length > 0 ? (

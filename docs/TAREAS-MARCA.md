@@ -11,7 +11,7 @@
 | 1 | Paleta de la guía aplicada por tokens + Jost | ✅ Hecha (30/09, commit `c4b457d`) |
 | 2 | Modo oscuro (por defecto sigue al sistema, con interruptor) | ✅ Hecha (30/09) |
 | 3 | Escala tipográfica de la guía | ✅ Hecha (30/09) |
-| 4 | Logos de la guía (encabezado, pie, favicon) | ⬜ Pendiente |
+| 4 | Logos de la guía (encabezado, pie, favicon) | ✅ Hecha (30/09) |
 | 5 | Organización, tamaños y aire de las secciones | ⬜ Pendiente |
 | 6 | Panel de administración con la organización de Odoo | ⬜ Pendiente |
 
@@ -69,13 +69,23 @@ Medido en el navegador (escritorio y móvil): 15/24, 40/44, 26/30 y 12/18 exacto
 Ajuste de jerarquía que salió de la revisión: el nombre de categoría en Servicios bajó de
 24 a 20 px (`text-xl`), porque quedaba casi igual que el título de sección.
 
-## Etapa 4 — Logos ⬜
+## Etapa 4 — Logos ✅
 
-La guía trae el juego completo en SVG: principal (horizontal), vertical, símbolo con flor de
-loto, símbolo sin flor, monograma, y variantes sobre fondo salvia. Por decidir: qué variante
-va en encabezado (probablemente horizontal o símbolo + nombre), qué va en el pie y cuál de
-favicon. Subir al bucket y enlazar desde `brand.logo` / `brand.favicon` (el encabezado aún
-pinta el nombre como texto: hay que enseñar el logo cuando exista).
+Hecha el 30/09. La guía trae los logos como símbolos SVG; el bucket de la plantilla no acepta
+SVG (solo webp/jpeg/png, por seguridad), así que se rasterizaron a PNG de alta resolución y
+se subieron a `media/brand/`:
+
+- `logo-monograma-claro.png` (807×336): encabezado y pie en modo claro.
+- `logo-monograma-oscuro.png` (807×336): modo oscuro, en crema y oro claro como pide la guía.
+- `favicon-simbolo.png` (512×512): el sello reducido, como icono del navegador.
+
+En el código: componente nuevo `BrandLogo` (encabezado y pie) que cambia de variante con el
+modo —mismo mecanismo que los iconos del interruptor, sin JavaScript—, y campo nuevo
+`logo_dark` en `BrandSettings` (aparece solo en Administración → Negocio). La ruta `/favicon`
+ya servía el archivo subido desde el panel. El nombre del negocio quedó como «N&M Salón Spa».
+
+Si algún día hay que regenerar los PNG: extraer los `<symbol>` de la guía y sustituir
+`var(--g)`, `var(--o)`, `var(--t)`… por los colores de la paleta correspondiente.
 
 ## Etapa 5 — Secciones ⬜
 

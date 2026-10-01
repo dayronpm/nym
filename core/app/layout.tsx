@@ -67,9 +67,9 @@ export const metadata: Metadata = {
     template: '%s · Nombre del Negocio',
   },
   description: 'Sitio web de un negocio de bienestar, con panel de administración propio.',
-  // Favicon generado en `/favicon` a partir del nombre y la paleta del negocio, en lugar
-  // de un archivo estático: ver `core/app/favicon/route.ts`.
-  icons: { icon: [{ url: '/favicon', type: 'image/svg+xml' }] },
+  // La ruta `/favicon` sirve el icono subido desde el panel o genera un monograma de
+  // respaldo: ver `core/app/favicon/route.ts`. Sin `type`: el archivo puede ser SVG o PNG.
+  icons: { icon: [{ url: '/favicon' }] },
 };
 
 /**
