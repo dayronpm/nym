@@ -100,9 +100,22 @@ adaptativas —la galería pasa a 2 columnas en móvil—), así que los ajustes
 
 Notas de la revisión (decisiones del dueño, no se tocaron):
 
-- En Servicios, el h1 de la página y el título del bloque dicen ambos «Servicios» (el del
-  bloque es editable desde el panel).
-- El bloque de testimonios de Inicio sigue activo.
+- El bloque de testimonios de Inicio sigue activo. *(La duplicación del título «Servicios»
+  quedó resuelta sola al quitar la banda de las interiores.)*
+
+### Ajustes de la revisión del dueño (30/09)
+
+- **Hero con el logo principal**: la imagen del hero pasa a ser el sello principal de la
+  guía, subido a `hero/sello-nm.png` sobre un medallón marfil — sobre el fondo claro no se
+  ve el disco y en oscuro sostiene el sello. En escritorio la imagen se ajusta al **alto del
+  texto** (fuera de flujo + `object-contain`): las dos columnas quedan a la par. El eyebrow
+  del hero ya dice «N&M Salón Spa».
+- **Fuera la banda de título** de las páginas interiores: `PageHeading` se eliminó; el `<h1>`
+  queda oculto (`sr-only`) para lectores de pantalla y buscadores, y la página la encabeza su
+  primer bloque.
+- **Titulares en esmeralda**: los `h2` del sitio público van en el color de acento, como la
+  muestra 26/30 de la guía (en oscuro, oro claro). Solo el sitio público; el panel conserva su
+  propio estilo.
 
 ## Etapa 6 — Panel estilo Odoo ⬜
 

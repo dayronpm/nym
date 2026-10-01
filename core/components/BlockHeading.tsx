@@ -8,8 +8,8 @@ import { PAGE_LABELS } from '@/types/settings';
  * Encabezado estándar de un bloque.
  *
  * Los ocho bloques con título lo comparten para que la jerarquía sea siempre la
- * misma: `<h1>` una sola vez por página (el Hero o el `PageHeading`), `<h2>` en el
- * título de cada bloque y `<h3>` en los elementos de dentro.
+ * misma: `<h1>` una sola vez por página (el Hero, o el oculto de las interiores),
+ * `<h2>` en el título de cada bloque y `<h3>` en los elementos de dentro.
  *
  * También se encarga de no pintar nada cuando no hay ni título ni subtítulo, que
  * es lo que permite desactivar el encabezado desde el panel sin dejar un hueco.

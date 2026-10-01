@@ -6,8 +6,8 @@ import { buildPageMetadata } from '@/lib/seo';
 /**
  * Página de Inicio.
  *
- * No lleva `PageHeading`: el único `<h1>` de esta página lo pone el bloque `hero`.
- * Por eso Inicio no usa el componente `SitePage`, que sí pinta encabezado.
+ * No usa `SitePage`: monta sus bloques directamente y el único `<h1>` de la página lo
+ * pone el bloque `hero` (las interiores llevan el suyo oculto, ver `SitePage`).
  */
 
 /**

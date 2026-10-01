@@ -529,7 +529,11 @@ JavaScript, aunque solo en `/admin`).
   40/44 con `clamp` de 32→40, título de sección 26/30, nota 12/18) y los **logos** de la guía
   puestos (encabezado, pie y favicon, con variante propia para el modo oscuro; el nombre del
   negocio quedó como «N&M Salón Spa») y la **organización de secciones** revisada en las cinco
-  páginas (más aire entre secciones: 64/96 px; y anclas que ya no quedan bajo la cabecera). La guía vive
+  páginas (más aire entre secciones: 64/96 px; y anclas que ya no quedan bajo la cabecera).
+  Tras la revisión del dueño (30/09): **logo principal en el hero** (a la altura del texto;
+  con medallón marfil para el modo oscuro), **fuera la banda de título** de las interiores
+  (el `<h1>` queda oculto para lectores de pantalla) y **titulares de sección en esmeralda**
+  (oro claro en oscuro), como la muestra de la guía. La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento

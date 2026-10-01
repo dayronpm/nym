@@ -156,6 +156,13 @@
   }
 }
 
+/* Titulares de sección en el color de acento: la guía dice que el primario es para
+   «monograma, botones y titulares», y su muestra de título de sección (26/30) va en
+   esmeralda. Solo el sitio público; el panel tiene su propio estilo. */
+.site-main h2 {
+  color: var(--color-primary);
+}
+
 /* Alternancia del fondo entre secciones consecutivas del sitio público.
 
    Se resuelve por POSICIÓN y no dentro de cada bloque: si cada bloque eligiera su
