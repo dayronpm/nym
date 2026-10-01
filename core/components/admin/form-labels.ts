@@ -72,6 +72,7 @@ const GRADIENT_DIRECTION_LABELS: Record<string, string> = {
 const FONT_OPTIONS = [
   { value: 'Cormorant Garamond', label: 'Cormorant Garamond (serif)' },
   { value: 'Inter', label: 'Inter (sin serif)' },
+  { value: 'Jost', label: 'Jost (sin serif)' },
 ] as const;
 
 /** Radios disponibles, en píxeles. La lista es corta a propósito: cuatro valores por medida. */

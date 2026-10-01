@@ -10,7 +10,7 @@
 > - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — arquitectura y decisiones técnicas (el **cómo**).
 > - [`docs/RECREAR.md`](RECREAR.md) — cómo se llega a este estado desde cero (el **porqué** de cada fase).
 >
-> Última actualización: **27 de septiembre de 2026**.
+> Última actualización: **30 de septiembre de 2026**.
 
 ---
 
@@ -18,14 +18,14 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fases 0 a 3 cerradas.** La 3 se cerró por decisión: se reordena con flechas y el arrastre se descartó a propósito. La **Fase 4** está cerrada salvo el **ensayo del seed en un proyecto Supabase limpio**, que es del dueño. La **Fase 5** (personalización de N&M) está pendiente y vive solo en la copia. Entre la 4 y la 5: congelar la plantilla como **`template-v1.0`** |
+| **Fase actual** | **Fases 0 a 3 cerradas.** La 3 se cerró por decisión: se reordena con flechas y el arrastre se descartó a propósito. La **Fase 4** está cerrada salvo el **ensayo del seed en un proyecto Supabase limpio**, que es del dueño. La **Fase 5** (personalización de N&M) está **en marcha**: el tema de marca (paleta de la guía + Jost) quedó aplicado por tokens el 30/09. La plantilla está congelada como **`template-v1.0`**; falta marcarla como template en GitHub y crear la copia. |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
 | **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 123 kB de First Load JS *(medido en el build del 26/09)* |
 | **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
-| **Grafo de conocimiento** | 832 nodos · 1949 aristas · 49 comunidades (Graphify, backend DeepSeek) |
+| **Grafo de conocimiento** | 833 nodos · 1950 aristas · 54 comunidades (Graphify, backend DeepSeek) |
 
 ### Arranque rápido en una sesión nueva
 
@@ -516,8 +516,14 @@ JavaScript, aunque solo en `/admin`).
 ### Lo que queda
 
 - **Fase 4, un punto:** el **ensayo del seed en un proyecto Supabase limpio** (del dueño).
-- **Fase 5 — Personalización de N&M.** Solo en la copia del negocio: verde y dorado por tokens,
-  contenido real y dominio propio.
+- **Fase 5 — Personalización de N&M.** En marcha. Hecho el 30/09: paleta y tipografías de la
+  guía aplicadas **por tokens** (`site_settings.theme` del proyecto `lpdxxdexneztgydrvixs`) y
+  **Jost** sumada a la lista curada de fuentes de `core/`. La guía vive en
+  `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados: fondo `#FBF9F4`, tarjetas
+  `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes `#E3DDCF`, acento
+  `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento `#FBF9F4`; títulos en
+  Cormorant Garamond y texto en Jost. Pendiente: logo y favicon, contenido real del flyer,
+  dominio propio y apagar el bloque de testimonios.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
@@ -715,6 +721,11 @@ Cada una costó tiempo; están ordenadas por gravedad.
     comando.** PowerShell no usa `\"` como escape: la cadena se cierra antes de tiempo, git
     recibe el resto como nombres de archivo y el commit no se hace. Usa comillas simples para el
     mensaje, o evita las comillas dentro.
+41. **Un build local sobre un `.next` viejo puede hornear datos viejos.** `site_settings` se lee
+    con `unstable_cache` y su caché vive en `.next/cache`, que sobrevive entre builds: tras
+    cambiar el tema en la base de datos, el primer `npm run build` (sin limpiar) sirvió el HTML
+    con la **paleta anterior**. `npm run clean` antes del build lo arregla. En Vercel no pasa:
+    cada deploy compila desde cero.
 
 ---
 
@@ -733,7 +744,8 @@ Cada una costó tiempo; están ordenadas por gravedad.
   crece.
 - **Añadir una tipografía es un cambio de código**, no un cambio desde el panel: `next/font`
   carga en tiempo de compilación y las fuentes elegibles son las de `FONT_STACKS`
-  (`core/lib/theme.ts`).
+  (`core/lib/theme.ts`). Son tres toques: cargarla en `core/app/layout.tsx`, sumarla a
+  `FONT_STACKS` y añadirla a `FONT_OPTIONS` (`form-labels.ts`). Así entró **Jost** el 30/09.
 - `next/font/google` descarga las fuentes en tiempo de compilación. En esta máquina la
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (el build sí las resolvió). Si algún día el build falla por las

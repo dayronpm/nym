@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Jost } from 'next/font/google';
 
 import { getSiteUrl } from '@/config/env';
 import '@/styles/globals.css';
@@ -31,6 +31,14 @@ const bodyFont = Inter({
   fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
 });
 
+const jostFont = Jost({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  display: 'swap',
+  variable: '--font-jost',
+  fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+});
+
 /**
  * Metadatos por defecto.
  *
@@ -56,7 +64,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // El sitio es solo español: no hace falta atributo de cambio de idioma.
-    <html lang="es" className={`${headingFont.variable} ${bodyFont.variable}`}>
+    <html lang="es" className={`${headingFont.variable} ${bodyFont.variable} ${jostFont.variable}`}>
       <body className="min-h-screen bg-bg text-text antialiased">{children}</body>
     </html>
   );

@@ -17,6 +17,7 @@ import { GRADIENT_DIRECTIONS, type SiteTheme, type ThemeGradient } from '@/types
 /** Familias cargadas por `next/font` en el layout raíz, con su variable y su respaldo. */
 const FONT_STACKS: Record<string, string> = {
   Inter: 'var(--font-inter), ui-sans-serif, system-ui, sans-serif',
+  Jost: 'var(--font-jost), ui-sans-serif, system-ui, sans-serif',
   'Cormorant Garamond': "var(--font-cormorant), ui-serif, Georgia, serif",
 };
 
