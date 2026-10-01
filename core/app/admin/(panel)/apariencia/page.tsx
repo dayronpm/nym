@@ -1,3 +1,4 @@
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getSiteSettings } from '@/data/queries/site-settings';
 
 import AparienciaScreen from './AparienciaScreen';
@@ -12,15 +13,14 @@ export default async function AdminAparienciaPage() {
   const settings = await getSiteSettings();
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">Apariencia</h1>
-      <p className="mt-2 text-text-muted">
-        Los colores, las letras y las esquinas del sitio. Los cambios se ven al guardar.
-      </p>
+    <>
+      <ControlPanel
+        title="Apariencia"
+        subtitle="Los colores, las letras y las esquinas del sitio. Los cambios se ven al guardar."
+        breadcrumb={[{ label: 'Panel', href: '/admin' }, { label: 'Apariencia' }]}
+      />
 
-      <div className="mt-8">
-        <AparienciaScreen settings={settings} />
-      </div>
-    </main>
+      <AparienciaScreen settings={settings} />
+    </>
   );
 }

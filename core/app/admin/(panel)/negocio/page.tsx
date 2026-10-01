@@ -1,3 +1,4 @@
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getSiteSettings } from '@/data/queries/site-settings';
 
 import NegocioScreen from './NegocioScreen';
@@ -13,15 +14,14 @@ export default async function AdminNegocioPage() {
   const settings = await getSiteSettings();
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">Negocio</h1>
-      <p className="mt-2 text-text-muted">
-        Los datos que se repiten en todo el sitio. Cada tarjeta se guarda por separado.
-      </p>
+    <>
+      <ControlPanel
+        title="Negocio"
+        subtitle="Los datos que se repiten en todo el sitio. Cada tarjeta se guarda por separado."
+        breadcrumb={[{ label: 'Panel', href: '/admin' }, { label: 'Negocio' }]}
+      />
 
-      <div className="mt-8">
-        <NegocioScreen settings={settings} />
-      </div>
-    </main>
+      <NegocioScreen settings={settings} />
+    </>
   );
 }

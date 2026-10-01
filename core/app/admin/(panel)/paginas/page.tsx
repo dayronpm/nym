@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getAllPages } from '@/data/queries/pages';
 
 /**
@@ -13,14 +14,14 @@ export default async function AdminPagesPage() {
   const pages = await getAllPages();
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">Páginas y bloques</h1>
-      <p className="mt-2 text-text-muted">
-        Elige una página para editar su contenido. Los apartados técnicos (SEO, apariencia) se
-        editan en sus propias secciones.
-      </p>
+    <>
+      <ControlPanel
+        title="Páginas y bloques"
+        subtitle="Elige una página para editar su contenido. Los apartados técnicos (SEO, apariencia) se editan en sus propias secciones."
+        breadcrumb={[{ label: 'Panel', href: '/admin' }, { label: 'Páginas y bloques' }]}
+      />
 
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {pages.map((page) => (
           <li key={page.slug}>
             <Link
@@ -33,6 +34,6 @@ export default async function AdminPagesPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getSiteSettings } from '@/data/queries/site-settings';
 
 import ServiciosScreen from './ServiciosScreen';
@@ -12,15 +13,14 @@ export default async function AdminServiciosPage() {
   const settings = await getSiteSettings();
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">Servicios</h1>
-      <p className="mt-2 text-text-muted">
-        El catálogo se edita una sola vez y lo usan la portada y la página de Servicios.
-      </p>
+    <>
+      <ControlPanel
+        title="Servicios"
+        subtitle="El catálogo se edita una sola vez y lo usan la portada y la página de Servicios."
+        breadcrumb={[{ label: 'Panel', href: '/admin' }, { label: 'Servicios' }]}
+      />
 
-      <div className="mt-8">
-        <ServiciosScreen settings={settings} />
-      </div>
-    </main>
+      <ServiciosScreen settings={settings} />
+    </>
   );
 }

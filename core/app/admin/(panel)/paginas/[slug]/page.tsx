@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { getBlockDefinition } from '@/blocks/registry';
 import BlockOrderButtons from '@/components/admin/BlockOrderButtons';
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getAllBlocksByPage } from '@/data/queries/blocks';
 import { getPage } from '@/data/queries/pages';
 import { isPageSlug } from '@/lib/navigation';
@@ -30,14 +31,18 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
   ]);
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">{page?.title ?? params.slug}</h1>
-      <p className="mt-2 text-text-muted">
-        {blocks.length === 1 ? '1 bloque' : `${blocks.length} bloques`}, en el orden en que se
-        ven en el sitio. Ábrelos para editarlos.
-      </p>
+    <>
+      <ControlPanel
+        title={page?.title ?? params.slug}
+        subtitle={`${blocks.length === 1 ? '1 bloque' : `${blocks.length} bloques`}, en el orden en que se ven en el sitio. Ábrelos para editarlos.`}
+        breadcrumb={[
+          { label: 'Panel', href: '/admin' },
+          { label: 'Páginas y bloques', href: '/admin/paginas' },
+          { label: page?.title ?? params.slug },
+        ]}
+      />
 
-      <ul className="mt-8 space-y-3">
+      <ul className="space-y-3">
         {blocks.map((block, index) => {
           const definition = getBlockDefinition(block.type);
 
@@ -75,6 +80,6 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
           );
         })}
       </ul>
-    </main>
+    </>
   );
 }

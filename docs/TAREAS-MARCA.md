@@ -13,7 +13,7 @@
 | 3 | Escala tipográfica de la guía | ✅ Hecha (30/09) |
 | 4 | Logos de la guía (encabezado, pie, favicon) | ✅ Hecha (30/09) |
 | 5 | Organización, tamaños y aire de las secciones | ✅ Hecha (30/09) |
-| 6 | Panel de administración con la organización de Odoo | ⬜ Pendiente |
+| 6 | Panel de administración con la organización de Odoo | ✅ Hecha (30/09) |
 
 ---
 
@@ -126,10 +126,26 @@ Notas de la revisión (decisiones del dueño, no se tocaron):
   cambia nada a la vista porque coincide con la base; si molesta, se puede reducir el
   interruptor a dos estados.)*
 
-## Etapa 6 — Panel estilo Odoo ⬜
+## Etapa 6 — Panel con la organización de Odoo ✅
 
-Organización tipo Odoo: barra superior, menú lateral, "panel de control" con búsqueda y
-acciones, migas de pan. Es la etapa más grande; va al final.
+Hecha el 30/09. El panel se reorganizó como el de Odoo, sin tocar ninguna función:
+
+- **Barra superior** (`AdminTopBar`): nombre del negocio, menú de móvil y bandeja de usuario
+  (correo, «Ver el sitio», cerrar sesión). Fondo oscuro con los tokens invertidos (`bg-text`),
+  así se separa del contenido y seguiría al tema si algún día el panel se tematiza.
+- **Menú lateral** (`AdminNav`, componente cliente por `usePathname`): las secciones con su
+  icono y la activa resaltada; en móvil no cabe y pasa al desplegable «Menú» de la barra.
+- **Panel de control** (`ControlPanel`): migas de pan, título, línea de ayuda y las acciones a
+  la derecha. Lo usan todas las pantallas; en Imágenes la acción es el **buscador**, que filtra
+  por ruta sin pedir nada al servidor.
+- **Una sola lista de secciones** (`core/lib/admin-nav.ts`): el menú lateral, el de móvil y las
+  tarjetas de Inicio salen de ahí, así que una sección nueva aparece en los tres sitios.
+- `PanelHeader` se retiró (lo sustituye el armazón) y las pantallas ya no piden su propio
+  `container-page`: el contenedor es del layout.
+
+Pendiente: la revisión visual del dueño. Desde aquí no se pudo entrar al panel —las variables
+`ADMIN_EMAIL`/`ADMIN_PASSWORD` del seed no están en `.env.local`—, así que la comprobación fue
+tipos + lint + build.
 
 ---
 

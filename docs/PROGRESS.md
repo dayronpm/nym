@@ -536,15 +536,17 @@ JavaScript, aunque solo en `/admin`).
   (oro claro sobre el bosque), como la muestra de la guía, y el **intercambio de paletas**
   pedido por el dueño: la base es la oscura —el sitio abre en bosque— y el hueco «modo
   oscuro» lleva la clara (marfil), con las consecuencias asumidas a propósito (el botón
-  «oscuro» enseña el diseño claro y un sistema en oscuro ve el sitio crema). La guía vive
+  «oscuro» enseña el diseño claro y un sistema en oscuro ve el sitio crema), y el **panel
+  reorganizado con la organización de Odoo** (barra superior con bandeja de usuario, menú
+  lateral de secciones y panel de control con migas y buscador en Imágenes; las secciones
+  salen de una sola lista, `core/lib/admin-nav.ts`). La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento
   `#FBF9F4`; títulos en Cormorant Garamond y texto en Jost. En oscuro: fondo `#113024`,
   tarjetas `#17392B`, alternas `#0D261B`, texto `#F6F1E7`, secundario `#A9BCA9`, acento
-  `#D9B45F` y texto sobre el acento `#113024`. Pendiente: panel estilo Odoo, contenido real
-  del flyer y dominio propio. Los testimonios de Inicio siguen activos: apagarlos es decisión
-  del dueño.
+  `#D9B45F` y texto sobre el acento `#113024`. Pendiente: contenido real del flyer y dominio
+  propio. Los testimonios de Inicio siguen activos: apagarlos es decisión del dueño.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M

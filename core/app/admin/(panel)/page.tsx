@@ -1,80 +1,40 @@
 import Link from 'next/link';
 
-/**
- * Dashboard del panel: el índice de las secciones de edición.
- *
- * Cada tarjeta es un enlace cuando la pantalla existe y una tarjeta quieta cuando todavía no:
- * un enlace a una pantalla que no está construida lleva a un 404 dentro del propio panel, que
- * es peor que no ofrecerlo.
- */
-const SECTIONS: { href: string; label: string; description: string; ready: boolean }[] = [
-  {
-    href: '/admin/paginas',
-    label: 'Páginas y bloques',
-    description: 'El contenido de las cinco páginas.',
-    ready: true,
-  },
-  {
-    href: '/admin/negocio',
-    label: 'Negocio',
-    description: 'Contacto y horarios.',
-    ready: true,
-  },
-  {
-    href: '/admin/servicios',
-    label: 'Servicios',
-    description: 'El catálogo único que usan Inicio y la página de Servicios.',
-    ready: true,
-  },
-  {
-    href: '/admin/apariencia',
-    label: 'Apariencia',
-    description: 'Colores, tipografías y esquinas.',
-    ready: true,
-  },
-  {
-    href: '/admin/imagenes',
-    label: 'Imágenes',
-    description: 'Todo lo subido, para reutilizar sus rutas.',
-    ready: true,
-  },
-  {
-    href: '/admin/seo',
-    label: 'SEO',
-    description: 'Títulos, descripciones e imagen al compartir.',
-    ready: true,
-  },
-];
+import AdminIcon from '@/components/admin/AdminIcon';
+import ControlPanel from '@/components/admin/ControlPanel';
+import { ADMIN_SECTIONS } from '@/lib/admin-nav';
 
+/**
+ * Inicio del panel: el índice de las secciones.
+ *
+ * La lista sale de `admin-nav.ts` — la misma que pinta el menú lateral—, así que una sección
+ * nueva aparece aquí sola.
+ */
 export default function AdminDashboardPage() {
   return (
-    <main className="container-page section-y">
-      <h1 className="text-4xl">Panel</h1>
-      <p className="mt-2 text-text-muted">
-        Desde aquí se edita todo el contenido del sitio. Las secciones se activan a medida
-        que están listas.
-      </p>
+    <>
+      <ControlPanel
+        title="Panel"
+        subtitle="Desde aquí se edita todo el contenido del sitio."
+        breadcrumb={[{ label: 'Panel' }]}
+      />
 
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {SECTIONS.map((section) => (
-          <li
-            key={section.href}
-            className="rounded-md border border-border bg-surface p-5 shadow-soft"
-          >
-            {section.ready ? (
-              <Link href={section.href} className="block">
+      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {ADMIN_SECTIONS.map((section) => (
+          <li key={section.href}>
+            <Link
+              href={section.href}
+              className="flex h-full min-h-[44px] gap-3 rounded-md border border-border bg-surface p-5 shadow-soft transition-colors hover:bg-primary-soft"
+            >
+              <AdminIcon name={section.icon} className="mt-0.5 h-5 w-5 shrink-0 text-text-muted" />
+              <span>
                 <span className="font-medium">{section.label}</span>
                 <p className="mt-1 text-sm text-text-muted">{section.description}</p>
-              </Link>
-            ) : (
-              <>
-                <span className="font-medium text-text-muted">{section.label}</span>
-                <p className="mt-1 text-sm text-text-muted">En construcción</p>
-              </>
-            )}
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
-    </main>
+    </>
   );
 }

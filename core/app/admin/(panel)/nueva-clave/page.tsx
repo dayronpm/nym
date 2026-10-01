@@ -16,17 +16,15 @@ export const metadata: Metadata = {
 
 export default function AdminNewPasswordPage() {
   return (
-    <main className="container-page section-y">
-      <div className="mx-auto max-w-sm">
-        <h1 className="text-3xl">Contraseña nueva</h1>
-        <p className="mt-2 text-sm text-text-muted">
-          Elige la contraseña con la que entrarás al panel a partir de ahora.
-        </p>
+    <div className="mx-auto max-w-sm py-4">
+      <h1 className="text-2xl md:text-3xl">Contraseña nueva</h1>
+      <p className="mt-2 text-sm text-text-muted">
+        Elige la contraseña con la que entrarás al panel a partir de ahora.
+      </p>
 
-        <div className="mt-8 rounded-md border border-border bg-surface p-6 shadow-soft">
-          <NewPasswordForm />
-        </div>
+      <div className="mt-8 rounded-md border border-border bg-surface p-6 shadow-soft">
+        <NewPasswordForm />
       </div>
-    </main>
+    </div>
   );
 }

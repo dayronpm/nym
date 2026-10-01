@@ -1,3 +1,4 @@
+import ControlPanel from '@/components/admin/ControlPanel';
 import { getAllPages } from '@/data/queries/pages';
 import { getSiteSettings } from '@/data/queries/site-settings';
 
@@ -13,16 +14,14 @@ export default async function AdminSeoPage() {
   const [settings, pages] = await Promise.all([getSiteSettings(), getAllPages()]);
 
   return (
-    <main className="container-page section-y">
-      <h1 className="text-3xl">SEO</h1>
-      <p className="mt-2 text-text-muted">
-        El título y la descripción que aparecen en Google y al compartir un enlace en WhatsApp o
-        redes.
-      </p>
+    <>
+      <ControlPanel
+        title="SEO"
+        subtitle="El título y la descripción que aparecen en Google y al compartir un enlace en WhatsApp o redes."
+        breadcrumb={[{ label: 'Panel', href: '/admin' }, { label: 'SEO' }]}
+      />
 
-      <div className="mt-8">
-        <SeoScreen settings={settings} pages={pages} />
-      </div>
-    </main>
+      <SeoScreen settings={settings} pages={pages} />
+    </>
   );
 }
