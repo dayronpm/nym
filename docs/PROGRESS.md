@@ -9,6 +9,7 @@
 >   original completo (fuente de verdad del **qué**).
 > - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — arquitectura y decisiones técnicas (el **cómo**).
 > - [`docs/RECREAR.md`](RECREAR.md) — cómo se llega a este estado desde cero (el **porqué** de cada fase).
+> - [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md) — plan por etapas de la Fase 5 (marca de N&M).
 >
 > Última actualización: **30 de septiembre de 2026**.
 
@@ -18,12 +19,12 @@
 
 | | |
 | --- | --- |
-| **Fase actual** | **Fases 0 a 3 cerradas.** La 3 se cerró por decisión: se reordena con flechas y el arrastre se descartó a propósito. La **Fase 4** está cerrada salvo el **ensayo del seed en un proyecto Supabase limpio**, que es del dueño. La **Fase 5** (personalización de N&M) está **en marcha**: el tema de marca (paleta de la guía + Jost) quedó aplicado por tokens el 30/09. La plantilla está congelada como **`template-v1.0`**; falta marcarla como template en GitHub y crear la copia. |
+| **Fase actual** | **Fases 0 a 3 cerradas.** La 3 se cerró por decisión: se reordena con flechas y el arrastre se descartó a propósito. La **Fase 4** está cerrada salvo el **ensayo del seed en un proyecto Supabase limpio**, que es del dueño. La **Fase 5** (personalización de N&M) está **en marcha**: el tema de marca (paleta de la guía + Jost) quedó aplicado por tokens el 30/09 y el **modo oscuro** (sigue al sistema, con interruptor) quedó implementado el 30/09. El plan por etapas vive en [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md). La plantilla está congelada como **`template-v1.0`**; falta marcarla como template en GitHub y crear la copia. |
 | **Rama** | `main` |
 | **Repositorio** | https://github.com/dayronpm/nym.git |
 | **Supabase** | Proyecto `lpdxxdexneztgydrvixs` · migraciones aplicadas · usuario admin creado |
 | **Vercel** | Desplegando correctamente (`vercel.json` fuerza el preset Next.js) |
-| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 123 kB de First Load JS *(medido en el build del 26/09)* |
+| **Salud del código** | `type-check` ✅ · `lint` ✅ (0 warnings) · `build` ✅ · 5 páginas estáticas, 116 kB de First Load JS *(medido en el build del 30/09)* |
 | **Rendimiento** | Lighthouse **móvil** 99 · 100 · 100 · 100 · TTFB local 3-5 ms · HTML comprimido 5-12 KB · cambio de página 88-149 ms (detalle al final de la sección 5) |
 | **Grafo de conocimiento** | 833 nodos · 1950 aristas · 54 comunidades (Graphify, backend DeepSeek) |
 
@@ -45,6 +46,8 @@ npm run dev             # http://localhost:3000
 ```
 
 `.env.local` ya está configurado con el proyecto real. **No se versiona.**
+
+Para la Fase 5 (marca de N&M), el plan por etapas está en [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md).
 
 ---
 
@@ -516,14 +519,20 @@ JavaScript, aunque solo en `/admin`).
 ### Lo que queda
 
 - **Fase 4, un punto:** el **ensayo del seed en un proyecto Supabase limpio** (del dueño).
-- **Fase 5 — Personalización de N&M.** En marcha. Hecho el 30/09: paleta y tipografías de la
-  guía aplicadas **por tokens** (`site_settings.theme` del proyecto `lpdxxdexneztgydrvixs`) y
-  **Jost** sumada a la lista curada de fuentes de `core/`. La guía vive en
-  `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados: fondo `#FBF9F4`, tarjetas
-  `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes `#E3DDCF`, acento
-  `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento `#FBF9F4`; títulos en
-  Cormorant Garamond y texto en Jost. Pendiente: logo y favicon, contenido real del flyer,
-  dominio propio y apagar el bloque de testimonios.
+- **Fase 5 — Personalización de N&M.** En marcha (plan por etapas en
+  [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md)). Hecho el 30/09: paleta y tipografías de la guía
+  aplicadas **por tokens** (`site_settings.theme` del proyecto `lpdxxdexneztgydrvixs`),
+  **Jost** sumada a la lista curada de fuentes de `core/`, y **modo oscuro** implementado —
+  sigue al sistema por defecto (móvil incluido) y el visitante lo fija o lo suelta con el
+  interruptor del encabezado; la paleta oscura se edita en `/admin/apariencia`. La guía vive
+  en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
+  tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
+  `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento
+  `#FBF9F4`; títulos en Cormorant Garamond y texto en Jost. En oscuro: fondo `#113024`,
+  tarjetas `#17392B`, alternas `#0D261B`, texto `#F6F1E7`, secundario `#A9BCA9`, acento
+  `#D9B45F` y texto sobre el acento `#113024`. Pendiente: escala tipográfica de la guía,
+  logo y favicon, organización de secciones, panel estilo Odoo, contenido real del flyer y
+  dominio propio.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
@@ -724,8 +733,11 @@ Cada una costó tiempo; están ordenadas por gravedad.
 41. **Un build local sobre un `.next` viejo puede hornear datos viejos.** `site_settings` se lee
     con `unstable_cache` y su caché vive en `.next/cache`, que sobrevive entre builds: tras
     cambiar el tema en la base de datos, el primer `npm run build` (sin limpiar) sirvió el HTML
-    con la **paleta anterior**. `npm run clean` antes del build lo arregla. En Vercel no pasa:
-    cada deploy compila desde cero.
+    con la **paleta anterior**. La caché también sobrevive a los recambios en caliente: al
+    añadir el modo oscuro al esquema, un servidor en marcha sirvió una lectura vieja **sin** la
+    clave `dark` y el sitio respondía 500 («Cannot read properties of undefined») hasta
+    limpiar. `npm run clean` antes de build —o al cambiar el esquema— lo arregla. En Vercel no
+    pasa: cada deploy compila desde cero.
 
 ---
 

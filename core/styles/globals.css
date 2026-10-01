@@ -153,3 +153,19 @@
      ni hace falta `cover`. */
   background-image: var(--gradient-section, none);
 }
+
+/* --- Interruptor de tema ---------------------------------------------------
+
+   Un solo icono visible según el modo. El atributo `data-theme` de <html> lo escriben el
+   script del layout raíz (antes del primer pintado) y el interruptor del encabezado; con
+   esto el icono correcto se ve desde el primer fotograma y el botón no necesita estado en
+   React. */
+.theme-toggle-icon {
+  display: none;
+}
+
+html:not([data-theme]) .theme-toggle-icon[data-mode='system'],
+html[data-theme='dark'] .theme-toggle-icon[data-mode='dark'],
+html[data-theme='light'] .theme-toggle-icon[data-mode='light'] {
+  display: inline-block;
+}

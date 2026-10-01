@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import Button from '@/components/Button';
+import ThemeToggle from '@/components/ThemeToggle';
 import { buildWhatsappUrl, genericBookingMessage } from '@/lib/contact';
 import { NAV_ITEMS } from '@/lib/navigation';
 import type { SiteSettings } from '@/types/settings';
@@ -45,6 +46,10 @@ export default function Header({ settings }: { settings: SiteSettings }) {
               {BOOKING_LABEL}
             </Button>
           ) : null}
+
+          {/* Claro / oscuro / sistema. Es el único trozo de encabezado con JavaScript, y solo
+              actúa al pulsar: el tema en sí ya lo aplicó el script del layout raíz. */}
+          <ThemeToggle />
 
           {/* Navegación de móvil, sin JavaScript */}
           <details className="relative md:hidden">

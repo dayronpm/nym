@@ -23,7 +23,26 @@ import { hexColor, phoneNumber, time24h, whatsappNumber } from '@/lib/validation
 /* -------------------------------------------------------------------------- */
 
 /**
- * Colores del tema.
+ * Campos de color de una paleta.
+ *
+ * Un solo mapa para el modo claro y el oscuro, para que no puedan divergir: si algún día se
+ * añade un token (el color de los enlaces, por ejemplo), aparece en las dos paletas a la vez.
+ */
+const themeColorFields = {
+  bg: hexColor(),
+  surface: hexColor(),
+  surface_alt: hexColor(),
+  text: hexColor(),
+  text_muted: hexColor(),
+  border: hexColor(),
+  primary: hexColor(),
+  primary_hover: hexColor(),
+  primary_soft: hexColor(),
+  on_primary: hexColor(),
+};
+
+/**
+ * Paleta del modo claro.
  *
  * Las dos comprobaciones de contraste no son un capricho estético: el tema se elige desde el
  * panel, y una paleta bonita pero ilegible (texto claro sobre fondo claro) es un sitio roto que
@@ -31,18 +50,7 @@ import { hexColor, phoneNumber, time24h, whatsappNumber } from '@/lib/validation
  * sitio y contra las tarjetas, y el error apunta al campo que hay que cambiar.
  */
 export const SiteThemeColors = z
-  .object({
-    bg: hexColor(),
-    surface: hexColor(),
-    surface_alt: hexColor(),
-    text: hexColor(),
-    text_muted: hexColor(),
-    border: hexColor(),
-    primary: hexColor(),
-    primary_hover: hexColor(),
-    primary_soft: hexColor(),
-    on_primary: hexColor(),
-  })
+  .object(themeColorFields)
   .refine((colors) => contrastRatio(colors.text, colors.bg) >= 4.5, {
     message:
       'El texto y el fondo no se distinguen lo suficiente (mínimo 4.5:1). Oscurece el texto o aclara el fondo.',
@@ -52,6 +60,45 @@ export const SiteThemeColors = z
     message: 'El texto no se lee sobre las tarjetas (mínimo 4.5:1).',
     path: ['surface'],
   });
+
+/**
+ * Paleta del modo oscuro.
+ *
+ * Se le exige el mismo contraste que a la clara: relajarlo «porque es oscuro» es justo al
+ * revés — una paleta oscura con poco contraste cansa más la vista, no menos.
+ */
+export const SiteThemeDarkColors = z
+  .object(themeColorFields)
+  .refine((colors) => contrastRatio(colors.text, colors.bg) >= 4.5, {
+    message:
+      'En el modo oscuro, el texto y el fondo no se distinguen lo suficiente (mínimo 4.5:1).',
+    path: ['text'],
+  })
+  .refine((colors) => contrastRatio(colors.text, colors.surface) >= 4.5, {
+    message: 'En el modo oscuro, el texto no se lee sobre las tarjetas (mínimo 4.5:1).',
+    path: ['surface'],
+  });
+
+/**
+ * Paleta oscura por defecto de la plantilla: el mismo espíritu neutro y cálido que la clara,
+ * llevado a un fondo oscuro.
+ *
+ * Un negocio de verdad —N&M incluida— reemplaza estos valores desde el panel. Estos son los
+ * que ve quien nunca toca la paleta oscura, y el respaldo de las filas guardadas antes de
+ * que el modo oscuro existiera.
+ */
+export const DEFAULT_THEME_DARK = {
+  bg: '#211E1B',
+  surface: '#2A2622',
+  surface_alt: '#1B1916',
+  text: '#F0EBE4',
+  text_muted: '#B3A99C',
+  border: '#3D3731',
+  primary: '#D08A63',
+  primary_hover: '#E09B73',
+  primary_soft: '#3A302A',
+  on_primary: '#211E1B',
+};
 
 /**
  * Direcciones admitidas de un degradado.
@@ -90,7 +137,7 @@ function gradientIsReadable(text: string, gradient: ThemeGradient): boolean {
 }
 
 /**
- * Tema del sitio: colores, degradados, tipografías y esquinas.
+ * Tema del sitio: colores (claro y oscuro), degradados, tipografías y esquinas.
  *
  * Los degradados se validan contra el color del texto igual que el fondo liso: un degradado
  * bonito con un extremo oscuro deja el texto ilegible en esa mitad, y eso no se ve en una
@@ -99,6 +146,13 @@ function gradientIsReadable(text: string, gradient: ThemeGradient): boolean {
 export const SiteTheme = z
   .object({
     colors: SiteThemeColors,
+    /**
+     * La paleta alternativa, la que entra con el modo oscuro.
+     *
+     * Tiene valor por defecto a propósito: las filas guardadas antes de que el modo oscuro
+     * existiera no traen esta clave y, sin el `.default()`, dejarían de validar al leerlas.
+     */
+    dark: SiteThemeDarkColors.default(DEFAULT_THEME_DARK),
     gradients: z
       .object({
         page: ThemeGradient,
@@ -156,6 +210,7 @@ export const DEFAULT_THEME: SiteTheme = {
     primary_soft: '#F1DDD2',
     on_primary: '#FFFFFF',
   },
+  dark: DEFAULT_THEME_DARK,
   gradients: {
     page: { enabled: false, from: '#FAF7F2', to: '#F3EDE4', direction: 'to bottom' },
     section_alt: { enabled: false, from: '#F3EDE4', to: '#FFFFFF', direction: 'to bottom' },

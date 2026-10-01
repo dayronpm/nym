@@ -185,6 +185,10 @@ export const FORM_LABELS: Record<string, FormLabels> = {
       label: 'Colores',
       hint: 'El panel comprueba que el texto se lea sobre el fondo: no deja guardar una paleta por debajo de 4.5:1.',
     },
+    dark: {
+      label: 'Modo oscuro',
+      hint: 'La paleta alternativa, para quien lo prefiere o lo lleva así en su sistema. Se le exige el mismo contraste que a la paleta clara. El modo oscuro sigue al sistema del visitante salvo que use el interruptor del encabezado.',
+    },
     fonts: {
       label: 'Tipografías',
       hint: 'Se eligen entre las fuentes que carga el sitio. Añadir otra es un cambio de código, no un ajuste del panel.',

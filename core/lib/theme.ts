@@ -1,4 +1,9 @@
-import { GRADIENT_DIRECTIONS, type SiteTheme, type ThemeGradient } from '@/types/settings';
+import {
+  DEFAULT_THEME_DARK,
+  GRADIENT_DIRECTIONS,
+  type SiteTheme,
+  type ThemeGradient,
+} from '@/types/settings';
 
 /**
  * El tema de `site_settings` convertido en variables CSS.
@@ -63,17 +68,9 @@ function gradientOf(value: ThemeGradient | undefined): string {
   return `linear-gradient(${direction}, ${value.from}, ${value.to})`;
 }
 
-/**
- * Hoja de estilo con el tema del negocio.
- *
- * Se apunta a `:root` —y no a un contenedor— porque el fondo del `body` y la tipografía base
- * también salen de estos tokens: aplicarlos a un `<div>` dejaría el fondo del documento como
- * estaba. Va después de la hoja global, así que gana por orden.
- */
-export function themeCss(theme: SiteTheme): string {
-  const { colors, gradients, fonts, radius: corners } = theme;
-
-  const declarations = [
+/** Declaraciones de los diez colores de una paleta, en el orden de los tokens. */
+function colorDeclarations(colors: SiteTheme['colors']): string[] {
+  return [
     declaration('color-bg', colors.bg),
     declaration('color-surface', colors.surface),
     declaration('color-surface-alt', colors.surface_alt),
@@ -84,8 +81,40 @@ export function themeCss(theme: SiteTheme): string {
     declaration('color-primary-hover', colors.primary_hover),
     declaration('color-primary-soft', colors.primary_soft),
     declaration('color-on-primary', colors.on_primary),
-    declaration('gradient-page', gradientOf(gradients?.page)),
-    declaration('gradient-section', gradientOf(gradients?.section_alt)),
+  ];
+}
+
+/**
+ * Hoja de estilo con el tema del negocio.
+ *
+ * Emite tres reglas y no una, porque el sitio tiene modo claro y oscuro:
+ *
+ *   1. `:root` — la paleta clara, siempre.
+ *   2. `@media (prefers-color-scheme: dark)` — la oscura, para quien no ha elegido nada: el
+ *      sitio, por defecto, sigue al sistema (que en el móvil es lo que se espera).
+ *   3. `:root[data-theme="…"]` — la elección manual del visitante. El atributo lo escribe un
+ *      script del layout raíz antes del primer pintado y el interruptor del encabezado
+ *      después; el `:not([data-theme="light"])` de la regla 2 es lo que deja al interruptor
+ *      ganar al sistema en los dos sentidos.
+ *
+ * Se apunta a `:root` —y no a un contenedor— porque el fondo del `body` y la tipografía base
+ * también salen de estos tokens: aplicarlos a un `<div>` dejaría el fondo del documento como
+ * estaba. Va después de la hoja global, así que gana por orden.
+ *
+ * Los degradados viven solo en la paleta clara: sus colores se validan contra el texto claro,
+ * y reutilizarlos en oscuro sería texto crema sobre un degradado crema. En modo oscuro se
+ * apagan (`none`) y queda el color plano, que siempre es legible.
+ */
+export function themeCss(theme: SiteTheme): string {
+  const { colors, gradients, fonts, radius: corners } = theme;
+  // El `??` no es teórico, por el mismo motivo que el de `gradientOf`: una lectura cacheada
+  // antes de que existiera la paleta oscura no trae la clave, y esto se ejecuta al pintar
+  // **todas** las páginas — sin la guarda, el sitio entero se cae con un 500 hasta que
+  // caduque la caché. Se cae a la paleta oscura neutra de la plantilla.
+  const dark = theme.dark ?? DEFAULT_THEME_DARK;
+
+  // Tipografías y esquinas no cambian con el modo: se declaran una sola vez, en `:root`.
+  const shared = [
     declaration('font-heading', fontStack(fonts.heading)),
     declaration('font-body', fontStack(fonts.body)),
     declaration('radius-sm', radius(corners.sm, '6px')),
@@ -93,5 +122,26 @@ export function themeCss(theme: SiteTheme): string {
     declaration('radius-lg', radius(corners.lg, '20px')),
   ];
 
-  return `:root{${declarations.join(';')}}`;
+  const light = [
+    ...colorDeclarations(colors),
+    declaration('gradient-page', gradientOf(gradients?.page)),
+    declaration('gradient-section', gradientOf(gradients?.section_alt)),
+    // Con esto los controles nativos (campos, barras de desplazamiento, fondos de página)
+    // se pintan claros u oscuros según el modo. En el móvil se nota bastante.
+    'color-scheme:light',
+    ...shared,
+  ];
+
+  const darkRules = [
+    ...colorDeclarations(dark),
+    declaration('gradient-page', 'none'),
+    declaration('gradient-section', 'none'),
+    'color-scheme:dark',
+  ];
+
+  return [
+    `:root{${light.join(';')}}`,
+    `@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){${darkRules.join(';')}}}`,
+    `:root[data-theme="dark"]{${darkRules.join(';')}}`,
+  ].join('');
 }

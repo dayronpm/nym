@@ -307,6 +307,18 @@ values (
       "primary_soft": "#F1DDD2",
       "on_primary": "#FFFFFF"
     },
+    "dark": {
+      "bg": "#211E1B",
+      "surface": "#2A2622",
+      "surface_alt": "#1B1916",
+      "text": "#F0EBE4",
+      "text_muted": "#B3A99C",
+      "border": "#3D3731",
+      "primary": "#D08A63",
+      "primary_hover": "#E09B73",
+      "primary_soft": "#3A302A",
+      "on_primary": "#211E1B"
+    },
     "fonts": {
       "heading": "Cormorant Garamond",
       "body": "Inter"
