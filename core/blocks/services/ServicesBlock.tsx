@@ -85,7 +85,9 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
       <div className="space-y-12">
         {categories.map((category) => (
           <section key={category.id}>
-            <h3 className="text-2xl">{category.name}</h3>
+            {/* Un escalón por debajo del título de sección (26 px): con el mismo tamaño casi
+                no se distinguía quién manda. */}
+            <h3 className="text-xl">{category.name}</h3>
             {category.description ? (
               <p className="mt-2 max-w-2xl text-sm text-text-muted">{category.description}</p>
             ) : null}

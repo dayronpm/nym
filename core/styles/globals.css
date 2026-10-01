@@ -77,8 +77,10 @@
     background-repeat: no-repeat;
     color: var(--color-text);
     font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.65;
+    /* Escala de la guía de marca: el cuerpo va a 15/24 y las notas a 12/18 (`.block-label`).
+       Los títulos llevan su propia medida más abajo. */
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -95,8 +97,17 @@
     letter-spacing: -0.01em;
   }
 
+  /* Escala de la guía de marca: 40/44 para el título de página y 26/30 para el de sección.
+     El h1 lleva `clamp` porque 40 px no caben con aire en un móvil pequeño: en escritorio
+     llega a los 40 de la guía y en móvil baja hasta 32. */
   h1 {
-    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-size: clamp(2rem, 1rem + 4vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: 1.625rem;
+    line-height: 1.15;
   }
 
   a {
@@ -133,9 +144,10 @@
 
   /* Etiqueta pequeña en mayúsculas: encabeza cada dato dentro de los bloques
      ("Dirección", "Horarios", "WhatsApp"...). Se define una vez para que los diez
-     bloques no repitan la misma combinación de utilidades. */
+     bloques no repitan la misma combinación de utilidades. Es la nota 12/18 de la
+     escala de la guía. */
   .block-label {
-    @apply text-sm uppercase tracking-[0.15em] text-text-muted;
+    @apply text-xs uppercase leading-[1.5] tracking-[0.15em] text-text-muted;
   }
 }
 

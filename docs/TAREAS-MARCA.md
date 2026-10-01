@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 1 | Paleta de la guía aplicada por tokens + Jost | ✅ Hecha (30/09, commit `c4b457d`) |
 | 2 | Modo oscuro (por defecto sigue al sistema, con interruptor) | ✅ Hecha (30/09) |
-| 3 | Escala tipográfica de la guía | ⬜ Pendiente |
+| 3 | Escala tipográfica de la guía | ✅ Hecha (30/09) |
 | 4 | Logos de la guía (encabezado, pie, favicon) | ⬜ Pendiente |
 | 5 | Organización, tamaños y aire de las secciones | ⬜ Pendiente |
 | 6 | Panel de administración con la organización de Odoo | ⬜ Pendiente |
@@ -59,11 +59,15 @@ Una comprobación queda a ojos del dueño: abrir `/admin/apariencia` y confirmar
 «Modo oscuro» aparece con los diez colores precargados (el mecanismo es el mismo de los
 degradados, que ya se pinta así).
 
-## Etapa 3 — Escala tipográfica ⬜
+## Etapa 3 — Escala tipográfica ✅
 
-De la guía: títulos de página 40/44, títulos de sección 26/30, cuerpo 15/24, notas 12/18.
-Ajustar en `core/styles/globals.css` con criterio conservador (clamp donde ayude) y revisar
-que nada quede ni minúsculo ni apretado.
+Aplicada el 30/09 en `core/styles/globals.css`: cuerpo **15/24**, título de página **40/44**
+(con `clamp` de 32→40 para que en móvil respire) y título de sección **26/30**. La nota
+**12/18** es `.block-label`, la etiqueta en mayúsculas que encabeza cada dato en los bloques.
+Medido en el navegador (escritorio y móvil): 15/24, 40/44, 26/30 y 12/18 exactos.
+
+Ajuste de jerarquía que salió de la revisión: el nombre de categoría en Servicios bajó de
+24 a 20 px (`text-xl`), porque quedaba casi igual que el título de sección.
 
 ## Etapa 4 — Logos ⬜
 
