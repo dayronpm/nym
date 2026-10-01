@@ -532,9 +532,11 @@ JavaScript, aunque solo en `/admin`).
   páginas (más aire entre secciones: 64/96 px; y anclas que ya no quedan bajo la cabecera).
   Tras la revisión del dueño (30/09): **logo principal en el hero** (a la altura del texto;
   con medallón marfil para el modo oscuro), **fuera la banda de título** de las interiores
-  (el `<h1>` queda oculto para lectores de pantalla) y **titulares de sección en esmeralda**
-  (oro claro en oscuro), como la muestra de la guía; y **el sitio abre en la paleta oscura**
-  (bosque) por defecto, con el interruptor para pasar a claro o a seguir al sistema. La guía vive
+  (el `<h1>` queda oculto para lectores de pantalla), **titulares de sección en esmeralda**
+  (oro claro sobre el bosque), como la muestra de la guía, y el **intercambio de paletas**
+  pedido por el dueño: la base es la oscura —el sitio abre en bosque— y el hueco «modo
+  oscuro» lleva la clara (marfil), con las consecuencias asumidas a propósito (el botón
+  «oscuro» enseña el diseño claro y un sistema en oscuro ve el sitio crema). La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento

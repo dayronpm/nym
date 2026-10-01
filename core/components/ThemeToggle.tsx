@@ -3,15 +3,19 @@
 /**
  * Interruptor de tema del encabezado.
  *
- * El sitio **abre en oscuro** (la paleta bosque, la principal de la marca) y el interruptor
- * cicla: oscuro → claro → seguir al sistema. Desde «sistema» el primer clic lleva al contrario
- * de lo que se está viendo, para que siempre cambie algo.
+ * Cicla por tres estados: la paleta del hueco «oscuro» (`data-theme="dark"`), la del hueco
+ * claro (`data-theme="light"`) y «seguir al sistema» (sin atributo; decide
+ * `prefers-color-scheme`).
  *
- * La elección se guarda en `localStorage` (`site-theme`) con tres valores posibles —`'dark'`,
- * `'light'` y `'system'`— y se aplica como atributo `data-theme` en `<html>`; con `'system'` el
- * atributo se quita y decide `prefers-color-scheme`. Guardar `'system'` de forma explícita es
- * lo que lo distingue de «no he elegido nada», que también abre en oscuro: si la clave se
- * borrara, el script del layout volvería a poner oscuro en cada carga.
+ * Qué colores van en cada hueco —y cuál se ve sin atributo— es cosa del tema guardado en la
+ * base de datos, no de este componente: en N&M la paleta base es la oscura (bosque) y el
+ * hueco «oscuro» lleva la clara, así que el botón «oscuro» enseña el diseño claro y viceversa
+ * (es el intercambio pedido en la Fase 5).
+ *
+ * La elección se guarda en `localStorage` (`site-theme`) con esos tres valores posibles y se
+ * aplica como atributo `data-theme` en `<html>`; con `'system'` el atributo se quita. Guardar
+ * `'system'` de forma explícita es lo que lo distingue de «no he elegido nada», así que el
+ * visitante siempre puede volver al tema base del sitio.
  *
  * Este componente no guarda estado en React a propósito: los tres iconos van siempre en el
  * botón y es el CSS quien enseña uno u otro según el atributo. Así el servidor pinta el

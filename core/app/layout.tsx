@@ -40,18 +40,18 @@ const jostFont = Jost({
 });
 
 /**
- * Script mínimo que aplica el tema antes del primer pintado.
+ * Script mínimo que aplica la elección de tema guardada antes del primer pintado.
  *
- * El sitio **abre en el tema oscuro** (la paleta bosque, la principal de la marca): por eso,
- * sin elección guardada, aquí se pone `data-theme="dark"`. Quien elija claro o «seguir al
- * sistema» desde el interruptor lo guarda en `localStorage` (`site-theme`) y esto lo respeta;
- * con `'system'` el atributo se deja sin poner para que decida el CSS (`prefers-color-scheme`).
+ * Con qué paleta abre el sitio lo decide el tema guardado en la base de datos —el negocio puede
+ * poner la oscura como base desde el panel, y así lo hace N&M—; este script solo respeta la
+ * elección del visitante (`localStorage`, clave `site-theme`), que el servidor no puede leer.
+ * Sin elección no hace nada: manda la paleta base del tema.
  *
  * Va envuelto en `try` porque `localStorage` puede no existir (modo privado estricto) y eso no
  * debe romper la página.
  */
 const THEME_INIT_SCRIPT =
-  "try{var m=localStorage.getItem('site-theme');if(m==='light'){document.documentElement.setAttribute('data-theme','light')}else if(m!=='system'){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}";
+  "try{var m=localStorage.getItem('site-theme');if(m==='dark'||m==='light'){document.documentElement.setAttribute('data-theme',m)}}catch(e){}";
 
 /**
  * Metadatos por defecto.
@@ -89,10 +89,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // El sitio es solo español: no hace falta atributo de cambio de idioma.
     <html lang="es" className={`${headingFont.variable} ${bodyFont.variable} ${jostFont.variable}`}>
       <body className="min-h-screen bg-bg text-text antialiased">
-        {/* El tema se aplica antes de pintar nada. Va lo primero del cuerpo a propósito: el
-            navegador lo ejecuta antes del contenido, así nadie ve un parpadeo del tema
-            equivocado. Sin elección guardada, el sitio abre en oscuro (ver
-            `THEME_INIT_SCRIPT`). */}
+        {/* La elección de tema guardada se aplica antes de pintar nada. Va lo primero del
+            cuerpo a propósito: el navegador lo ejecuta antes del contenido, así nadie ve un
+            parpadeo del tema equivocado. Sin elección no hace nada: manda la paleta base. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         {children}
       </body>
