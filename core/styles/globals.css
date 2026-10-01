@@ -45,13 +45,15 @@
 
   /* --- Espaciado y medidas ---------------------------------------------- */
   --container-max: 1120px;
-  --section-padding-y: 56px;
+  /* Ritmo vertical entre secciones. La guía pide un aire sereno; con el cuerpo a 15 px
+     (etapa de tipografía) las secciones piden un punto más de respiración. */
+  --section-padding-y: 64px;
   --shadow-soft: 0 1px 2px rgba(43, 38, 34, 0.06);
 }
 
 @media (min-width: 768px) {
   :root {
-    --section-padding-y: 88px;
+    --section-padding-y: 96px;
   }
 }
 
@@ -65,6 +67,9 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Las anclas (#contacto, #servicios…) aterrizan bajo la cabecera fija sin esto;
+       96px = alto de la cabecera + un poco de aire. */
+    scroll-padding-top: 96px;
   }
 
   body {

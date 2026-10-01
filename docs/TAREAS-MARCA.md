@@ -12,7 +12,7 @@
 | 2 | Modo oscuro (por defecto sigue al sistema, con interruptor) | ✅ Hecha (30/09) |
 | 3 | Escala tipográfica de la guía | ✅ Hecha (30/09) |
 | 4 | Logos de la guía (encabezado, pie, favicon) | ✅ Hecha (30/09) |
-| 5 | Organización, tamaños y aire de las secciones | ⬜ Pendiente |
+| 5 | Organización, tamaños y aire de las secciones | ✅ Hecha (30/09) |
 | 6 | Panel de administración con la organización de Odoo | ⬜ Pendiente |
 
 ---
@@ -87,10 +87,22 @@ ya servía el archivo subido desde el panel. El nombre del negocio quedó como �
 Si algún día hay que regenerar los PNG: extraer los `<symbol>` de la guía y sustituir
 `var(--g)`, `var(--o)`, `var(--t)`… por los colores de la paleta correspondiente.
 
-## Etapa 5 — Secciones ⬜
+## Etapa 5 — Organización, tamaños y aire ✅
 
-Revisar el sitio en móvil y escritorio: aire entre secciones, tamaños, ritmo visual. Ajustar
-`--section-padding-y` y componentes, no rehacer bloques.
+Pasada de revisión el 30/09 por las cinco páginas (escritorio y móvil, claro y oscuro): la
+estructura ya era sólida (contenedor de 1120 px, alternancia de fondos por posición, rejillas
+adaptativas —la galería pasa a 2 columnas en móvil—), así que los ajustes fueron de respiración:
+
+- **Ritmo entre secciones:** `--section-padding-y` sube de 56/88 a **64/96 px**
+  (móvil/escritorio).
+- **Anclas:** `scroll-padding-top: 96px` para que las secciones enlazadas no aterricen bajo
+  la cabecera fija.
+
+Notas de la revisión (decisiones del dueño, no se tocaron):
+
+- En Servicios, el h1 de la página y el título del bloque dicen ambos «Servicios» (el del
+  bloque es editable desde el panel).
+- El bloque de testimonios de Inicio sigue activo.
 
 ## Etapa 6 — Panel estilo Odoo ⬜
 

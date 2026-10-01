@@ -528,15 +528,16 @@ JavaScript, aunque solo en `/admin`).
   **escala tipográfica** de la guía aplicada en `globals.css` (cuerpo 15/24, título de página
   40/44 con `clamp` de 32→40, título de sección 26/30, nota 12/18) y los **logos** de la guía
   puestos (encabezado, pie y favicon, con variante propia para el modo oscuro; el nombre del
-  negocio quedó como «N&M Salón Spa»). La guía vive
+  negocio quedó como «N&M Salón Spa») y la **organización de secciones** revisada en las cinco
+  páginas (más aire entre secciones: 64/96 px; y anclas que ya no quedan bajo la cabecera). La guía vive
   en `docs/Guía de marca — N&M Salón Spa.html`. Valores aplicados en claro: fondo `#FBF9F4`,
   tarjetas `#FFFFFF`, alternas `#F6F1E7`, texto `#113024`, secundario `#5B6B62`, bordes
   `#E3DDCF`, acento `#1F7A4D` (hover `#19623E`, suave `#E7F1EA`), texto sobre el acento
   `#FBF9F4`; títulos en Cormorant Garamond y texto en Jost. En oscuro: fondo `#113024`,
   tarjetas `#17392B`, alternas `#0D261B`, texto `#F6F1E7`, secundario `#A9BCA9`, acento
-  `#D9B45F` y texto sobre el acento `#113024`. Pendiente: organización de secciones (en
-  curso), panel estilo Odoo, contenido real del flyer y dominio propio. Los testimonios de
-  Inicio siguen activos: apagarlos es decisión del dueño.
+  `#D9B45F` y texto sobre el acento `#113024`. Pendiente: panel estilo Odoo, contenido real
+  del flyer y dominio propio. Los testimonios de Inicio siguen activos: apagarlos es decisión
+  del dueño.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
