@@ -22,10 +22,16 @@ import { MoreLinkSchema } from '@/blocks/links';
 export const ServicesSchema = z.object({
   title: z.string().max(80).default('Nuestros servicios'),
   subtitle: z.string().max(200).optional(),
-  /** `summary` muestra un extracto por categoría; `full`, el catálogo entero. */
-  mode: z.enum(['summary', 'full']).default('full'),
+  /**
+   * `featured` muestra unos pocos servicios destacados (de la portada), elegidos entre
+   * todas las categorías y sin agrupar; `summary`, un extracto por categoría; `full`,
+   * el catálogo entero.
+   */
+  mode: z.enum(['featured', 'summary', 'full']).default('full'),
   /** Servicios por categoría cuando `mode` es `summary`. */
   summary_limit: z.number().int().min(1).max(8).default(4),
+  /** Cuántos servicios destacados se muestran cuando `mode` es `featured`. */
+  featured_limit: z.number().int().min(1).max(12).default(6),
   show_prices: z.boolean().default(true),
   show_durations: z.boolean().default(true),
   /** Qué mostrar cuando el precio está oculto o el servicio no lo tiene. */
@@ -48,6 +54,7 @@ export const SERVICES_DEFAULTS: ServicesData = ServicesSchema.parse({
   title: 'Nuestros servicios',
   mode: 'full',
   summary_limit: 4,
+  featured_limit: 6,
   show_prices: true,
   show_durations: true,
   price_hidden_label: 'Consultar por WhatsApp',

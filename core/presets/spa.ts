@@ -110,6 +110,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Masaje relajante (imagen de ejemplo)',
               },
               enabled: true,
+              featured: true,
             },
             {
               id: 'preset-srv-masaje-descontracturante',
@@ -122,6 +123,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Masaje descontracturante (imagen de ejemplo)',
               },
               enabled: true,
+              featured: false,
             },
             {
               id: 'preset-srv-masaje-piedras',
@@ -134,6 +136,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Masaje con piedras calientes (imagen de ejemplo)',
               },
               enabled: true,
+              featured: true,
             },
           ],
         },
@@ -153,6 +156,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Limpieza facial profunda (imagen de ejemplo)',
               },
               enabled: true,
+              featured: true,
             },
             {
               id: 'preset-srv-facial-hidratante',
@@ -166,6 +170,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Facial hidratante (imagen de ejemplo)',
               },
               enabled: true,
+              featured: true,
             },
           ],
         },
@@ -184,6 +189,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Manicure completo (imagen de ejemplo)',
               },
               enabled: true,
+              featured: true,
             },
             {
               id: 'preset-srv-pedicure',
@@ -196,6 +202,7 @@ export const SPA_PRESET: SpaPreset = {
                 alt: 'Pedicure completo (imagen de ejemplo)',
               },
               enabled: true,
+              featured: false,
             },
           ],
         },
@@ -269,11 +276,12 @@ export const SPA_PRESET: SpaPreset = {
       enabled: true,
       data: {
         title: 'Nuestros servicios',
-        subtitle: 'Un resumen de lo que más nos piden.',
+        subtitle: 'Una selección de los tratamientos que más nos piden.',
         // Las dos instancias del bloque comparten el catálogo; lo único que cambia
-        // es cómo se muestra.
-        mode: 'summary',
-        summary_limit: 2,
+        // es cómo se muestra. En la portada se destacan unos pocos servicios —los
+        // marcados con `featured` en el catálogo— elegidos entre todas las categorías.
+        mode: 'featured',
+        featured_limit: 6,
         show_prices: true,
         show_durations: true,
         price_hidden_label: 'Consultar por WhatsApp',

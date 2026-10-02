@@ -332,6 +332,12 @@ export const ServiceItem = z.object({
   duration_minutes: z.number().int().positive().optional(),
   image: MediaRef.optional(),
   enabled: z.boolean().default(true),
+  /**
+   * Marca el servicio para el resumen de la portada (modo `featured` del bloque
+   * `services`). La portada muestra unos pocos destacados elegidos entre todas las
+   * categorías; el resto de servicios siguen visibles en la página de Servicios.
+   */
+  featured: z.boolean().default(false),
 });
 
 export type ServiceItem = z.infer<typeof ServiceItem>;

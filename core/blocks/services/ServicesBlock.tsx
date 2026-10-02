@@ -17,7 +17,9 @@ import type { ServicesData } from './schema';
  *  - Si `show_prices` es falso, o el servicio no tiene precio, se muestra
  *    `price_hidden_label` en su lugar.
  *  - La duración solo aparece si `show_durations` y el servicio la tiene.
- *  - En modo `summary` se cortan los servicios por categoría. El enlace a la
+ *  - En modo `summary` se cortan los servicios por categoría. En modo `featured`
+ *    (el de la portada) se muestra una selección plana —sin agrupar— de los servicios
+ *    marcados como destacados, elegidos entre todas las categorías. El enlace a la
  *    sección completa lo decide el campo `more` del bloque.
  *  - Sin categorías con servicios visibles, el bloque no se pinta (nada de
  *    secciones vacías).
@@ -28,16 +30,13 @@ import type { ServicesData } from './schema';
  */
 export default function ServicesBlock({ data, settings }: BlockProps<ServicesData>) {
   const isSummary = data.mode === 'summary';
+  const isFeatured = data.mode === 'featured';
 
   // Se filtran los servicios desactivados y las categorías que se quedan vacías.
   const categories = settings.services_catalog.categories
     .map((category) => ({
       ...category,
       items: category.items.filter((item) => item.enabled),
-    }))
-    .map((category) => ({
-      ...category,
-      items: isSummary ? category.items.slice(0, data.summary_limit) : category.items,
     }))
     .filter((category) => category.items.length > 0);
 
@@ -78,12 +77,85 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
     );
   }
 
+  /**
+   * Tarjeta de un servicio: la misma en los tres modos.
+   *
+   * La imagen va arriba y ocupa todo el ancho (`rounded="none"` y `overflow-hidden`
+   * en la tarjeta para que herede las esquinas). Si el servicio no tiene imagen, la
+   * franja no se reserva: la tarjeta empieza en el texto.
+   */
+  function renderCard(item: ServiceItem) {
+    return (
+      <li
+        key={item.id}
+        className="flex flex-col overflow-hidden rounded-md border border-border bg-surface"
+      >
+        {item.image ? (
+          <Image
+            media={item.image}
+            aspect="3:2"
+            rounded="none"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : null}
+
+        <div className="flex flex-1 flex-col p-5">
+          <div className="flex items-baseline justify-between gap-4">
+            <h4 className="text-lg">{item.name}</h4>
+            {renderPrice(item)}
+          </div>
+
+          {item.description ? (
+            <p className="mt-2 text-sm text-text-muted">{item.description}</p>
+          ) : null}
+
+          <div className="mt-auto flex items-center justify-between gap-4 pt-4">
+            <span className="text-sm text-text-muted">
+              {data.show_durations && item.duration_minutes
+                ? formatDuration(item.duration_minutes)
+                : ''}
+            </span>
+            {renderBooking(item)}
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  // Modo destacados (el de la portada): una selección plana de servicios elegidos entre
+  // todas las categorías —los que el dueño marca como «Destacado en Inicio»—, sin agrupar
+  // y con un tope. Si todavía no hay ninguno marcado, se muestran los primeros del
+  // catálogo para que la sección no quede vacía.
+  if (isFeatured) {
+    const pool = categories.flatMap((category) => category.items);
+    const marked = pool.filter((item) => item.featured);
+    const featuredItems = (marked.length > 0 ? marked : pool).slice(0, data.featured_limit);
+
+    return (
+      <BlockContainer>
+        <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredItems.map((item) => renderCard(item))}
+        </ul>
+      </BlockContainer>
+    );
+  }
+
+  // Modos `summary` y `full`: el catálogo agrupado por categorías. En `summary` se corta
+  // cada categoría a `summary_limit` servicios.
+  const visibleCategories = categories
+    .map((category) => ({
+      ...category,
+      items: isSummary ? category.items.slice(0, data.summary_limit) : category.items,
+    }))
+    .filter((category) => category.items.length > 0);
+
   return (
     <BlockContainer>
       <BlockHeading title={data.title} subtitle={data.subtitle} more={data.more} />
 
       <div className="space-y-12">
-        {categories.map((category) => (
+        {visibleCategories.map((category) => (
           <section key={category.id}>
             {/* Un escalón por debajo del título de sección (26 px): con el mismo tamaño casi
                 no se distinguía quién manda. */}
@@ -93,43 +165,7 @@ export default function ServicesBlock({ data, settings }: BlockProps<ServicesDat
             ) : null}
 
             <ul className="mt-6 grid gap-6 md:grid-cols-2">
-              {category.items.map((item) => (
-                <li
-                  key={item.id}
-                  // `overflow-hidden` hace que la imagen herede las esquinas de la
-                  // tarjeta, por eso se pinta con `rounded="none"`.
-                  className="flex flex-col overflow-hidden rounded-md border border-border bg-surface"
-                >
-                  {item.image ? (
-                    <Image
-                      media={item.image}
-                      aspect="3:2"
-                      rounded="none"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  ) : null}
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-baseline justify-between gap-4">
-                      <h4 className="text-lg">{item.name}</h4>
-                      {renderPrice(item)}
-                    </div>
-
-                    {item.description ? (
-                      <p className="mt-2 text-sm text-text-muted">{item.description}</p>
-                    ) : null}
-
-                    <div className="mt-auto flex items-center justify-between gap-4 pt-4">
-                      <span className="text-sm text-text-muted">
-                        {data.show_durations && item.duration_minutes
-                          ? formatDuration(item.duration_minutes)
-                          : ''}
-                      </span>
-                      {renderBooking(item)}
-                    </div>
-                  </div>
-                </li>
-              ))}
+              {category.items.map((item) => renderCard(item))}
             </ul>
           </section>
         ))}

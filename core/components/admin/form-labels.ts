@@ -303,6 +303,10 @@ export const FORM_LABELS: Record<string, FormLabels> = {
             },
             image: { label: 'Imagen del servicio', folder: 'services' },
             enabled: { label: 'Se muestra', hint: 'Desmárcalo para ocultarlo sin borrarlo.' },
+            featured: {
+              label: 'Destacado en Inicio',
+              hint: 'Márcalo para que este servicio pueda salir en la portada. La portada muestra como máximo los que fije el bloque de Servicios de Inicio.',
+            },
           },
         },
       },
@@ -314,9 +318,17 @@ export const FORM_LABELS: Record<string, FormLabels> = {
     mode: {
       label: 'Nivel de detalle',
       hint: 'El catálogo se edita una sola vez, en Negocio → Servicios; aquí solo se decide cómo se muestra.',
-      optionLabels: { summary: 'Resumen (unos pocos por categoría)', full: 'Catálogo completo' },
+      optionLabels: {
+        featured: 'Destacados (los que marques, entre todas las categorías)',
+        summary: 'Resumen (unos pocos por categoría)',
+        full: 'Catálogo completo',
+      },
     },
     summary_limit: { label: 'Servicios por categoría en el resumen' },
+    featured_limit: {
+      label: 'Cuántos destacados se muestran',
+      hint: 'Solo cuenta en el modo «Destacados»: cuántos servicios marcados como «Destacado en Inicio» salen como máximo en la portada.',
+    },
     show_prices: { label: 'Mostrar precios' },
     show_durations: { label: 'Mostrar duraciones' },
     price_hidden_label: { label: 'Texto cuando no hay precio' },

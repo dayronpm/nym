@@ -11,7 +11,7 @@
 > - [`docs/RECREAR.md`](RECREAR.md) — cómo se llega a este estado desde cero (el **porqué** de cada fase).
 > - [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md) — plan por etapas de la Fase 5 (marca de N&M).
 >
-> Última actualización: **30 de septiembre de 2026**.
+> Última actualización: **1 de octubre de 2026**.
 
 ---
 
@@ -548,6 +548,16 @@ JavaScript, aunque solo en `/admin`).
   tarjetas `#17392B`, alternas `#0D261B`, texto `#F6F1E7`, secundario `#A9BCA9`, acento
   `#D9B45F` y texto sobre el acento `#113024`. Pendiente: contenido real del flyer y dominio
   propio. Los testimonios de Inicio siguen activos: apagarlos es decisión del dueño.
+
+  El **01/10** se amplió el catálogo con los servicios de **masajes y tratamientos corporales**
+  (6) y **faciales** (3), sin precio, y se rediseñó la **sección de Servicios de Inicio**: en vez
+  de un extracto por categoría, pasa a un modo **`featured`** que muestra una selección de hasta 6
+  servicios **destacados** —los marcados como «Destacado en Inicio» en `/admin/servicios`—
+  elegidos entre todas las categorías, con su imagen, y el enlace a la página completa. Cada
+  servicio admite imagen (`ServiceItem.image`, editable en el panel) y se generaron
+  **ilustraciones de ejemplo por código** para los 17 servicios del catálogo
+  (`scripts/service-images.mjs`: SVG → WebP con `sharp`, en la paleta de la marca; se lanza con
+  `npm run services:images`), a la espera de las fotos reales.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
