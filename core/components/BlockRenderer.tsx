@@ -1,5 +1,9 @@
+import { Fragment } from 'react';
+
 import { parseBlockData } from '@/blocks/defineBlock';
 import { getBlockDefinition } from '@/blocks/registry';
+// EXPERIMENTO: quitar esta línea para deshacer el ornamento entre secciones.
+import SectionOrnament from '@/components/experimental/SectionOrnament';
 import type { BlockRow } from '@/types/models';
 import type { SiteSettings } from '@/types/settings';
 
@@ -24,7 +28,7 @@ export interface BlockRendererProps {
 export default function BlockRenderer({ blocks, settings }: BlockRendererProps) {
   return (
     <>
-      {blocks.map((block) => {
+      {blocks.map((block, index) => {
         const definition = getBlockDefinition(block.type);
 
         if (!definition) {
@@ -47,7 +51,14 @@ export default function BlockRenderer({ blocks, settings }: BlockRendererProps) 
         }
 
         const { Component } = definition;
-        return <Component key={block.id} data={parsed.data} settings={settings} />;
+        return (
+          <Fragment key={block.id}>
+            {/* EXPERIMENTO: adornos del río entre secciones. Borra esta línea
+                (y el componente `experimental/SectionOrnament.tsx`) para volver atrás. */}
+            {index > 0 ? <SectionOrnament index={index} /> : null}
+            <Component data={parsed.data} settings={settings} />
+          </Fragment>
+        );
       })}
     </>
   );

@@ -178,6 +178,86 @@
   background-image: var(--gradient-section, none);
 }
 
+/* ============================================================================
+   EXPERIMENTO — río decorativo de fondo.
+
+   Un solo trazo que baja de arriba abajo por DETRÁS de todas las secciones y de todo el
+   contenido (z-index negativo). Se dibuja con una imagen SVG repetida en vertical como máscara,
+   pintada con el color de acento: así se adapta al tema (oro en oscuro, esmeralda en claro).
+
+   Las secciones con fondo dejan pasar un poco de luz para que el río se intuya por debajo; en
+   las transparentes se ve entero.
+
+   ⚠️ PARA QUITARLO: borra este bloque, la carpeta `core/components/experimental/` y las dos
+   líneas marcadas con `EXPERIMENTO` en `core/components/BlockRenderer.tsx`.
+   ============================================================================ */
+.site-main {
+  position: relative;
+}
+
+.site-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--color-primary);
+  opacity: 0.4;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='460' viewBox='0 0 240 460'%3E%3Cpath d='M120 0C40 76 40 153 120 230C200 307 200 384 120 460' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='460' viewBox='0 0 240 460'%3E%3Cpath d='M120 0C40 76 40 153 120 230C200 307 200 384 120 460' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-y;
+  mask-repeat: repeat-y;
+  -webkit-mask-size: 240px 460px;
+  mask-size: 240px 460px;
+  -webkit-mask-position: 12% 0;
+  mask-position: 12% 0;
+}
+
+/* Aclarado del río detrás del texto.
+
+   Un halo del propio color del fondo alrededor de las letras: invisible donde no hay río (es
+   del color del fondo) y borra el trazo justo donde cruza texto, para que se lea igual que sin
+   él. Se limita a los elementos con texto: no toca nada más. */
+.site-main {
+  --river-bg: var(--color-bg);
+}
+
+.site-main > section:nth-of-type(even) {
+  --river-bg: var(--color-surface-alt);
+}
+
+.site-main :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, blockquote, figcaption) {
+  text-shadow: 0 0 5px var(--river-bg);
+}
+
+/* Dentro de una caja con su propio fondo el río ya no se ve, así que el halo sobra (y allí el
+   color del fondo sí se notaría). */
+.site-main [class*='bg-'] :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, blockquote, figcaption) {
+  text-shadow: none;
+}
+
+/* Los fondos de sección se dibujan en un pseudo-elemento DOS CAPAS MÁS ATRÁS que el río
+   (z-index -2). Así el río queda POR ENCIMA de los fondos y POR DEBAJO del contenido: se ve
+   igual de fuerte en todas las secciones (antes lo tapaban las que tenían fondo). */
+.site-main > section,
+.site-main > section:nth-of-type(even) {
+  position: relative;
+  background: none;
+}
+
+.site-main > section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.site-main > section:nth-of-type(even)::before {
+  background-color: var(--color-surface-alt);
+  background-image: var(--gradient-section, none);
+}
+
 /* --- Interruptor de tema ---------------------------------------------------
 
    Un solo icono visible según el modo. El atributo `data-theme` de <html> lo escriben el
