@@ -11,7 +11,7 @@
 > - [`docs/RECREAR.md`](RECREAR.md) — cómo se llega a este estado desde cero (el **porqué** de cada fase).
 > - [`docs/TAREAS-MARCA.md`](TAREAS-MARCA.md) — plan por etapas de la Fase 5 (marca de N&M).
 >
-> Última actualización: **1 de octubre de 2026**.
+> Última actualización: **5 de octubre de 2026**.
 
 ---
 
@@ -558,6 +558,16 @@ JavaScript, aunque solo en `/admin`).
   **ilustraciones de ejemplo por código** para los 17 servicios del catálogo
   (`scripts/service-images.mjs`: SVG → WebP con `sharp`, en la paleta de la marca; se lanza con
   `npm run services:images`), a la espera de las fotos reales.
+
+  El **05/10** se cargaron los **datos reales de contacto** —teléfono/WhatsApp `+507 6858-8772`,
+  dirección en El Cangrejo (calle D, cerca de Vía Veneto) e Instagram `@nicolleymaria`— y los
+  **horarios** (lunes a sábado `8:00–22:00`; domingo sin horario fijo, «solo con cita previa»).
+  Se retiraron los datos de relleno (correo `hola@ejemplo.com` y TikTok `@ejemplo`) y se
+  desactivaron los reels de ejemplo, que enlazaban a URLs falsas. Queda pendiente importar los
+  **reels reales**: Instagram bloquea el acceso anónimo desde servidores (429), así que se dejó
+  `scripts/instagram-reels.py` (`npm run reels:import`) —con `instaloader`, puntúa por
+  reproducciones, «me gusta» y comentarios, baja la miniatura y reescribe el bloque `reels`— para
+  lanzarlo desde una máquina con sesión de Instagram.
 
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M

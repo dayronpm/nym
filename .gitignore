@@ -38,3 +38,7 @@ imagenes-de-prueba/*
 # Comprimidos de la plantilla congelada. Es un artefacto local y se regenera en un segundo con
 # `git archive`, así que no tiene sentido versionar 350 KB de binario que caducan.
 docs/*.zip
+
+# Artefactos de los scripts de Python (los de Instagram); son locales y se regeneran solos.
+__pycache__/
+*.pyc
