@@ -2,6 +2,7 @@ import type { BlockProps } from '@/blocks/defineBlock';
 import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
 import Button from '@/components/Button';
+import SocialIcon from '@/components/icons/SocialIcon';
 import {
   buildEmailUrl,
   buildPhoneUrl,
@@ -19,10 +20,8 @@ import type { ContactData } from './schema';
  * existe y su interruptor está activo, y si no queda nada que mostrar el bloque
  * desaparece.
  *
- * Las redes se muestran como enlaces de texto con `aria-label`, no como iconos. El
- * plan pedía iconos, pero dibujar los logotipos de Instagram, TikTok y Facebook a
- * mano (no se permiten librerías de iconos) saldría peor que no ponerlos, y el enlace
- * de texto es igual de accesible y encaja con la línea minimalista.
+ * Las redes se muestran como enlace de texto con su icono al lado. El icono es
+ * decorativo (`aria-hidden` dentro de `SocialIcon`): el texto ya nombra el enlace.
  */
 export default function ContactBlock({ data, settings }: BlockProps<ContactData>) {
   const { contact } = settings;
@@ -99,8 +98,9 @@ export default function ContactBlock({ data, settings }: BlockProps<ContactData>
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="underline decoration-border hover:text-primary"
+                      className="inline-flex items-center gap-2 underline decoration-border hover:text-primary"
                     >
+                      <SocialIcon platform={social.platform} />
                       {social.label}
                     </a>
                   </li>

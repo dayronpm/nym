@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import BrandLogo from '@/components/BrandLogo';
+import SocialIcon from '@/components/icons/SocialIcon';
 import { buildEmailUrl, buildPhoneUrl, socialLinks } from '@/lib/contact';
 import { groupHours } from '@/lib/formatting';
 import { NAV_ITEMS } from '@/lib/navigation';
@@ -37,8 +38,9 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="text-sm underline decoration-border hover:text-primary"
+                    className="inline-flex items-center gap-2 text-sm underline decoration-border hover:text-primary"
                   >
+                    <SocialIcon platform={social.platform} />
                     {social.label}
                   </a>
                 </li>

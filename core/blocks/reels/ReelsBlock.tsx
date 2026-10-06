@@ -2,6 +2,7 @@ import type { BlockProps } from '@/blocks/defineBlock';
 import BlockContainer from '@/components/BlockContainer';
 import BlockHeading from '@/components/BlockHeading';
 import Button from '@/components/Button';
+import SocialIcon from '@/components/icons/SocialIcon';
 import Image from '@/components/ui/Image';
 import { cn } from '@/lib/cn';
 import { socialLinks } from '@/lib/contact';
@@ -19,9 +20,7 @@ import type { ReelsData } from './schema';
  *    configurados en `site_settings.contact`.
  *  - Si no hay reels activos ni perfiles que mostrar, el bloque desaparece.
  *
- * La plataforma se indica con texto, no con icono: el plan pedía iconos SVG propios,
- * pero dibujar los logotipos de Instagram y TikTok a mano saldría peor que una
- * etiqueta, y el nombre de la red se lee igual de bien.
+ * La plataforma se indica con su icono (decorativo) y su nombre visible.
  */
 
 const PLATFORM_LABELS: Record<'instagram' | 'tiktok', string> = {
@@ -95,7 +94,10 @@ export default function ReelsBlock({ data, settings }: BlockProps<ReelsData>) {
         <div className="mt-10 flex flex-wrap gap-3">
           {profiles.map((profile) => (
             <Button key={profile.platform} href={profile.url} external variant="secondary">
-              {profile.label}
+              <span className="inline-flex items-center gap-2">
+                <SocialIcon platform={profile.platform} />
+                {profile.label}
+              </span>
             </Button>
           ))}
         </div>
