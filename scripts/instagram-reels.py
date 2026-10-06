@@ -194,21 +194,27 @@ def main() -> None:
         loader.load_session_from_file(args.login or args.profile, args.sessionfile)
         print(f"Sesión cargada desde {args.sessionfile}.")
     elif args.login:
+        interactive = sys.stdin is not None and sys.stdin.isatty()
         try:
             if ig_password:
                 print(f"Iniciando sesión como {args.login} (contraseña desde {args.env_file})...")
-                loader.login(args.login, ig_password)
+                try:
+                    loader.login(args.login, ig_password)
+                except instaloader.exceptions.TwoFactorAuthRequiredException:
+                    if not interactive:
+                        sys.exit(
+                            "La cuenta tiene verificación en dos pasos y esta terminal no es\n"
+                            "interactiva, así que no se puede escribir el código.\n"
+                            "Lánzalo tú en tu terminal para teclear el código, o crea una sesión\n"
+                            f"con `python -m instaloader --login={args.login}` y usa --sessionfile."
+                        )
+                    code = input("Código de verificación en dos pasos: ").strip()
+                    loader.two_factor_login(code)
             else:
                 print(f"Iniciando sesión como {args.login} (se pedirá la contraseña)...")
                 loader.interactive_login(args.login)
         except instaloader.exceptions.BadCredentialsException:
             sys.exit(f"Credenciales incorrectas. Revisa la contraseña de {args.login}.")
-        except instaloader.exceptions.TwoFactorAuthRequiredException:
-            sys.exit(
-                "La cuenta tiene verificación en dos pasos. Quita IG_PASSWORD y lanza el script\n"
-                "en una terminal interactiva (te pedirá el código), o crea una sesión con\n"
-                f"`python -m instaloader --login={args.login}` y usa --sessionfile."
-            )
         except instaloader.exceptions.LoginException as error:
             sys.exit(f"Instagram rechazó el inicio de sesión: {error}")
         except instaloader.exceptions.ConnectionException as error:

@@ -42,3 +42,7 @@ docs/*.zip
 # Artefactos de los scripts de Python (los de Instagram); son locales y se regeneran solos.
 __pycache__/
 *.pyc
+
+# Sesión de instaloader (contiene credenciales): nunca se versiona.
+.ig-session
+session-*
