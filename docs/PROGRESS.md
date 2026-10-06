@@ -569,6 +569,19 @@ JavaScript, aunque solo en `/admin`).
   reproducciones, «me gusta» y comentarios, baja la miniatura y reescribe el bloque `reels`— para
   lanzarlo desde una máquina con sesión de Instagram.
 
+  También el **05/10** se añadieron a la **Galería** dos fotos reales del negocio —una sesión de
+  **depilación con cera tibia** y una ilustración de **facial con Dermapen**— con
+  `scripts/gallery-photos.mjs` (`npm run gallery:photos`), que optimiza (WebP 1600 px, q75) y sube
+  al bucket `media`, registra en la tabla `media` y agrega al final del bloque `gallery`; es
+  idempotente y aditivo. El detalle del día anterior, en la sección de la Fase 5.
+
+  En esa misma sesión se probó un **rediseño decorativo** —un «río» de fondo que cruza todas las
+  secciones y unas estrellas de cuatro puntas en los huecos entre bloques— pensado para unir
+  visualmente las secciones. Vive **aislado y marcado como EXPERIMENTO**: `core/components/experimental/SectionOrnament.tsx`,
+  el bloque `EXPERIMENTO` de `core/styles/globals.css` y dos líneas en `core/components/BlockRenderer.tsx`.
+  Se deja así por ahora; para deshacerlo basta con borrar esos tres puntos (está indicado en la
+  cabecera de `SectionOrnament.tsx`).
+
 La etapa 1 (fases 0 a 4, la plantilla genérica) se cierra con el hito de congelar la plantilla
 como `template-v1.0`. Marcar el repositorio como plantilla en GitHub y crear la copia de N&M
 abren la etapa 2.
@@ -797,6 +810,9 @@ Cada una costó tiempo; están ordenadas por gravedad.
   descarga de `fonts.gstatic.com` falló durante `next dev` y Next siguió con la fuente de
   reserva sin quejarse (el build sí las resolvió). Si algún día el build falla por las
   fuentes, es esto.
+- **El río decorativo es un experimento, no parte del diseño**: `SectionOrnament.tsx`, el bloque
+  `EXPERIMENTO` de `globals.css` y dos líneas de `BlockRenderer.tsx`. Está aislado a propósito para
+  poder borrarlo entero sin tocar el resto; quitar esas tres piezas lo deja como estaba.
 - `docs/DEPLOYMENT.md` y `docs/SCHEMA.md` están pendientes (opcionales en el plan).
 - Las migraciones `001_storage.sql` crean el bucket y sus políticas; si algún push falla
   por permisos sobre el esquema `storage`, el bucket se puede crear desde el panel.
