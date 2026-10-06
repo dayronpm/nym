@@ -28,9 +28,11 @@ Uso (en tu máquina, desde la raíz del proyecto):
     # Solo reels de una temática concreta (hashtags o palabras del caption):
     npm run reels:import -- --profile CUENTA_OBJETIVO --login TU_CUENTA --require masaje,facial
 
-`--login` pide la contraseña por consola y no la guarda. Sin `--login` se intenta el acceso
-anónimo (Instagram suele bloquearlo). Requiere `--env-file` (por defecto `.env.local`) con
-NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SECRET_KEY. NO subas ese archivo a ningún sitio.
+`--login` pide la contraseña por consola y no la guarda. Si prefieres lanzar el script sin
+terminal interactiva, pon `IG_PASSWORD=tu_clave` en `.env.local` (no se versiona) y la tomará
+de ahí. Sin `--login` se intenta el acceso anónimo (Instagram suele bloquearlo). Requiere
+`--env-file` (por defecto `.env.local`) con NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SECRET_KEY.
+NO subas ese archivo a ningún sitio.
 
 Opcional: `--dry-run` analiza y muestra el ranking sin tocar Supabase.
 """
@@ -39,6 +41,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -168,29 +171,52 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Solo analiza, no escribe nada.")
     args = parser.parse_args()
 
+    # El mismo `--env-file` sirve para Supabase y, si está, para la contraseña de Instagram.
+    # Poner IG_PASSWORD en .env.local (que no se versiona) permite lanzar el script sin
+    # terminal interactiva, sin que la contraseña pase por ningún otro sitio.
+    env = load_env(args.env_file)
+    ig_password = (
+        env.get("IG_PASSWORD") or env.get("INSTAGRAM_PASSWORD") or os.environ.get("IG_PASSWORD")
+    )
+
     try:
         import instaloader
     except ImportError:
         sys.exit("Falta instaloader. Instálalo con:  python -m pip install instaloader")
 
+    # `quiet=False`: en modo silencioso instaloader no deja pedir la contraseña por consola.
     loader = instaloader.Instaloader(
-        quiet=True, max_connection_attempts=3, request_timeout=30
+        quiet=False, max_connection_attempts=3, request_timeout=30
     )
 
-    # La cuenta con la que se entra puede ser distinta del perfil objetivo.
-    if args.sessionfile:
+    # Sesión: se reutiliza un archivo si existe; si no, se inicia sesión y se guarda.
+    if args.sessionfile and Path(args.sessionfile).is_file():
         loader.load_session_from_file(args.login or args.profile, args.sessionfile)
         print(f"Sesión cargada desde {args.sessionfile}.")
     elif args.login:
-        print(f"Iniciando sesión como {args.login} (se pedirá la contraseña)...")
         try:
-            # Sin `ask_for_password`: no todas las versiones de instaloader lo aceptan y,
-            # por defecto, `interactive_login` ya pregunta la contraseña por consola.
-            loader.interactive_login(args.login)
+            if ig_password:
+                print(f"Iniciando sesión como {args.login} (contraseña desde {args.env_file})...")
+                loader.login(args.login, ig_password)
+            else:
+                print(f"Iniciando sesión como {args.login} (se pedirá la contraseña)...")
+                loader.interactive_login(args.login)
         except instaloader.exceptions.BadCredentialsException:
-            sys.exit("Credenciales incorrectas.")
+            sys.exit(f"Credenciales incorrectas. Revisa la contraseña de {args.login}.")
+        except instaloader.exceptions.TwoFactorAuthRequiredException:
+            sys.exit(
+                "La cuenta tiene verificación en dos pasos. Quita IG_PASSWORD y lanza el script\n"
+                "en una terminal interactiva (te pedirá el código), o crea una sesión con\n"
+                f"`python -m instaloader --login={args.login}` y usa --sessionfile."
+            )
+        except instaloader.exceptions.LoginException as error:
+            sys.exit(f"Instagram rechazó el inicio de sesión: {error}")
         except instaloader.exceptions.ConnectionException as error:
             sys.exit(f"Instagram bloqueó la conexión: {error}")
+
+        if args.sessionfile:
+            loader.save_session_to_file(args.sessionfile)
+            print(f"Sesión guardada en {args.sessionfile} (no volverá a pedir la contraseña).")
     else:
         print("Sin sesión: se intentará el acceso anónimo (Instagram suele bloquearlo).")
 
@@ -249,7 +275,6 @@ def main() -> None:
         print("\n--dry-run: no se escribió nada.")
         return
 
-    env = load_env(args.env_file)
     base = env.get("NEXT_PUBLIC_SUPABASE_URL", "").rstrip("/")
     key = env.get("SUPABASE_SECRET_KEY", "")
     if not base or not key:
