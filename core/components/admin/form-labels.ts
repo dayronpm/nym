@@ -50,7 +50,7 @@ export interface FieldConfig {
 
 export type FormLabels = Record<string, FieldConfig>;
 
-const PAGE_OPTIONS: Record<string, string> = {
+export const PAGE_OPTIONS: Record<string, string> = {
   inicio: 'Inicio',
   servicios: 'Servicios',
   galeria: 'Galería y Reels',

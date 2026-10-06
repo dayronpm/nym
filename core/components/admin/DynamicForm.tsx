@@ -56,6 +56,14 @@ export interface DynamicFormProps<T = unknown> {
    * el navegador asociaría cada etiqueta con el primero que encuentre.
    */
   idPrefix?: string;
+  /**
+   * Campos que no se pintan (su valor se conserva igual).
+   *
+   * Se usa en los bloques que resumen otra página: su lista de elementos no se edita ahí,
+   * porque el contenido se toma de la página original, y mostrarla daría a entender que sirve
+   * para algo.
+   */
+  hideFields?: readonly string[];
 }
 
 interface RendererProps {
@@ -555,6 +563,7 @@ export default function DynamicForm<T>({
   errors,
   disabled,
   idPrefix = 'f',
+  hideFields,
 }: DynamicFormProps<T>) {
   const descriptor = describeField(schema);
   const data = record(initialData);
@@ -569,23 +578,25 @@ export default function DynamicForm<T>({
 
   return (
     <div className={cn(FIELD_GRID, 'max-w-4xl')}>
-      {descriptor.fields.map((field) => (
-        <FieldCell key={field.name} descriptor={field.descriptor}>
-          <FieldRenderer
-            field={field}
-            path={field.name}
-            labelsKey={labelsKey}
-            idPrefix={idPrefix}
-            value={data[field.name]}
-            errors={errors}
-            disabled={disabled}
-            // Los valores llegan como `unknown` porque el formulario no puede validar: el esquema
-            // sirve para saber qué campos hay, no para comprobar el dato en cada pulsación. Quien
-            // recibe el borrador (`T`) es quien lo declara con su tipo real.
-            onChange={(next) => onChange({ ...data, [field.name]: next } as unknown as T)}
-          />
-        </FieldCell>
-      ))}
+      {descriptor.fields
+        .filter((field) => !hideFields?.includes(field.name))
+        .map((field) => (
+          <FieldCell key={field.name} descriptor={field.descriptor}>
+            <FieldRenderer
+              field={field}
+              path={field.name}
+              labelsKey={labelsKey}
+              idPrefix={idPrefix}
+              value={data[field.name]}
+              errors={errors}
+              disabled={disabled}
+              // Los valores llegan como `unknown` porque el formulario no puede validar: el esquema
+              // sirve para saber qué campos hay, no para comprobar el dato en cada pulsación. Quien
+              // recibe el borrador (`T`) es quien lo declara con su tipo real.
+              onChange={(next) => onChange({ ...data, [field.name]: next } as unknown as T)}
+            />
+          </FieldCell>
+        ))}
     </div>
   );
 }

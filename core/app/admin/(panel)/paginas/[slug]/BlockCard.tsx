@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { getBlockSchema } from '@/blocks/schemas';
 import DynamicForm from '@/components/admin/DynamicForm';
 import FormMessage from '@/components/admin/FormMessage';
+import { PAGE_OPTIONS } from '@/components/admin/form-labels';
 import { showToast } from '@/components/admin/toast';
 import { useDraft } from '@/components/admin/useDraft';
 import { withSchemaDefaults } from '@/lib/zod-form';
@@ -45,6 +47,13 @@ export interface BlockCardProps {
    * la tarjeta no tenga que conocer la acción de reordenar.
    */
   orderControls?: React.ReactNode;
+  /**
+   * Campo que guarda el contenido de un bloque-resumen (`reels` → `items`).
+   *
+   * Si el bloque tiene `source_page`, ese campo se oculta: el contenido se edita en la página
+   * original, no aquí, y mostrarlo daría a entender que sirve para algo.
+   */
+  contentField?: string;
 }
 
 export default function BlockCard({
@@ -56,9 +65,21 @@ export default function BlockCard({
   initialData,
   enabled,
   orderControls,
+  contentField,
 }: BlockCardProps) {
   const [open, setOpen] = useState(false);
   const schema = getBlockSchema(type);
+
+  // Un bloque-resumen (`source_page`) no guarda su contenido: lo toma de otra página. Se detecta
+  // aquí para no mostrar su lista —que se ignora— y avisar de dónde se edita de verdad.
+  const initialRecord =
+    typeof initialData === 'object' && initialData !== null
+      ? (initialData as Record<string, unknown>)
+      : {};
+  const sourcePage =
+    typeof initialRecord.source_page === 'string' ? initialRecord.source_page : undefined;
+  const mirrors = Boolean(sourcePage && contentField);
+  const sourceLabel = sourcePage ? (PAGE_OPTIONS[sourcePage] ?? sourcePage) : '';
 
   const draft = useDraft<unknown>(
     // El borrador arranca relleno con los valores por defecto del esquema: en la base de datos
@@ -156,6 +177,19 @@ export default function BlockCard({
             </div>
           ) : null}
 
+          {mirrors ? (
+            <p className="mb-4 rounded-sm border border-border bg-surface-alt p-3 text-sm text-text-muted">
+              Este bloque no guarda sus propios elementos: los toma de <strong>{sourceLabel}</strong>.
+              Edítalos y ordénalos allí.{' '}
+              <Link
+                href={`/admin/paginas/${sourcePage}`}
+                className="underline hover:text-primary"
+              >
+                Abrir {sourceLabel}
+              </Link>
+            </p>
+          ) : null}
+
           {schema ? (
             <DynamicForm
               schema={schema}
@@ -165,6 +199,7 @@ export default function BlockCard({
               onChange={draft.setValue}
               errors={draft.errors}
               disabled={draft.saving}
+              hideFields={mirrors && contentField ? [contentField] : undefined}
             />
           ) : (
             <p className="text-sm text-text-muted">

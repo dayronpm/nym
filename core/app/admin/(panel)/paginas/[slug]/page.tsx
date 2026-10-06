@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { getBlockDefinition } from '@/blocks/registry';
+import { SHARED_CONTENT_FIELD } from '@/blocks/shared';
 import BlockOrderButtons from '@/components/admin/BlockOrderButtons';
 import ControlPanel from '@/components/admin/ControlPanel';
 import { getAllBlocksByPage } from '@/data/queries/blocks';
@@ -45,6 +46,9 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
       <ul className="space-y-3">
         {blocks.map((block, index) => {
           const definition = getBlockDefinition(block.type);
+          // Si el bloque toma su contenido de otra página (`source_page`), la lista que guarda
+          // no se edita aquí: la tarjeta lo avisa y enlaza a la página original.
+          const contentField = SHARED_CONTENT_FIELD[block.type];
 
           if (!definition) {
             return (
@@ -68,6 +72,7 @@ export default async function AdminPageBlocksPage({ params }: { params: { slug: 
               {...(definition.description ? { description: definition.description } : {})}
               initialData={block.data}
               enabled={block.enabled}
+              {...(contentField ? { contentField } : {})}
               orderControls={
                 <BlockOrderButtons
                   page={params.slug}
