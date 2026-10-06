@@ -184,7 +184,9 @@ def main() -> None:
     elif args.login:
         print(f"Iniciando sesión como {args.login} (se pedirá la contraseña)...")
         try:
-            loader.interactive_login(args.login, ask_for_password=True)
+            # Sin `ask_for_password`: no todas las versiones de instaloader lo aceptan y,
+            # por defecto, `interactive_login` ya pregunta la contraseña por consola.
+            loader.interactive_login(args.login)
         except instaloader.exceptions.BadCredentialsException:
             sys.exit("Credenciales incorrectas.")
         except instaloader.exceptions.ConnectionException as error:
